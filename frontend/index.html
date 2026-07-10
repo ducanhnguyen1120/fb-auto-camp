@@ -1,11 +1,2139 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" data-theme="light">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FB Auto Camp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    /* ─── CSS Theme ─────────────────────────────────── */
+    :root {
+      --card: #ffffff;
+      --ring: #8b5cf6;
+      --input: #e0e7ff;
+      --muted: #f5f3ff;
+      --accent: #dbeafe;
+      --border: #e0e7ff;
+      --radius: 0.625rem;
+      --chart-1: #8b5cf6;
+      --chart-2: #7c3aed;
+      --chart-3: #6d28d9;
+      --chart-4: #5b21b6;
+      --chart-5: #4c1d95;
+      --popover: #ffffff;
+      --primary: #8b5cf6;
+      --sidebar: #f5f3ff;
+      --font-mono: 'Fira Code', monospace;
+      --font-sans: 'Fira Sans', sans-serif;
+      --secondary: #f3f0ff;
+      --background: #ffffff;
+      --foreground: #312e81;
+      --destructive: #ef4444;
+      --shadow-blur: 4px;
+      --shadow-color: hsl(255 86% 66%);
+      --sidebar-ring: #8b5cf6;
+      --shadow-spread: 0px;
+      --shadow-opacity: 0.2;
+      --sidebar-accent: #dbeafe;
+      --sidebar-border: #e0e7ff;
+      --card-foreground: #312e81;
+      --shadow-offset-x: 2px;
+      --shadow-offset-y: 2px;
+      --sidebar-primary: #8b5cf6;
+      --muted-foreground: #7c3aed;
+      --accent-foreground: #1e40af;
+      --popover-foreground: #312e81;
+      --primary-foreground: #ffffff;
+      --sidebar-foreground: #312e81;
+      --secondary-foreground: #4338ca;
+      --destructive-foreground: #ffffff;
+      --sidebar-accent-foreground: #1e40af;
+      --sidebar-primary-foreground: #ffffff;
+    }
+
+    [data-theme="dark"] {
+      --card: #1e1b4b;
+      --ring: #8b5cf6;
+      --input: #2e1065;
+      --muted: #171447;
+      --accent: #4338ca;
+      --border: #2e1065;
+      --popover: #1e1b4b;
+      --primary: #8b5cf6;
+      --sidebar: #0f172a;
+      --secondary: #1e1b4b;
+      --background: #0f172a;
+      --foreground: #e0e7ff;
+      --destructive: #ef4444;
+      --sidebar-ring: #8b5cf6;
+      --sidebar-accent: #4338ca;
+      --sidebar-border: #2e1065;
+      --card-foreground: #e0e7ff;
+      --sidebar-primary: #8b5cf6;
+      --muted-foreground: #c4b5fd;
+      --accent-foreground: #e0e7ff;
+      --popover-foreground: #e0e7ff;
+      --primary-foreground: #ffffff;
+      --sidebar-foreground: #e0e7ff;
+      --secondary-foreground: #e0e7ff;
+      --destructive-foreground: #ffffff;
+      --sidebar-accent-foreground: #e0e7ff;
+      --sidebar-primary-foreground: #ffffff;
+    }
+
+    /* ─── Reset ──────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--background);
+      color: var(--foreground);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    /* ─── Sidebar ────────────────────────────────────── */
+    .sidebar {
+      width: 240px;
+      min-width: 240px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--sidebar-border);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 12px;
+      gap: 4px;
+      overflow-y: auto;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px 20px;
+      border-bottom: 1px solid var(--sidebar-border);
+      margin-bottom: 8px;
+    }
+
+    .sidebar-logo .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sidebar-logo .logo-icon svg { color: white; }
+
+    .sidebar-logo span {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--sidebar-foreground);
+      letter-spacing: -0.3px;
+    }
+
+    .nav-section-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted-foreground);
+      padding: 12px 12px 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--sidebar-foreground);
+      transition: background 0.15s, color 0.15s;
+      user-select: none;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item:hover { background: var(--sidebar-accent); color: var(--sidebar-accent-foreground); }
+    .nav-item:focus-visible { outline: 2px solid var(--sidebar-ring); outline-offset: 1px; }
+
+    .nav-item.active {
+      background: var(--primary);
+      color: var(--sidebar-primary-foreground);
+    }
+
+    .nav-item.active svg { color: white; }
+
+    .nav-item svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: var(--muted-foreground);
+      transition: color 0.15s;
+    }
+    .nav-item:hover svg, .nav-item.active svg { color: currentColor; }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--primary);
+      color: white;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+    }
+    .nav-item.active .nav-badge { background: rgba(255,255,255,0.25); }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid var(--sidebar-border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--card);
+      cursor: pointer;
+      color: var(--foreground);
+      transition: background 0.15s;
+      margin-left: auto;
+    }
+    .theme-toggle:hover { background: var(--muted); }
+
+    /* ─── Main Layout ────────────────────────────────── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .topbar {
+      height: 56px;
+      min-height: 56px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 12px;
+      background: var(--background);
+    }
+
+    .topbar-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--foreground);
+    }
+
+    .topbar-subtitle {
+      font-size: 12px;
+      color: var(--muted-foreground);
+      margin-left: 4px;
+    }
+
+    .topbar-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: none;
+      font-family: var(--font-sans);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: var(--primary-foreground);
+    }
+    .btn-primary:hover { background: #7c3aed; }
+    .btn-primary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+    .btn-secondary {
+      background: var(--secondary);
+      color: var(--secondary-foreground);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: var(--muted); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted-foreground);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--muted); color: var(--foreground); }
+
+    .btn svg { width: 14px; height: 14px; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ─── Content ────────────────────────────────────── */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ─── Cards ──────────────────────────────────────── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) * 1.5);
+      padding: 20px;
+      box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) var(--shadow-blur) var(--shadow-spread) color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--card-foreground);
+      margin-bottom: 4px;
+    }
+
+    .card-desc {
+      font-size: 12px;
+      color: var(--muted-foreground);
+      margin-bottom: 16px;
+    }
+
+    /* ─── Stats Row ──────────────────────────────────── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) * 1.5);
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .stat-label {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--muted-foreground);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+      font-size: 26px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--foreground);
+      line-height: 1;
+    }
+
+    .stat-sub {
+      font-size: 11px;
+      color: var(--muted-foreground);
+    }
+
+    .stat-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4px;
+    }
+
+    /* ─── Grid Layouts ───────────────────────────────── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+    /* ─── Section Header ─────────────────────────────── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--foreground);
+    }
+
+    /* ─── Creative Grid ──────────────────────────────── */
+    .creative-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+    }
+
+    .creative-item {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      position: relative;
+    }
+
+    .creative-item:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent);
+    }
+
+    .creative-item.selected { border-color: var(--primary); }
+    .creative-item.selected .creative-check { opacity: 1; }
+
+    .creative-thumb {
+      width: 100%;
+      aspect-ratio: 1;
+      background: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted-foreground);
+      font-size: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .creative-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    .creative-check {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 20px;
+      height: 20px;
+      background: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .creative-check svg { width: 11px; height: 11px; color: white; }
+
+    .creative-info {
+      padding: 8px 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .creative-name {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--foreground);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .creative-meta {
+      font-size: 10.5px;
+      color: var(--muted-foreground);
+      margin-top: 2px;
+    }
+
+    /* ─── Upload Zone ────────────────────────────────── */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      color: var(--muted-foreground);
+    }
+
+    .upload-zone:hover {
+      border-color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 5%, transparent);
+    }
+
+    .upload-zone svg { width: 32px; height: 32px; margin: 0 auto 10px; display: block; }
+    .upload-zone p { font-size: 13px; }
+    .upload-zone span { font-size: 11.5px; color: var(--muted-foreground); }
+
+    /* ─── Form Controls ──────────────────────────────── */
+    .form-group { margin-bottom: 14px; }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--foreground);
+      margin-bottom: 5px;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--input);
+      color: var(--foreground);
+      font-size: 13px;
+      font-family: var(--font-sans);
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--ring);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 20%, transparent);
+    }
+
+    .form-textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+    .form-select { cursor: pointer; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* ─── Tags ───────────────────────────────────────── */
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 500;
+      border: 1px solid;
+    }
+
+    .tag-purple { background: color-mix(in srgb, var(--primary) 12%, transparent); color: var(--primary); border-color: color-mix(in srgb, var(--primary) 25%, transparent); }
+    .tag-blue { background: color-mix(in srgb, #3b82f6 12%, transparent); color: #3b82f6; border-color: color-mix(in srgb, #3b82f6 25%, transparent); }
+    .tag-green { background: color-mix(in srgb, #22c55e 12%, transparent); color: #16a34a; border-color: color-mix(in srgb, #22c55e 25%, transparent); }
+    .tag-orange { background: color-mix(in srgb, #f97316 12%, transparent); color: #ea580c; border-color: color-mix(in srgb, #f97316 25%, transparent); }
+    .tag-red { background: color-mix(in srgb, #ef4444 12%, transparent); color: #dc2626; border-color: color-mix(in srgb, #ef4444 25%, transparent); }
+
+    /* ─── Template Cards ─────────────────────────────── */
+    .template-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) * 1.5);
+      padding: 16px;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .template-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 12%, transparent);
+    }
+
+    .template-card-header { display: flex; align-items: center; gap: 10px; }
+
+    .template-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .template-icon svg { width: 18px; height: 18px; }
+
+    .template-name { font-size: 13.5px; font-weight: 600; color: var(--foreground); }
+    .template-sub { font-size: 11.5px; color: var(--muted-foreground); }
+
+    .template-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 11.5px;
+      color: var(--muted-foreground);
+    }
+
+    .template-field { display: flex; gap: 6px; align-items: center; }
+    .template-field svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+    .template-actions { display: flex; gap: 6px; margin-top: 4px; }
+
+    /* ─── Package Card ───────────────────────────────── */
+    .package-card {
+      background: color-mix(in srgb, var(--primary) 5%, var(--card));
+      border: 1.5px solid color-mix(in srgb, var(--primary) 25%, transparent);
+      border-radius: calc(var(--radius) * 1.5);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .package-header { display: flex; align-items: center; gap: 10px; }
+    .package-name { font-size: 14px; font-weight: 700; color: var(--foreground); }
+    .package-components { display: flex; gap: 6px; flex-wrap: wrap; }
+    .package-actions { display: flex; gap: 6px; }
+
+    /* ─── Log ────────────────────────────────────────── */
+    .log-container {
+      background: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      overflow-y: auto;
+      max-height: 420px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .log-entry {
+      display: flex;
+      gap: 10px;
+      align-items: baseline;
+      padding: 3px 0;
+      border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+    }
+
+    .log-time { color: var(--muted-foreground); flex-shrink: 0; }
+    .log-level { font-weight: 600; flex-shrink: 0; min-width: 48px; }
+    .log-level.info { color: #3b82f6; }
+    .log-level.success { color: #22c55e; }
+    .log-level.warn { color: #f59e0b; }
+    .log-level.error { color: #ef4444; }
+    .log-msg { color: var(--foreground); flex: 1; word-break: break-all; }
+
+    /* ─── Modal ──────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) * 2);
+      width: 560px;
+      max-width: 95vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px;
+      transform: translateY(8px);
+      transition: transform 0.2s;
+    }
+
+    .modal-overlay.open .modal { transform: translateY(0); }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .modal-title { font-size: 16px; font-weight: 700; color: var(--foreground); }
+
+    .modal-close {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted-foreground);
+      transition: background 0.15s;
+    }
+    .modal-close:hover { background: var(--muted); }
+
+    .modal-footer {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ─── Campaign Builder ───────────────────────────── */
+    .builder-steps {
+      display: flex;
+      gap: 0;
+      margin-bottom: 24px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .builder-step {
+      flex: 1;
+      padding: 10px 16px;
+      background: var(--muted);
+      border-right: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--muted-foreground);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .builder-step:last-child { border-right: none; }
+    .builder-step.active { background: var(--primary); color: white; }
+    .builder-step.done { background: color-mix(in srgb, var(--primary) 15%, var(--muted)); color: var(--primary); }
+
+    .builder-step-num {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: currentColor;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-family: var(--font-mono);
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .builder-step.active .builder-step-num { background: rgba(255,255,255,0.25); color: white; }
+    .builder-step.done .builder-step-num { background: var(--primary); color: white; }
+
+    /* ─── Alert ──────────────────────────────────────── */
+    .alert {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .alert svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+    .alert-info { background: color-mix(in srgb, #3b82f6 10%, transparent); color: #1e40af; border: 1px solid color-mix(in srgb, #3b82f6 25%, transparent); }
+    .alert-success { background: color-mix(in srgb, #22c55e 10%, transparent); color: #15803d; border: 1px solid color-mix(in srgb, #22c55e 25%, transparent); }
+    .alert-warn { background: color-mix(in srgb, #f59e0b 10%, transparent); color: #b45309; border: 1px solid color-mix(in srgb, #f59e0b 25%, transparent); }
+
+    /* ─── Tab bar ────────────────────────────────────── */
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+      gap: 0;
+    }
+
+    .tab-btn {
+      padding: 9px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--muted-foreground);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s;
+      font-family: var(--font-sans);
+    }
+
+    .tab-btn:hover { color: var(--foreground); }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* ─── Divider ────────────────────────────────────── */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+    /* ─── Scrollbar ──────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
+
+    /* ─── Responsive ─────────────────────────────────── */
+    @media (max-width: 768px) {
+      .sidebar { width: 200px; min-width: 200px; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; }
+    }
+
+    /* ─── Utility ────────────────────────────────────── */
+    .mb-16 { margin-bottom: 16px; }
+    .mb-20 { margin-bottom: 20px; }
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .gap-8 { gap: 8px; }
+    .gap-12 { gap: 12px; }
+    .ml-auto { margin-left: auto; }
+
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
 </head>
 <body>
-  <h1>FB Auto Camp</h1>
-  <p>Coming soon...</p>
+
+<!-- ═══════════════════ SIDEBAR ════════════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+      </svg>
+    </div>
+    <span>FB Auto Camp</span>
+  </div>
+
+  <span class="nav-section-label">Workspace</span>
+
+  <button class="nav-item active" onclick="navigate('dashboard', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    Dashboard
+  </button>
+
+  <button class="nav-item" onclick="navigate('creative', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    Campaign
+    <span class="nav-badge" id="cr-count">0</span>
+  </button>
+
+  <span class="nav-section-label">Library</span>
+
+  <button class="nav-item" onclick="navigate('template', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    Template & Package
+  </button>
+
+  <span class="nav-section-label">System</span>
+
+  <button class="nav-item" onclick="navigate('logging', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+    Logging
+    <span class="nav-badge" id="log-count">0</span>
+  </button>
+
+  <div class="sidebar-footer">
+    <span style="font-size:11.5px;color:var(--muted-foreground)">v0.1.0</span>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle dark mode">
+      <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+    </button>
+  </div>
+</aside>
+
+<!-- ═══════════════════ MAIN ════════════════════════ -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-title" id="page-title">Dashboard</span>
+    <span class="topbar-subtitle" id="page-sub"></span>
+    <div class="topbar-actions" id="topbar-actions"></div>
+  </header>
+
+  <div class="content">
+
+    <!-- ──────── DASHBOARD ──────── -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:color-mix(in srgb,#8b5cf6 15%,transparent)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" width="16" height="16"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+          <div class="stat-label">Campaign đã tạo</div>
+          <div class="stat-value" id="stat-camps">0</div>
+          <div class="stat-sub">Tổng cộng</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:color-mix(in srgb,#22c55e 15%,transparent)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="stat-label">Thành công</div>
+          <div class="stat-value" id="stat-success">0</div>
+          <div class="stat-sub">Đã active</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:color-mix(in srgb,#3b82f6 15%,transparent)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" width="16" height="16"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          </div>
+          <div class="stat-label">Creative</div>
+          <div class="stat-value" id="stat-cr">0</div>
+          <div class="stat-sub">Trong thư viện</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:color-mix(in srgb,#f59e0b 15%,transparent)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div class="stat-label">Package</div>
+          <div class="stat-value" id="stat-pkg">0</div>
+          <div class="stat-sub">Template bundle</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Bắt đầu nhanh</div>
+          <div class="card-desc">Workflow để lên campaign đầu tiên</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div class="alert alert-info">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span>Chưa có Access Token. Thêm vào file <code style="font-family:var(--font-mono);background:var(--muted);padding:1px 5px;border-radius:4px">.env</code> để bắt đầu.</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted-foreground)">
+                <div style="width:24px;height:24px;border-radius:50%;background:var(--muted);display:flex;align-items:center;justify-content:center;font-size:11px;font-family:var(--font-mono);color:var(--primary);font-weight:700;flex-shrink:0">1</div>
+                Upload Creative vào thư viện
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted-foreground)">
+                <div style="width:24px;height:24px;border-radius:50%;background:var(--muted);display:flex;align-items:center;justify-content:center;font-size:11px;font-family:var(--font-mono);color:var(--primary);font-weight:700;flex-shrink:0">2</div>
+                Tạo Template APP, TARGET, AD
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted-foreground)">
+                <div style="width:24px;height:24px;border-radius:50%;background:var(--muted);display:flex;align-items:center;justify-content:center;font-size:11px;font-family:var(--font-mono);color:var(--primary);font-weight:700;flex-shrink:0">3</div>
+                Bundle thành Package
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted-foreground)">
+                <div style="width:24px;height:24px;border-radius:50%;background:var(--muted);display:flex;align-items:center;justify-content:center;font-size:11px;font-family:var(--font-mono);color:var(--primary);font-weight:700;flex-shrink:0">4</div>
+                Lên Campaign tự động
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:16px">
+            <button class="btn btn-primary" onclick="navigate('creative', document.querySelectorAll('.nav-item')[1])">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              Lên Campaign ngay
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Activity Log gần đây</div>
+          <div class="card-desc">10 sự kiện mới nhất</div>
+          <div class="log-container" style="max-height:220px" id="mini-log">
+            <div style="text-align:center;color:var(--muted-foreground);font-size:12px;padding:20px 0">Chưa có activity</div>
+          </div>
+          <div style="margin-top:10px">
+            <button class="btn btn-ghost" style="font-size:12px" onclick="navigate('logging', document.querySelectorAll('.nav-item')[3])">
+              Xem tất cả log
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──────── CAMPAIGN + CREATIVE (merged) ──────── -->
+    <div class="page" id="page-creative">
+      <div style="display:flex;gap:20px;height:calc(100vh - 56px - 48px);overflow:hidden">
+
+        <!-- LEFT: Creative Library -->
+        <div style="width:420px;min-width:340px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;padding-right:4px">
+          <!-- Upload zone -->
+          <div class="card" style="padding:14px">
+            <div class="upload-zone" onclick="triggerUpload()" role="button" tabindex="0" aria-label="Upload creative files" style="padding:20px">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <p>Kéo & thả hoặc click để upload</p>
+              <span>PNG, JPG, MP4, GIF — tối đa 50MB</span>
+            </div>
+            <input type="file" id="file-input" multiple accept="image/*,video/*" style="display:none" onchange="handleFileUpload(this.files)"/>
+          </div>
+
+          <!-- Library header -->
+          <div class="flex items-center gap-8">
+            <span class="section-title">Thư viện (<span id="cr-total">0</span>)</span>
+            <input class="form-input" style="width:140px;margin-left:auto" placeholder="Tìm kiếm..." type="search" oninput="filterCreatives(this.value)"/>
+            <button class="btn btn-ghost" style="font-size:11.5px;padding:5px 10px" onclick="clearSelectedCreatives()">Bỏ chọn</button>
+          </div>
+
+          <!-- CR grid -->
+          <div class="creative-grid" id="cr-grid" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr))">
+            <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted-foreground)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36" style="margin:0 auto 10px;display:block;opacity:0.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              Upload ảnh hoặc video để bắt đầu.
+            </div>
+          </div>
+        </div>
+
+        <!-- DIVIDER -->
+        <div style="width:1px;background:var(--border);flex-shrink:0"></div>
+
+        <!-- RIGHT: Campaign Config Panel -->
+        <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:0">
+
+          <!-- Step indicator -->
+          <div class="builder-steps" style="margin-bottom:16px">
+            <div class="builder-step active" id="step-1">
+              <div class="builder-step-num">1</div>Chọn CR
+            </div>
+            <div class="builder-step" id="step-2">
+              <div class="builder-step-num">2</div>Config
+            </div>
+            <div class="builder-step" id="step-3">
+              <div class="builder-step-num">3</div>Launch
+            </div>
+          </div>
+
+          <!-- Step 1: prompt to select CR -->
+          <div class="tab-content active" id="builder-step-1">
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:14px;text-align:center;color:var(--muted-foreground)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48" style="opacity:0.35"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              <p style="font-size:14px;font-weight:500;color:var(--foreground)">Chọn Creative để bắt đầu</p>
+              <p style="font-size:13px">Chọn 1 hoặc nhiều CR từ thư viện bên trái,<br/>sau đó bấm <strong>Tiếp theo</strong></p>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+                <span id="selected-cr-count" style="font-size:12.5px;color:var(--muted-foreground)">0 đã chọn</span>
+                <button class="btn btn-primary" onclick="gotoStep2()" id="btn-next-step2">
+                  Tiếp theo
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Config templates -->
+          <div class="tab-content" id="builder-step-2">
+            <!-- Campaign Info compact -->
+            <div class="card mb-16">
+              <div class="card-title">Campaign Info</div>
+              <div class="form-row" style="margin-bottom:10px">
+                <div class="form-group" style="margin-bottom:0">
+                  <label class="form-label">Tên Campaign <span style="color:#ef4444">*</span></label>
+                  <input class="form-input" id="camp-name" placeholder="App_VN_iOS_Jun2025" type="text"/>
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                  <label class="form-label">Ad Account ID <span style="color:#ef4444">*</span></label>
+                  <input class="form-input" id="camp-account" placeholder="act_1234567890" type="text"/>
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Objective</label>
+                <select class="form-select" id="camp-objective">
+                  <option value="OUTCOME_APP_PROMOTION">App Promotion</option>
+                  <option value="OUTCOME_SALES">Sales</option>
+                  <option value="OUTCOME_LEADS">Leads</option>
+                  <option value="OUTCOME_TRAFFIC">Traffic</option>
+                  <option value="OUTCOME_AWARENESS">Awareness</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- APP Template -->
+            <div class="card mb-16">
+              <div class="card-title">Template: APP</div>
+              <div class="form-group">
+                <label class="form-label">Chọn có sẵn</label>
+                <select class="form-select" id="sel-app-template" onchange="fillAppTemplate(this.value)">
+                  <option value="">— Chọn hoặc tạo mới —</option>
+                </select>
+              </div>
+              <hr class="divider">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Package Name <span style="color:#ef4444">*</span></label>
+                  <input class="form-input" id="app-pkg" placeholder="com.example.app" type="text"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">App ID</label>
+                  <input class="form-input" id="app-id" placeholder="1234567890" type="text"/>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Developer ID</label>
+                  <input class="form-input" id="app-dev" placeholder="Dev ID" type="text"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">FB Page ID</label>
+                  <input class="form-input" id="app-page" placeholder="Page ID" type="text"/>
+                </div>
+              </div>
+              <button class="btn btn-secondary" style="font-size:11.5px" onclick="saveAppTemplate()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Lưu template
+              </button>
+            </div>
+
+            <!-- TARGET Template -->
+            <div class="card mb-16">
+              <div class="card-title">Template: TARGET</div>
+              <div class="form-group">
+                <label class="form-label">Chọn có sẵn</label>
+                <select class="form-select" id="sel-target-template" onchange="fillTargetTemplate(this.value)">
+                  <option value="">— Chọn hoặc tạo mới —</option>
+                </select>
+              </div>
+              <hr class="divider">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Country</label>
+                  <input class="form-input" id="tgt-country" placeholder="VN, US, TH..." type="text"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Gender</label>
+                  <select class="form-select" id="tgt-gender">
+                    <option value="all">All</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Age Min</label>
+                  <input class="form-input" id="tgt-age-min" placeholder="18" type="number" min="18" max="65"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Age Max</label>
+                  <input class="form-input" id="tgt-age-max" placeholder="45" type="number" min="18" max="65"/>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Language</label>
+                  <input class="form-input" id="tgt-lang" placeholder="vi, en, th..." type="text"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Budget Type</label>
+                  <select class="form-select" id="tgt-budget-type">
+                    <option value="CBO">CBO (Campaign)</option>
+                    <option value="ABO">ABO (Ad Set)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Budget (USD/ngày)</label>
+                <input class="form-input" id="tgt-budget" placeholder="50" type="number" min="1"/>
+              </div>
+              <button class="btn btn-secondary" style="font-size:11.5px" onclick="saveTargetTemplate()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Lưu template
+              </button>
+            </div>
+
+            <!-- AD Template -->
+            <div class="card mb-16">
+              <div class="card-title">Template: AD</div>
+              <div class="form-group">
+                <label class="form-label">Chọn có sẵn</label>
+                <select class="form-select" id="sel-ad-template" onchange="fillAdTemplate(this.value)">
+                  <option value="">— Chọn hoặc tạo mới —</option>
+                </select>
+              </div>
+              <hr class="divider">
+              <div class="form-group">
+                <label class="form-label">Headlines <span style="color:var(--muted-foreground);font-weight:400">(mỗi dòng 1)</span></label>
+                <textarea class="form-textarea" id="ad-headlines" placeholder="Download ngay&#10;Thử miễn phí&#10;Khám phá ngay" style="min-height:64px"></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Primary Text</label>
+                <textarea class="form-textarea" id="ad-text" placeholder="Nội dung quảng cáo..." style="min-height:64px"></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Số lượng CR / Ad</label>
+                <input class="form-input" id="ad-cr-count" placeholder="3" type="number" min="1" max="10"/>
+              </div>
+              <button class="btn btn-secondary" style="font-size:11.5px" onclick="saveAdTemplate()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Lưu template
+              </button>
+            </div>
+
+            <div class="flex gap-8" style="padding-bottom:20px">
+              <button class="btn btn-ghost" onclick="gotoStep1()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Quay lại
+              </button>
+              <button class="btn btn-primary" onclick="gotoStep3()" style="margin-left:auto">
+                Preview & Launch
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 3: Preview & Launch -->
+          <div class="tab-content" id="builder-step-3">
+            <div class="card mb-16">
+              <div class="card-title">Preview Campaign</div>
+              <div class="card-desc">Kiểm tra trước khi launch</div>
+              <div id="preview-content" style="display:flex;flex-direction:column;gap:0;font-size:13px"></div>
+            </div>
+            <div class="card">
+              <div class="card-title">Launch</div>
+              <div class="alert alert-warn" style="margin-bottom:12px">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <span>Campaign tạo ở trạng thái <strong>PAUSED</strong>. Vào Ads Manager để bật.</span>
+              </div>
+              <div id="launch-result" style="margin-bottom:12px"></div>
+              <div class="flex gap-8" style="padding-bottom:20px">
+                <button class="btn btn-ghost" onclick="gotoStep2()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                  Sửa lại
+                </button>
+                <button class="btn btn-primary" id="btn-launch" onclick="launchCampaign()" style="margin-left:auto">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                  Launch Campaign
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ──────── TEMPLATE & PACKAGE ──────── -->
+    <div class="page" id="page-template">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('tab-app', this)">APP</button>
+        <button class="tab-btn" onclick="switchTab('tab-target', this)">TARGET</button>
+        <button class="tab-btn" onclick="switchTab('tab-ad', this)">AD</button>
+        <button class="tab-btn" onclick="switchTab('tab-package', this)">Package</button>
+      </div>
+
+      <!-- APP Tab -->
+      <div class="tab-content active" id="tab-app">
+        <div class="section-header">
+          <div class="section-title">APP Templates</div>
+          <button class="btn btn-primary" onclick="openModal('modal-app')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tạo mới
+          </button>
+        </div>
+        <div class="grid-3" id="app-template-list">
+          <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted-foreground);font-size:13px">Chưa có APP template</div>
+        </div>
+      </div>
+
+      <!-- TARGET Tab -->
+      <div class="tab-content" id="tab-target">
+        <div class="section-header">
+          <div class="section-title">TARGET Templates</div>
+          <button class="btn btn-primary" onclick="openModal('modal-target')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tạo mới
+          </button>
+        </div>
+        <div class="grid-3" id="target-template-list">
+          <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted-foreground);font-size:13px">Chưa có TARGET template</div>
+        </div>
+      </div>
+
+      <!-- AD Tab -->
+      <div class="tab-content" id="tab-ad">
+        <div class="section-header">
+          <div class="section-title">AD Templates</div>
+          <button class="btn btn-primary" onclick="openModal('modal-ad')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tạo mới
+          </button>
+        </div>
+        <div class="grid-3" id="ad-template-list">
+          <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted-foreground);font-size:13px">Chưa có AD template</div>
+        </div>
+      </div>
+
+      <!-- Package Tab -->
+      <div class="tab-content" id="tab-package">
+        <div class="section-header">
+          <div class="section-title">Packages</div>
+          <button class="btn btn-primary" onclick="openModal('modal-package')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tạo Package
+          </button>
+        </div>
+        <div class="grid-3" id="package-list">
+          <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted-foreground);font-size:13px">Chưa có Package nào</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──────── LOGGING ──────── -->
+    <div class="page" id="page-logging">
+      <div class="section-header mb-16">
+        <div>
+          <div class="section-title">System Log</div>
+          <div style="font-size:12px;color:var(--muted-foreground);margin-top:2px">Toàn bộ activity của hệ thống</div>
+        </div>
+        <div class="flex gap-8">
+          <select class="form-select" style="width:120px" onchange="filterLogs(this.value)" id="log-filter">
+            <option value="all">All</option>
+            <option value="info">Info</option>
+            <option value="success">Success</option>
+            <option value="warn">Warn</option>
+            <option value="error">Error</option>
+          </select>
+          <button class="btn btn-ghost" onclick="clearLogs()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Clear
+          </button>
+        </div>
+      </div>
+      <div class="log-container" id="main-log" style="max-height:calc(100vh - 200px)">
+        <div style="text-align:center;color:var(--muted-foreground);font-size:12px;padding:20px 0">Chưa có log</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════ MODALS ═══════════════════════ -->
+
+<!-- Modal APP Template -->
+<div class="modal-overlay" id="modal-app">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Tạo APP Template</span>
+      <button class="modal-close" onclick="closeModal('modal-app')" aria-label="Đóng">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tên template</label>
+      <input class="form-input" id="modal-app-name" placeholder="App Game VN" type="text"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Package Name <span style="color:#ef4444">*</span></label>
+      <input class="form-input" id="modal-app-pkg" placeholder="com.example.app" type="text"/>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">App ID</label>
+        <input class="form-input" id="modal-app-appid" placeholder="1234567890" type="text"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Developer ID</label>
+        <input class="form-input" id="modal-app-devid" placeholder="Dev ID" type="text"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">FB Page ID</label>
+      <input class="form-input" id="modal-app-pageid" placeholder="Page ID" type="text"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-app')">Hủy</button>
+      <button class="btn btn-primary" onclick="createAppTemplate()">Lưu Template</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal TARGET Template -->
+<div class="modal-overlay" id="modal-target">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Tạo TARGET Template</span>
+      <button class="modal-close" onclick="closeModal('modal-target')" aria-label="Đóng">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tên template</label>
+      <input class="form-input" id="modal-tgt-name" placeholder="VN Male 18-35" type="text"/>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Country</label>
+        <input class="form-input" id="modal-tgt-country" placeholder="VN" type="text"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Language</label>
+        <input class="form-input" id="modal-tgt-lang" placeholder="vi" type="text"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Gender</label>
+        <select class="form-select" id="modal-tgt-gender">
+          <option value="all">All</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Budget Type</label>
+        <select class="form-select" id="modal-tgt-budget-type">
+          <option value="CBO">CBO</option>
+          <option value="ABO">ABO</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Age Min</label>
+        <input class="form-input" id="modal-tgt-age-min" placeholder="18" type="number"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Age Max</label>
+        <input class="form-input" id="modal-tgt-age-max" placeholder="45" type="number"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Budget (USD/ngày)</label>
+      <input class="form-input" id="modal-tgt-budget" placeholder="50" type="number"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-target')">Hủy</button>
+      <button class="btn btn-primary" onclick="createTargetTemplate()">Lưu Template</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal AD Template -->
+<div class="modal-overlay" id="modal-ad">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Tạo AD Template</span>
+      <button class="modal-close" onclick="closeModal('modal-ad')" aria-label="Đóng">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tên template</label>
+      <input class="form-input" id="modal-ad-name" placeholder="Gaming Copy V1" type="text"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Headlines <span style="color:var(--muted-foreground);font-weight:400">(mỗi dòng 1 headline)</span></label>
+      <textarea class="form-textarea" id="modal-ad-headlines" placeholder="Download ngay&#10;Thử miễn phí"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Primary Text</label>
+      <textarea class="form-textarea" id="modal-ad-text" placeholder="Nội dung quảng cáo..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Số lượng CR / Ad</label>
+      <input class="form-input" id="modal-ad-cr-count" placeholder="3" type="number" min="1" max="10"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-ad')">Hủy</button>
+      <button class="btn btn-primary" onclick="createAdTemplate()">Lưu Template</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Package -->
+<div class="modal-overlay" id="modal-package">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Tạo Package</span>
+      <button class="modal-close" onclick="closeModal('modal-package')" aria-label="Đóng">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tên Package <span style="color:#ef4444">*</span></label>
+      <input class="form-input" id="modal-pkg-name" placeholder="VN Game Package V1" type="text"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">APP Template <span style="color:#ef4444">*</span></label>
+      <select class="form-select" id="modal-pkg-app">
+        <option value="">— Chọn APP template —</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">TARGET Template <span style="color:#ef4444">*</span></label>
+      <select class="form-select" id="modal-pkg-target">
+        <option value="">— Chọn TARGET template —</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">AD Template <span style="color:#ef4444">*</span></label>
+      <select class="form-select" id="modal-pkg-ad">
+        <option value="">— Chọn AD template —</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-package')">Hủy</button>
+      <button class="btn btn-primary" onclick="createPackage()">Tạo Package</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ JS ═══════════════════════ -->
+<script>
+  // ── State ──────────────────────────────────────────
+  const state = {
+    creatives: [],
+    selectedCreatives: [],
+    templates: { app: [], target: [], ad: [] },
+    packages: [],
+    logs: [],
+    campaigns: [],
+    currentStep: 1,
+  };
+
+  // ── Logger ─────────────────────────────────────────
+  function addLog(level, msg) {
+    const now = new Date();
+    const time = now.toTimeString().slice(0, 8);
+    const entry = { level, msg, time, id: Date.now() };
+    state.logs.unshift(entry);
+    renderLogs();
+    updateBadges();
+  }
+
+  function renderLogs(filter = document.getElementById('log-filter')?.value || 'all') {
+    const logs = filter === 'all' ? state.logs : state.logs.filter(l => l.level === filter);
+    const container = document.getElementById('main-log');
+    const mini = document.getElementById('mini-log');
+    const html = logs.length === 0
+      ? '<div style="text-align:center;color:var(--muted-foreground);font-size:12px;padding:20px 0">Không có log</div>'
+      : logs.map(l => `
+        <div class="log-entry">
+          <span class="log-time">${l.time}</span>
+          <span class="log-level ${l.level}">${l.level.toUpperCase()}</span>
+          <span class="log-msg">${l.msg}</span>
+        </div>`).join('');
+    if (container) container.innerHTML = html;
+    if (mini) {
+      const recent = state.logs.slice(0, 6);
+      mini.innerHTML = recent.length === 0
+        ? '<div style="text-align:center;color:var(--muted-foreground);font-size:12px;padding:20px 0">Chưa có activity</div>'
+        : recent.map(l => `
+          <div class="log-entry">
+            <span class="log-time">${l.time}</span>
+            <span class="log-level ${l.level}">${l.level.toUpperCase()}</span>
+            <span class="log-msg">${l.msg}</span>
+          </div>`).join('');
+    }
+  }
+
+  function filterLogs(val) { renderLogs(val); }
+
+  function clearLogs() {
+    state.logs = [];
+    renderLogs();
+    updateBadges();
+  }
+
+  // ── Navigation ─────────────────────────────────────
+  function navigate(pageId, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + pageId).classList.add('active');
+    if (el) el.classList.add('active');
+
+    const titles = {
+      dashboard: ['Dashboard', ''],
+      creative: ['Campaign', '— Upload CR & lên campaign'],
+      template: ['Template & Package', '— Quản lý templates'],
+      logging: ['Logging', '— System activity'],
+    };
+    const [title, sub] = titles[pageId] || [pageId, ''];
+    document.getElementById('page-title').textContent = title;
+    document.getElementById('page-sub').textContent = sub;
+  }
+
+  // ── Theme ──────────────────────────────────────────
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    const icon = document.getElementById('theme-icon');
+    if (isDark) {
+      icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    } else {
+      icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    }
+  }
+
+  // ── Modals ─────────────────────────────────────────
+  function openModal(id) {
+    if (id === 'modal-package') populatePackageSelects();
+    document.getElementById(id).classList.add('open');
+  }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  document.addEventListener('click', e => {
+    if (e.target.classList.contains('modal-overlay')) {
+      e.target.classList.remove('open');
+    }
+  });
+
+  // ── Tab Bar ────────────────────────────────────────
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('#page-template .tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // ── Creative Management ────────────────────────────
+  function triggerUpload() { document.getElementById('file-input').click(); }
+
+  function handleFileUpload(files) {
+    Array.from(files).forEach(file => {
+      const id = Date.now() + Math.random();
+      const cr = {
+        id,
+        name: file.name,
+        size: (file.size / 1024 / 1024).toFixed(1) + ' MB',
+        type: file.type.startsWith('video') ? 'video' : 'image',
+        url: URL.createObjectURL(file),
+      };
+      state.creatives.push(cr);
+      addLog('info', `Uploaded: ${file.name} (${cr.size})`);
+    });
+    renderCreativeGrid();
+    updateBadges();
+  }
+
+  function renderCreativeGrid() {
+    const grid = document.getElementById('cr-grid');
+    if (state.creatives.length === 0) {
+      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted-foreground)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40" style="margin:0 auto 12px;display:block;opacity:0.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        Chưa có Creative. Upload ảnh hoặc video để bắt đầu.
+      </div>`;
+      return;
+    }
+    grid.innerHTML = state.creatives.map(cr => `
+      <div class="creative-item ${state.selectedCreatives.includes(cr.id) ? 'selected' : ''}"
+           onclick="toggleCreative('${cr.id}')" tabindex="0" role="checkbox"
+           aria-checked="${state.selectedCreatives.includes(cr.id)}"
+           onkeydown="if(event.key==='Enter'||event.key===' ')toggleCreative('${cr.id}')">
+        <div class="creative-thumb">
+          ${cr.type === 'image'
+            ? `<img src="${cr.url}" alt="${cr.name}" loading="lazy"/>`
+            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>`}
+          <div class="creative-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        </div>
+        <div class="creative-info">
+          <div class="creative-name" title="${cr.name}">${cr.name}</div>
+          <div class="creative-meta">${cr.type} · ${cr.size}</div>
+        </div>
+      </div>`).join('');
+    document.getElementById('cr-total').textContent = state.creatives.length;
+  }
+
+  function toggleCreative(id) {
+    const idx = state.selectedCreatives.indexOf(id);
+    if (idx === -1) state.selectedCreatives.push(id);
+    else state.selectedCreatives.splice(idx, 1);
+    renderCreativeGrid();
+    const el = document.getElementById('selected-cr-count');
+    if (el) el.textContent = state.selectedCreatives.length + ' đã chọn';
+  }
+
+  function clearSelectedCreatives() {
+    state.selectedCreatives = [];
+    renderCreativeGrid();
+    const el = document.getElementById('selected-cr-count');
+    if (el) el.textContent = '0 đã chọn';
+  }
+
+  function filterCreatives(q) {
+    const grid = document.getElementById('cr-grid');
+    const items = grid.querySelectorAll('.creative-item');
+    items.forEach(item => {
+      const name = item.querySelector('.creative-name').textContent.toLowerCase();
+      item.style.display = name.includes(q.toLowerCase()) ? '' : 'none';
+    });
+  }
+
+
+  // ── Templates ──────────────────────────────────────
+  function createAppTemplate() {
+    const t = {
+      id: Date.now(),
+      name: document.getElementById('modal-app-name').value || 'APP Template',
+      pkg: document.getElementById('modal-app-pkg').value,
+      appId: document.getElementById('modal-app-appid').value,
+      devId: document.getElementById('modal-app-devid').value,
+      pageId: document.getElementById('modal-app-pageid').value,
+    };
+    if (!t.pkg) { alert('Package Name là bắt buộc'); return; }
+    state.templates.app.push(t);
+    addLog('success', `Tạo APP template: ${t.name}`);
+    closeModal('modal-app');
+    renderAppTemplates();
+    syncTemplateSelects();
+    ['modal-app-name','modal-app-pkg','modal-app-appid','modal-app-devid','modal-app-pageid'].forEach(id => document.getElementById(id).value = '');
+  }
+
+  function createTargetTemplate() {
+    const t = {
+      id: Date.now(),
+      name: document.getElementById('modal-tgt-name').value || 'TARGET Template',
+      country: document.getElementById('modal-tgt-country').value,
+      lang: document.getElementById('modal-tgt-lang').value,
+      gender: document.getElementById('modal-tgt-gender').value,
+      ageMin: document.getElementById('modal-tgt-age-min').value,
+      ageMax: document.getElementById('modal-tgt-age-max').value,
+      budgetType: document.getElementById('modal-tgt-budget-type').value,
+      budget: document.getElementById('modal-tgt-budget').value,
+    };
+    state.templates.target.push(t);
+    addLog('success', `Tạo TARGET template: ${t.name}`);
+    closeModal('modal-target');
+    renderTargetTemplates();
+    syncTemplateSelects();
+  }
+
+  function createAdTemplate() {
+    const t = {
+      id: Date.now(),
+      name: document.getElementById('modal-ad-name').value || 'AD Template',
+      headlines: document.getElementById('modal-ad-headlines').value,
+      text: document.getElementById('modal-ad-text').value,
+      crCount: document.getElementById('modal-ad-cr-count').value || 3,
+    };
+    state.templates.ad.push(t);
+    addLog('success', `Tạo AD template: ${t.name}`);
+    closeModal('modal-ad');
+    renderAdTemplates();
+    syncTemplateSelects();
+  }
+
+  function createPackage() {
+    const name = document.getElementById('modal-pkg-name').value;
+    const appId = document.getElementById('modal-pkg-app').value;
+    const targetId = document.getElementById('modal-pkg-target').value;
+    const adId = document.getElementById('modal-pkg-ad').value;
+    if (!name || !appId || !targetId || !adId) { alert('Vui lòng điền đầy đủ thông tin'); return; }
+    const pkg = {
+      id: Date.now(),
+      name,
+      appTemplate: state.templates.app.find(t => t.id == appId),
+      targetTemplate: state.templates.target.find(t => t.id == targetId),
+      adTemplate: state.templates.ad.find(t => t.id == adId),
+    };
+    state.packages.push(pkg);
+    addLog('success', `Tạo Package: ${name}`);
+    closeModal('modal-package');
+    renderPackages();
+    updateBadges();
+    document.getElementById('modal-pkg-name').value = '';
+  }
+
+  function renderAppTemplates() {
+    const el = document.getElementById('app-template-list');
+    if (state.templates.app.length === 0) {
+      el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted-foreground);font-size:13px">Chưa có APP template</div>';
+      return;
+    }
+    el.innerHTML = state.templates.app.map(t => `
+      <div class="template-card">
+        <div class="template-card-header">
+          <div class="template-icon" style="background:color-mix(in srgb,#8b5cf6 15%,transparent)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          </div>
+          <div>
+            <div class="template-name">${t.name}</div>
+            <div class="template-sub">APP Template</div>
+          </div>
+        </div>
+        <div class="template-fields">
+          <div class="template-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>${t.pkg}</div>
+          ${t.appId ? `<div class="template-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>App ID: ${t.appId}</div>` : ''}
+          ${t.pageId ? `<div class="template-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>Page: ${t.pageId}</div>` : ''}
+        </div>
+        <div class="template-actions">
+          <button class="btn btn-ghost" style="font-size:11px" onclick="deleteTemplate('app',${t.id})">Xóa</button>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderTargetTemplates() {
+    const el = document.getElementById('target-template-list');
+    if (state.templates.target.length === 0) {
+      el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted-foreground);font-size:13px">Chưa có TARGET template</div>';
+      return;
+    }
+    el.innerHTML = state.templates.target.map(t => `
+      <div class="template-card">
+        <div class="template-card-header">
+          <div class="template-icon" style="background:color-mix(in srgb,#f59e0b 15%,transparent)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          </div>
+          <div>
+            <div class="template-name">${t.name}</div>
+            <div class="template-sub">TARGET Template</div>
+          </div>
+        </div>
+        <div class="template-fields">
+          <div class="template-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg>${t.country || '—'} · ${t.lang || '—'}</div>
+          <div class="template-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>${t.gender} · ${t.ageMin}-${t.ageMax} tuổi</div>
+          <div class="template-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>${t.budgetType} $${t.budget}/ngày</div>
+        </div>
+        <div class="template-actions">
+          <button class="btn btn-ghost" style="font-size:11px" onclick="deleteTemplate('target',${t.id})">Xóa</button>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderAdTemplates() {
+    const el = document.getElementById('ad-template-list');
+    if (state.templates.ad.length === 0) {
+      el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted-foreground);font-size:13px">Chưa có AD template</div>';
+      return;
+    }
+    el.innerHTML = state.templates.ad.map(t => `
+      <div class="template-card">
+        <div class="template-card-header">
+          <div class="template-icon" style="background:color-mix(in srgb,#22c55e 15%,transparent)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="11" y2="17"/></svg>
+          </div>
+          <div>
+            <div class="template-name">${t.name}</div>
+            <div class="template-sub">AD Template · ${t.crCount} CR/Ad</div>
+          </div>
+        </div>
+        <div class="template-fields">
+          ${t.headlines ? `<div class="template-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h8"/></svg>${t.headlines.split('\n')[0]}${t.headlines.split('\n').length > 1 ? ' +' + (t.headlines.split('\n').length-1) + ' nữa' : ''}</div>` : ''}
+          ${t.text ? `<div class="template-field" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${t.text.slice(0,40)}${t.text.length>40?'...':''}</div>` : ''}
+        </div>
+        <div class="template-actions">
+          <button class="btn btn-ghost" style="font-size:11px" onclick="deleteTemplate('ad',${t.id})">Xóa</button>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderPackages() {
+    const el = document.getElementById('package-list');
+    if (state.packages.length === 0) {
+      el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted-foreground);font-size:13px">Chưa có Package nào</div>';
+      return;
+    }
+    el.innerHTML = state.packages.map(p => `
+      <div class="package-card">
+        <div class="package-header">
+          <div class="template-icon" style="background:color-mix(in srgb,#8b5cf6 20%,transparent)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" width="18" height="18"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          </div>
+          <div class="package-name">${p.name}</div>
+        </div>
+        <div class="package-components">
+          <span class="tag tag-purple">${p.appTemplate?.name}</span>
+          <span class="tag tag-orange">${p.targetTemplate?.name}</span>
+          <span class="tag tag-green">${p.adTemplate?.name}</span>
+        </div>
+        <div class="package-actions">
+          <button class="btn btn-primary" style="font-size:11.5px" onclick="usePackage(${p.id})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            Dùng package này
+          </button>
+          <button class="btn btn-ghost" style="font-size:11px" onclick="deletePackage(${p.id})">Xóa</button>
+        </div>
+      </div>`).join('');
+  }
+
+  function deleteTemplate(type, id) {
+    state.templates[type] = state.templates[type].filter(t => t.id !== id);
+    if (type === 'app') renderAppTemplates();
+    if (type === 'target') renderTargetTemplates();
+    if (type === 'ad') renderAdTemplates();
+    syncTemplateSelects();
+    addLog('warn', `Đã xóa ${type.toUpperCase()} template`);
+  }
+
+  function deletePackage(id) {
+    state.packages = state.packages.filter(p => p.id !== id);
+    renderPackages();
+    updateBadges();
+    addLog('warn', 'Đã xóa package');
+  }
+
+  function syncTemplateSelects() {
+    const selectors = ['sel-app-template','modal-pkg-app'];
+    selectors.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const val = el.value;
+      el.innerHTML = '<option value="">— Chọn hoặc tạo mới —</option>' +
+        state.templates.app.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+      el.value = val;
+    });
+
+    const tgtSel = ['sel-target-template','modal-pkg-target'];
+    tgtSel.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const val = el.value;
+      el.innerHTML = '<option value="">— Chọn hoặc tạo mới —</option>' +
+        state.templates.target.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+      el.value = val;
+    });
+
+    const adSel = ['sel-ad-template','modal-pkg-ad'];
+    adSel.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const val = el.value;
+      el.innerHTML = '<option value="">— Chọn hoặc tạo mới —</option>' +
+        state.templates.ad.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+      el.value = val;
+    });
+  }
+
+  function populatePackageSelects() { syncTemplateSelects(); }
+
+  // Fill functions for builder
+  function fillAppTemplate(id) {
+    const t = state.templates.app.find(t => t.id == id);
+    if (!t) return;
+    document.getElementById('app-pkg').value = t.pkg || '';
+    document.getElementById('app-id').value = t.appId || '';
+    document.getElementById('app-dev').value = t.devId || '';
+    document.getElementById('app-page').value = t.pageId || '';
+  }
+
+  function fillTargetTemplate(id) {
+    const t = state.templates.target.find(t => t.id == id);
+    if (!t) return;
+    document.getElementById('tgt-country').value = t.country || '';
+    document.getElementById('tgt-gender').value = t.gender || 'all';
+    document.getElementById('tgt-age-min').value = t.ageMin || '';
+    document.getElementById('tgt-age-max').value = t.ageMax || '';
+    document.getElementById('tgt-lang').value = t.lang || '';
+    document.getElementById('tgt-budget-type').value = t.budgetType || 'CBO';
+    document.getElementById('tgt-budget').value = t.budget || '';
+  }
+
+  function fillAdTemplate(id) {
+    const t = state.templates.ad.find(t => t.id == id);
+    if (!t) return;
+    document.getElementById('ad-headlines').value = t.headlines || '';
+    document.getElementById('ad-text').value = t.text || '';
+    document.getElementById('ad-cr-count').value = t.crCount || '';
+  }
+
+  function saveAppTemplate() {
+    const t = {
+      id: Date.now(),
+      name: document.getElementById('app-pkg').value || 'APP Template',
+      pkg: document.getElementById('app-pkg').value,
+      appId: document.getElementById('app-id').value,
+      devId: document.getElementById('app-dev').value,
+      pageId: document.getElementById('app-page').value,
+    };
+    if (!t.pkg) { alert('Package Name là bắt buộc'); return; }
+    state.templates.app.push(t);
+    addLog('success', `Lưu APP template: ${t.name}`);
+    syncTemplateSelects();
+    renderAppTemplates();
+  }
+
+  function saveTargetTemplate() {
+    const t = {
+      id: Date.now(),
+      name: `${document.getElementById('tgt-country').value} ${document.getElementById('tgt-gender').value}`,
+      country: document.getElementById('tgt-country').value,
+      lang: document.getElementById('tgt-lang').value,
+      gender: document.getElementById('tgt-gender').value,
+      ageMin: document.getElementById('tgt-age-min').value,
+      ageMax: document.getElementById('tgt-age-max').value,
+      budgetType: document.getElementById('tgt-budget-type').value,
+      budget: document.getElementById('tgt-budget').value,
+    };
+    state.templates.target.push(t);
+    addLog('success', `Lưu TARGET template: ${t.name}`);
+    syncTemplateSelects();
+    renderTargetTemplates();
+  }
+
+  function saveAdTemplate() {
+    const t = {
+      id: Date.now(),
+      name: 'AD Template ' + (state.templates.ad.length + 1),
+      headlines: document.getElementById('ad-headlines').value,
+      text: document.getElementById('ad-text').value,
+      crCount: document.getElementById('ad-cr-count').value || 3,
+    };
+    state.templates.ad.push(t);
+    addLog('success', `Lưu AD template: ${t.name}`);
+    syncTemplateSelects();
+    renderAdTemplates();
+  }
+
+  function usePackage(id) {
+    const pkg = state.packages.find(p => p.id === id);
+    if (!pkg) return;
+    navigate('creative', document.querySelectorAll('.nav-item')[1]);
+    setTimeout(() => {
+      if (pkg.appTemplate) fillAppTemplate(pkg.appTemplate.id);
+      if (pkg.targetTemplate) fillTargetTemplate(pkg.targetTemplate.id);
+      if (pkg.adTemplate) fillAdTemplate(pkg.adTemplate.id);
+      gotoStep2();
+      addLog('info', `Đang dùng Package: ${pkg.name}`);
+    }, 100);
+  }
+
+  // ── Builder Steps ──────────────────────────────────
+  function gotoStep1() {
+    state.currentStep = 1;
+    setStep(1);
+  }
+
+  function gotoStep2() {
+    syncTemplateSelects();
+    state.currentStep = 2;
+    setStep(2);
+  }
+
+  function gotoStep3() {
+    state.currentStep = 3;
+    buildPreview();
+    setStep(3);
+  }
+
+  function setStep(n) {
+    for (let i = 1; i <= 3; i++) {
+      const step = document.getElementById('step-' + i);
+      const content = document.getElementById('builder-step-' + i);
+      step.classList.remove('active', 'done');
+      if (content) content.classList.remove('active');
+      if (i < n) step.classList.add('done');
+      if (i === n) { step.classList.add('active'); if (content) content.classList.add('active'); }
+    }
+  }
+
+  function buildPreview() {
+    const campName = document.getElementById('camp-name').value || '(chưa đặt tên)';
+    const objective = document.getElementById('camp-objective').value;
+    const account = document.getElementById('camp-account').value || '(chưa điền)';
+    const crNames = state.creatives.filter(c => state.selectedCreatives.includes(c.id)).map(c => c.name);
+    const budget = document.getElementById('tgt-budget').value;
+    const budgetType = document.getElementById('tgt-budget-type').value;
+
+    document.getElementById('preview-content').innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+          <span style="color:var(--muted-foreground)">Campaign Name</span>
+          <strong>${campName}</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+          <span style="color:var(--muted-foreground)">Objective</span>
+          <span class="tag tag-purple">${objective}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+          <span style="color:var(--muted-foreground)">Ad Account</span>
+          <code style="font-family:var(--font-mono);font-size:12px">${account}</code>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+          <span style="color:var(--muted-foreground)">Creative</span>
+          <span>${crNames.length > 0 ? crNames.length + ' files' : '<span style="color:#ef4444">Chưa chọn</span>'}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+          <span style="color:var(--muted-foreground)">Budget</span>
+          <strong>${budget ? '$' + budget + '/ngày (' + budgetType + ')' : '(chưa điền)'}</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0">
+          <span style="color:var(--muted-foreground)">Status</span>
+          <span class="tag tag-orange">PAUSED</span>
+        </div>
+      </div>`;
+    document.getElementById('launch-result').innerHTML = '';
+  }
+
+  async function launchCampaign() {
+    const btn = document.getElementById('btn-launch');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Đang tạo...';
+
+    addLog('info', 'Bắt đầu tạo campaign...');
+
+    const campName = document.getElementById('camp-name').value;
+    const account = document.getElementById('camp-account').value;
+
+    if (!campName || !account) {
+      addLog('error', 'Thiếu Campaign Name hoặc Ad Account ID');
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Launch Campaign';
+      document.getElementById('launch-result').innerHTML = `<div class="alert alert-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span>Vui lòng điền Campaign Name và Ad Account ID</span></div>`;
+      return;
+    }
+
+    // Simulate API call
+    await new Promise(r => setTimeout(r, 1800));
+
+    addLog('info', `Gọi POST /campaigns — ${campName}`);
+    await new Promise(r => setTimeout(r, 600));
+    addLog('info', 'Tạo Ad Set...');
+    await new Promise(r => setTimeout(r, 400));
+    addLog('success', `Campaign đã tạo thành công! (DEMO MODE — chưa có Access Token)`);
+
+    state.campaigns.push({ name: campName, status: 'PAUSED', time: new Date().toLocaleString() });
+    document.getElementById('stat-camps').textContent = state.campaigns.length;
+    updateBadges();
+
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Launch Campaign';
+    document.getElementById('launch-result').innerHTML = `<div class="alert alert-success"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span><strong>${campName}</strong> đã được tạo ở trạng thái PAUSED (DEMO MODE).</span></div>`;
+  }
+
+  // ── Badges ─────────────────────────────────────────
+  function updateBadges() {
+    document.getElementById('cr-count').textContent = state.creatives.length;
+    document.getElementById('log-count').textContent = state.logs.length;
+    document.getElementById('stat-cr').textContent = state.creatives.length;
+    document.getElementById('stat-camps').textContent = state.campaigns.length;
+    document.getElementById('stat-pkg').textContent = state.packages.length;
+    document.getElementById('stat-success').textContent = state.campaigns.filter(c => c.status === 'ACTIVE').length;
+  }
+
+  // ── Init ───────────────────────────────────────────
+  addLog('info', 'FB Auto Camp khởi động thành công');
+  addLog('warn', 'Chưa có Access Token — chạy ở DEMO MODE');
+</script>
 </body>
 </html>
