@@ -700,50 +700,47 @@
     }
 
     /* ─── Campaign Builder ───────────────────────────── */
-    .builder-steps {
-      display: flex;
-      gap: 0;
-      margin-bottom: 24px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
-
-    .builder-step {
-      flex: 1;
-      padding: 10px 16px;
-      background: var(--muted);
-      border-right: 1px solid var(--border);
+    /* ─── Vertical Step Tabs ─────────────────────────── */
+    .vstep {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 12.5px;
-      font-weight: 500;
-      color: var(--muted-foreground);
+      gap: 10px;
+      padding: 10px;
+      border-radius: var(--radius);
+      border: none;
+      background: transparent;
       cursor: pointer;
+      width: 100%;
+      text-align: left;
       transition: background 0.15s;
+      font-family: var(--font-sans);
     }
+    .vstep:hover { background: var(--sidebar-accent); }
+    .vstep:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
 
-    .builder-step:last-child { border-right: none; }
-    .builder-step.active { background: var(--primary); color: white; }
-    .builder-step.done { background: color-mix(in srgb, var(--primary) 15%, var(--muted)); color: var(--primary); }
-
-    .builder-step-num {
-      width: 20px;
-      height: 20px;
+    .vstep-num {
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
-      background: currentColor;
+      background: var(--border);
+      color: var(--muted-foreground);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 10px;
+      font-size: 11px;
       font-family: var(--font-mono);
-      color: var(--primary);
+      font-weight: 700;
       flex-shrink: 0;
+      transition: background 0.15s, color 0.15s;
     }
 
-    .builder-step.active .builder-step-num { background: rgba(255,255,255,0.25); color: white; }
-    .builder-step.done .builder-step-num { background: var(--primary); color: white; }
+    .vstep-label { display: flex; flex-direction: column; gap: 1px; }
+    .vstep-label span { font-size: 12.5px; font-weight: 600; color: var(--foreground); line-height: 1.2; }
+    .vstep-label small { font-size: 10.5px; color: var(--muted-foreground); }
+
+    .vstep.active .vstep-num { background: var(--primary); color: white; }
+    .vstep.active .vstep-label span { color: var(--primary); }
+    .vstep.done .vstep-num { background: color-mix(in srgb, var(--primary) 20%, transparent); color: var(--primary); }
 
     /* ─── Alert ──────────────────────────────────────── */
     .alert {
@@ -983,111 +980,116 @@
       </div>
     </div>
 
-    <!-- ──────── CAMPAIGN + CREATIVE (merged) ──────── -->
-    <div class="page" id="page-creative">
-      <div style="display:flex;gap:20px;height:calc(100vh - 56px - 48px);overflow:hidden">
+    <!-- ──────── CAMPAIGN (merged, new layout) ──────── -->
+    <div class="page" id="page-creative" style="padding:0;display:flex;flex-direction:column;height:calc(100vh - 56px);overflow:hidden">
 
-        <!-- LEFT: Creative Library -->
-        <div style="width:420px;min-width:340px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;padding-right:4px">
-          <!-- Upload zone -->
-          <div class="card" style="padding:14px">
-            <div class="upload-zone" onclick="triggerUpload()" role="button" tabindex="0" aria-label="Upload creative files" style="padding:20px">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              <p>Kéo & thả hoặc click để upload</p>
-              <span>PNG, JPG, MP4, GIF — tối đa 50MB</span>
+      <!-- TOP NAVBAR: campaign quick config + launch always visible -->
+      <div style="background:var(--card);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap">
+        <input class="form-input" id="camp-name" placeholder="Tên campaign..." type="text" style="width:200px;flex-shrink:0"/>
+        <input class="form-input" id="camp-account" placeholder="act_..." type="text" style="width:160px;flex-shrink:0"/>
+        <select class="form-select" id="camp-objective" style="width:160px;flex-shrink:0">
+          <option value="OUTCOME_APP_PROMOTION">App Promotion</option>
+          <option value="OUTCOME_SALES">Sales</option>
+          <option value="OUTCOME_LEADS">Leads</option>
+          <option value="OUTCOME_TRAFFIC">Traffic</option>
+          <option value="OUTCOME_AWARENESS">Awareness</option>
+        </select>
+        <div style="height:28px;width:1px;background:var(--border);flex-shrink:0"></div>
+        <span id="selected-cr-count" style="font-size:12px;color:var(--muted-foreground);white-space:nowrap">0 CR đã chọn</span>
+        <div id="launch-result" style="font-size:12px"></div>
+        <button class="btn btn-primary" id="btn-launch" onclick="launchCampaign()" style="margin-left:auto;flex-shrink:0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Launch Campaign
+        </button>
+      </div>
+
+      <!-- BODY: vertical tabs + content -->
+      <div style="flex:1;display:flex;overflow:hidden">
+
+        <!-- Vertical step tabs -->
+        <div style="width:160px;min-width:160px;background:var(--muted);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:16px 8px;gap:4px;flex-shrink:0">
+          <button class="vstep active" id="step-1" onclick="gotoStep1()">
+            <div class="vstep-num">1</div>
+            <div class="vstep-label">
+              <span>Creative</span>
+              <small>Upload & chọn CR</small>
             </div>
-            <input type="file" id="file-input" multiple accept="image/*,video/*" style="display:none" onchange="handleFileUpload(this.files)"/>
-          </div>
-
-          <!-- Library header -->
-          <div class="flex items-center gap-8">
-            <span class="section-title">Thư viện (<span id="cr-total">0</span>)</span>
-            <input class="form-input" style="width:140px;margin-left:auto" placeholder="Tìm kiếm..." type="search" oninput="filterCreatives(this.value)"/>
-            <button class="btn btn-ghost" style="font-size:11.5px;padding:5px 10px" onclick="clearSelectedCreatives()">Bỏ chọn</button>
-          </div>
-
-          <!-- CR grid -->
-          <div class="creative-grid" id="cr-grid" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr))">
-            <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted-foreground)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36" style="margin:0 auto 10px;display:block;opacity:0.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-              Upload ảnh hoặc video để bắt đầu.
+          </button>
+          <div style="width:2px;height:16px;background:var(--border);margin-left:15px"></div>
+          <button class="vstep" id="step-2" onclick="gotoStep2()">
+            <div class="vstep-num">2</div>
+            <div class="vstep-label">
+              <span>Templates</span>
+              <small>APP · TARGET · AD</small>
             </div>
-          </div>
+          </button>
+          <div style="width:2px;height:16px;background:var(--border);margin-left:15px"></div>
+          <button class="vstep" id="step-3" onclick="gotoStep3()">
+            <div class="vstep-num">3</div>
+            <div class="vstep-label">
+              <span>Preview</span>
+              <small>Kiểm tra & launch</small>
+            </div>
+          </button>
         </div>
 
-        <!-- DIVIDER -->
-        <div style="width:1px;background:var(--border);flex-shrink:0"></div>
+        <!-- Content area -->
+        <div style="flex:1;overflow-y:auto;padding:20px">
 
-        <!-- RIGHT: Campaign Config Panel -->
-        <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:0">
-
-          <!-- Step indicator -->
-          <div class="builder-steps" style="margin-bottom:16px">
-            <div class="builder-step active" id="step-1">
-              <div class="builder-step-num">1</div>Chọn CR
-            </div>
-            <div class="builder-step" id="step-2">
-              <div class="builder-step-num">2</div>Config
-            </div>
-            <div class="builder-step" id="step-3">
-              <div class="builder-step-num">3</div>Launch
-            </div>
-          </div>
-
-          <!-- Step 1: prompt to select CR -->
+          <!-- Step 1: Upload + Creative library -->
           <div class="tab-content active" id="builder-step-1">
-            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:14px;text-align:center;color:var(--muted-foreground)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48" style="opacity:0.35"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-              <p style="font-size:14px;font-weight:500;color:var(--foreground)">Chọn Creative để bắt đầu</p>
-              <p style="font-size:13px">Chọn 1 hoặc nhiều CR từ thư viện bên trái,<br/>sau đó bấm <strong>Tiếp theo</strong></p>
-              <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
-                <span id="selected-cr-count" style="font-size:12.5px;color:var(--muted-foreground)">0 đã chọn</span>
-                <button class="btn btn-primary" onclick="gotoStep2()" id="btn-next-step2">
-                  Tiếp theo
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </button>
+            <input type="file" id="file-input" multiple accept="image/*,video/*" style="display:none" onchange="handleFileUpload(this.files)"/>
+            <!-- Upload zone compact -->
+            <div class="upload-zone mb-16" onclick="triggerUpload()" role="button" tabindex="0" aria-label="Upload creative" style="padding:20px 16px;display:flex;align-items:center;gap:16px;text-align:left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36" style="flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <div>
+                <p style="font-size:13.5px;font-weight:500;margin-bottom:2px">Kéo & thả hoặc click để upload</p>
+                <span style="font-size:12px">PNG, JPG, MP4, GIF — tối đa 50MB mỗi file</span>
               </div>
+              <button class="btn btn-primary" style="margin-left:auto;pointer-events:none;flex-shrink:0" tabindex="-1">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Upload
+              </button>
+            </div>
+
+            <!-- Library toolbar -->
+            <div class="flex items-center gap-8 mb-16">
+              <span style="font-size:13px;font-weight:600;color:var(--foreground)">Thư viện (<span id="cr-total">0</span>)</span>
+              <input class="form-input" style="width:180px;margin-left:auto" placeholder="Tìm kiếm..." type="search" oninput="filterCreatives(this.value)"/>
+              <button class="btn btn-ghost" style="font-size:11.5px;padding:5px 10px" onclick="clearSelectedCreatives()">Bỏ chọn</button>
+            </div>
+
+            <!-- CR grid -->
+            <div class="creative-grid" id="cr-grid">
+              <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted-foreground)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40" style="margin:0 auto 12px;display:block;opacity:0.35"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                <p style="font-size:13px">Upload ảnh hoặc video để bắt đầu.</p>
+              </div>
+            </div>
+
+            <div style="margin-top:20px;display:flex;justify-content:flex-end">
+              <button class="btn btn-primary" onclick="gotoStep2()">
+                Tiếp theo — Config Templates
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </button>
             </div>
           </div>
 
-          <!-- Step 2: Config templates -->
+          <!-- Step 2: Templates (3 cols) -->
           <div class="tab-content" id="builder-step-2">
-            <!-- Campaign Info compact -->
-            <div class="card mb-16">
-              <div class="card-title">Campaign Info</div>
-              <div class="form-row" style="margin-bottom:10px">
-                <div class="form-group" style="margin-bottom:0">
-                  <label class="form-label">Tên Campaign <span style="color:#ef4444">*</span></label>
-                  <input class="form-input" id="camp-name" placeholder="App_VN_iOS_Jun2025" type="text"/>
-                </div>
-                <div class="form-group" style="margin-bottom:0">
-                  <label class="form-label">Ad Account ID <span style="color:#ef4444">*</span></label>
-                  <input class="form-input" id="camp-account" placeholder="act_1234567890" type="text"/>
-                </div>
-              </div>
-              <div class="form-group" style="margin-bottom:0">
-                <label class="form-label">Objective</label>
-                <select class="form-select" id="camp-objective">
-                  <option value="OUTCOME_APP_PROMOTION">App Promotion</option>
-                  <option value="OUTCOME_SALES">Sales</option>
-                  <option value="OUTCOME_LEADS">Leads</option>
-                  <option value="OUTCOME_TRAFFIC">Traffic</option>
-                  <option value="OUTCOME_AWARENESS">Awareness</option>
-                </select>
-              </div>
-            </div>
+            <div class="grid-3" style="align-items:start;margin-bottom:20px">
 
-            <!-- APP Template -->
-            <div class="card mb-16">
-              <div class="card-title">Template: APP</div>
-              <div class="form-group">
-                <label class="form-label">Chọn có sẵn</label>
-                <select class="form-select" id="sel-app-template" onchange="fillAppTemplate(this.value)">
-                  <option value="">— Chọn hoặc tạo mới —</option>
-                </select>
-              </div>
-              <hr class="divider">
-              <div class="form-row">
+              <!-- APP -->
+              <div class="card">
+                <div class="card-title" style="display:flex;align-items:center;gap:8px">
+                  <div style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;flex-shrink:0"></div>APP
+                </div>
+                <div class="form-group">
+                  <select class="form-select" id="sel-app-template" onchange="fillAppTemplate(this.value)">
+                    <option value="">— Chọn có sẵn —</option>
+                  </select>
+                </div>
+                <hr class="divider">
                 <div class="form-group">
                   <label class="form-label">Package Name <span style="color:#ef4444">*</span></label>
                   <input class="form-input" id="app-pkg" placeholder="com.example.app" type="text"/>
@@ -1096,8 +1098,6 @@
                   <label class="form-label">App ID</label>
                   <input class="form-input" id="app-id" placeholder="1234567890" type="text"/>
                 </div>
-              </div>
-              <div class="form-row">
                 <div class="form-group">
                   <label class="form-label">Developer ID</label>
                   <input class="form-input" id="app-dev" placeholder="Dev ID" type="text"/>
@@ -1106,134 +1106,132 @@
                   <label class="form-label">FB Page ID</label>
                   <input class="form-input" id="app-page" placeholder="Page ID" type="text"/>
                 </div>
+                <button class="btn btn-secondary" style="font-size:11.5px;width:100%" onclick="saveAppTemplate()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                  Lưu template
+                </button>
               </div>
-              <button class="btn btn-secondary" style="font-size:11.5px" onclick="saveAppTemplate()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                Lưu template
-              </button>
-            </div>
 
-            <!-- TARGET Template -->
-            <div class="card mb-16">
-              <div class="card-title">Template: TARGET</div>
-              <div class="form-group">
-                <label class="form-label">Chọn có sẵn</label>
-                <select class="form-select" id="sel-target-template" onchange="fillTargetTemplate(this.value)">
-                  <option value="">— Chọn hoặc tạo mới —</option>
-                </select>
-              </div>
-              <hr class="divider">
-              <div class="form-row">
+              <!-- TARGET -->
+              <div class="card">
+                <div class="card-title" style="display:flex;align-items:center;gap:8px">
+                  <div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0"></div>TARGET
+                </div>
+                <div class="form-group">
+                  <select class="form-select" id="sel-target-template" onchange="fillTargetTemplate(this.value)">
+                    <option value="">— Chọn có sẵn —</option>
+                  </select>
+                </div>
+                <hr class="divider">
                 <div class="form-group">
                   <label class="form-label">Country</label>
                   <input class="form-input" id="tgt-country" placeholder="VN, US, TH..." type="text"/>
                 </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Gender</label>
+                    <select class="form-select" id="tgt-gender">
+                      <option value="all">All</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Language</label>
+                    <input class="form-input" id="tgt-lang" placeholder="vi, en..." type="text"/>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Age Min</label>
+                    <input class="form-input" id="tgt-age-min" placeholder="18" type="number" min="18" max="65"/>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Age Max</label>
+                    <input class="form-input" id="tgt-age-max" placeholder="45" type="number" min="18" max="65"/>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Budget Type</label>
+                    <select class="form-select" id="tgt-budget-type">
+                      <option value="CBO">CBO</option>
+                      <option value="ABO">ABO</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Budget ($/ngày)</label>
+                    <input class="form-input" id="tgt-budget" placeholder="50" type="number" min="1"/>
+                  </div>
+                </div>
+                <button class="btn btn-secondary" style="font-size:11.5px;width:100%" onclick="saveTargetTemplate()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                  Lưu template
+                </button>
+              </div>
+
+              <!-- AD -->
+              <div class="card">
+                <div class="card-title" style="display:flex;align-items:center;gap:8px">
+                  <div style="width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0"></div>AD
+                </div>
                 <div class="form-group">
-                  <label class="form-label">Gender</label>
-                  <select class="form-select" id="tgt-gender">
-                    <option value="all">All</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
+                  <select class="form-select" id="sel-ad-template" onchange="fillAdTemplate(this.value)">
+                    <option value="">— Chọn có sẵn —</option>
                   </select>
                 </div>
-              </div>
-              <div class="form-row">
+                <hr class="divider">
                 <div class="form-group">
-                  <label class="form-label">Age Min</label>
-                  <input class="form-input" id="tgt-age-min" placeholder="18" type="number" min="18" max="65"/>
+                  <label class="form-label">Headlines <span style="color:var(--muted-foreground);font-weight:400">(mỗi dòng 1)</span></label>
+                  <textarea class="form-textarea" id="ad-headlines" placeholder="Download ngay&#10;Thử miễn phí&#10;Khám phá ngay" style="min-height:72px"></textarea>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Age Max</label>
-                  <input class="form-input" id="tgt-age-max" placeholder="45" type="number" min="18" max="65"/>
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label">Language</label>
-                  <input class="form-input" id="tgt-lang" placeholder="vi, en, th..." type="text"/>
+                  <label class="form-label">Primary Text</label>
+                  <textarea class="form-textarea" id="ad-text" placeholder="Nội dung quảng cáo..." style="min-height:72px"></textarea>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Budget Type</label>
-                  <select class="form-select" id="tgt-budget-type">
-                    <option value="CBO">CBO (Campaign)</option>
-                    <option value="ABO">ABO (Ad Set)</option>
-                  </select>
+                  <label class="form-label">Số CR / Ad</label>
+                  <input class="form-input" id="ad-cr-count" placeholder="3" type="number" min="1" max="10"/>
                 </div>
+                <button class="btn btn-secondary" style="font-size:11.5px;width:100%" onclick="saveAdTemplate()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                  Lưu template
+                </button>
               </div>
-              <div class="form-group">
-                <label class="form-label">Budget (USD/ngày)</label>
-                <input class="form-input" id="tgt-budget" placeholder="50" type="number" min="1"/>
-              </div>
-              <button class="btn btn-secondary" style="font-size:11.5px" onclick="saveTargetTemplate()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                Lưu template
-              </button>
             </div>
 
-            <!-- AD Template -->
-            <div class="card mb-16">
-              <div class="card-title">Template: AD</div>
-              <div class="form-group">
-                <label class="form-label">Chọn có sẵn</label>
-                <select class="form-select" id="sel-ad-template" onchange="fillAdTemplate(this.value)">
-                  <option value="">— Chọn hoặc tạo mới —</option>
-                </select>
-              </div>
-              <hr class="divider">
-              <div class="form-group">
-                <label class="form-label">Headlines <span style="color:var(--muted-foreground);font-weight:400">(mỗi dòng 1)</span></label>
-                <textarea class="form-textarea" id="ad-headlines" placeholder="Download ngay&#10;Thử miễn phí&#10;Khám phá ngay" style="min-height:64px"></textarea>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Primary Text</label>
-                <textarea class="form-textarea" id="ad-text" placeholder="Nội dung quảng cáo..." style="min-height:64px"></textarea>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Số lượng CR / Ad</label>
-                <input class="form-input" id="ad-cr-count" placeholder="3" type="number" min="1" max="10"/>
-              </div>
-              <button class="btn btn-secondary" style="font-size:11.5px" onclick="saveAdTemplate()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                Lưu template
-              </button>
-            </div>
-
-            <div class="flex gap-8" style="padding-bottom:20px">
+            <div class="flex gap-8">
               <button class="btn btn-ghost" onclick="gotoStep1()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                 Quay lại
               </button>
               <button class="btn btn-primary" onclick="gotoStep3()" style="margin-left:auto">
-                Preview & Launch
+                Preview
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </button>
             </div>
           </div>
 
-          <!-- Step 3: Preview & Launch -->
+          <!-- Step 3: Preview -->
           <div class="tab-content" id="builder-step-3">
-            <div class="card mb-16">
-              <div class="card-title">Preview Campaign</div>
-              <div class="card-desc">Kiểm tra trước khi launch</div>
-              <div id="preview-content" style="display:flex;flex-direction:column;gap:0;font-size:13px"></div>
+            <div class="grid-2" style="align-items:start">
+              <div class="card">
+                <div class="card-title">Preview Campaign</div>
+                <div class="card-desc">Kiểm tra trước khi launch</div>
+                <div id="preview-content" style="font-size:13px"></div>
+              </div>
+              <div class="card">
+                <div class="alert alert-warn" style="margin-bottom:0">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  <span>Campaign tạo ở trạng thái <strong>PAUSED</strong>. Vào Ads Manager để bật.</span>
+                </div>
+              </div>
             </div>
-            <div class="card">
-              <div class="card-title">Launch</div>
-              <div class="alert alert-warn" style="margin-bottom:12px">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                <span>Campaign tạo ở trạng thái <strong>PAUSED</strong>. Vào Ads Manager để bật.</span>
-              </div>
-              <div id="launch-result" style="margin-bottom:12px"></div>
-              <div class="flex gap-8" style="padding-bottom:20px">
-                <button class="btn btn-ghost" onclick="gotoStep2()">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                  Sửa lại
-                </button>
-                <button class="btn btn-primary" id="btn-launch" onclick="launchCampaign()" style="margin-left:auto">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                  Launch Campaign
-                </button>
-              </div>
+            <div class="flex gap-8" style="margin-top:16px">
+              <button class="btn btn-ghost" onclick="gotoStep2()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Sửa lại
+              </button>
             </div>
           </div>
 
@@ -2040,10 +2038,13 @@
     for (let i = 1; i <= 3; i++) {
       const step = document.getElementById('step-' + i);
       const content = document.getElementById('builder-step-' + i);
-      step.classList.remove('active', 'done');
+      if (step) step.classList.remove('active', 'done');
       if (content) content.classList.remove('active');
-      if (i < n) step.classList.add('done');
-      if (i === n) { step.classList.add('active'); if (content) content.classList.add('active'); }
+      if (step && i < n) step.classList.add('done');
+      if (i === n) {
+        if (step) step.classList.add('active');
+        if (content) content.classList.add('active');
+      }
     }
   }
 
