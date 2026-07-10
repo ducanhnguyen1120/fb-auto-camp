@@ -1,2140 +1,1132 @@
 <!DOCTYPE html>
-<html lang="vi" data-theme="light">
+<html lang="vi" data-theme="dark">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FB Auto Camp</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <style>
-    /* ─── CSS Theme ─────────────────────────────────── */
-    :root {
-      --card: #ffffff;
-      --ring: #8b5cf6;
-      --input: #e0e7ff;
-      --muted: #f5f3ff;
-      --accent: #dbeafe;
-      --border: #e0e7ff;
-      --radius: 0.625rem;
-      --chart-1: #8b5cf6;
-      --chart-2: #7c3aed;
-      --chart-3: #6d28d9;
-      --chart-4: #5b21b6;
-      --chart-5: #4c1d95;
-      --popover: #ffffff;
-      --primary: #8b5cf6;
-      --sidebar: #f5f3ff;
-      --font-mono: 'Fira Code', monospace;
-      --font-sans: 'Fira Sans', sans-serif;
-      --secondary: #f3f0ff;
-      --background: #ffffff;
-      --foreground: #312e81;
-      --destructive: #ef4444;
-      --shadow-blur: 4px;
-      --shadow-color: hsl(255 86% 66%);
-      --sidebar-ring: #8b5cf6;
-      --shadow-spread: 0px;
-      --shadow-opacity: 0.2;
-      --sidebar-accent: #dbeafe;
-      --sidebar-border: #e0e7ff;
-      --card-foreground: #312e81;
-      --shadow-offset-x: 2px;
-      --shadow-offset-y: 2px;
-      --sidebar-primary: #8b5cf6;
-      --muted-foreground: #7c3aed;
-      --accent-foreground: #1e40af;
-      --popover-foreground: #312e81;
-      --primary-foreground: #ffffff;
-      --sidebar-foreground: #312e81;
-      --secondary-foreground: #4338ca;
-      --destructive-foreground: #ffffff;
-      --sidebar-accent-foreground: #1e40af;
-      --sidebar-primary-foreground: #ffffff;
-    }
-
-    [data-theme="dark"] {
-      --card: #1e1b4b;
-      --ring: #8b5cf6;
-      --input: #2e1065;
-      --muted: #171447;
-      --accent: #4338ca;
-      --border: #2e1065;
-      --popover: #1e1b4b;
-      --primary: #8b5cf6;
-      --sidebar: #0f172a;
-      --secondary: #1e1b4b;
-      --background: #0f172a;
-      --foreground: #e0e7ff;
-      --destructive: #ef4444;
-      --sidebar-ring: #8b5cf6;
-      --sidebar-accent: #4338ca;
-      --sidebar-border: #2e1065;
-      --card-foreground: #e0e7ff;
-      --sidebar-primary: #8b5cf6;
-      --muted-foreground: #c4b5fd;
-      --accent-foreground: #e0e7ff;
-      --popover-foreground: #e0e7ff;
-      --primary-foreground: #ffffff;
-      --sidebar-foreground: #e0e7ff;
-      --secondary-foreground: #e0e7ff;
-      --destructive-foreground: #ffffff;
-      --sidebar-accent-foreground: #e0e7ff;
-      --sidebar-primary-foreground: #ffffff;
-    }
-
-    /* ─── Reset ──────────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: var(--font-sans);
-      background: var(--background);
-      color: var(--foreground);
-      display: flex;
-      height: 100vh;
-      overflow: hidden;
-      transition: background 0.2s, color 0.2s;
-    }
-
-    /* ─── Sidebar ────────────────────────────────────── */
-    .sidebar {
-      width: 240px;
-      min-width: 240px;
-      background: var(--sidebar);
-      border-right: 1px solid var(--sidebar-border);
-      display: flex;
-      flex-direction: column;
-      padding: 20px 12px;
-      gap: 4px;
-      overflow-y: auto;
-    }
-
-    .sidebar-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 12px 20px;
-      border-bottom: 1px solid var(--sidebar-border);
-      margin-bottom: 8px;
-    }
-
-    .sidebar-logo .logo-icon {
-      width: 32px;
-      height: 32px;
-      background: var(--primary);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .sidebar-logo .logo-icon svg { color: white; }
-
-    .sidebar-logo span {
-      font-family: var(--font-mono);
-      font-weight: 700;
-      font-size: 14px;
-      color: var(--sidebar-foreground);
-      letter-spacing: -0.3px;
-    }
-
-    .nav-section-label {
-      font-size: 10px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted-foreground);
-      padding: 12px 12px 4px;
-    }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 9px 12px;
-      border-radius: var(--radius);
-      cursor: pointer;
-      font-size: 13.5px;
-      font-weight: 500;
-      color: var(--sidebar-foreground);
-      transition: background 0.15s, color 0.15s;
-      user-select: none;
-      border: none;
-      background: transparent;
-      width: 100%;
-      text-align: left;
-    }
-
-    .nav-item:hover { background: var(--sidebar-accent); color: var(--sidebar-accent-foreground); }
-    .nav-item:focus-visible { outline: 2px solid var(--sidebar-ring); outline-offset: 1px; }
-
-    .nav-item.active {
-      background: var(--primary);
-      color: var(--sidebar-primary-foreground);
-    }
-
-    .nav-item.active svg { color: white; }
-
-    .nav-item svg {
-      width: 16px;
-      height: 16px;
-      flex-shrink: 0;
-      color: var(--muted-foreground);
-      transition: color 0.15s;
-    }
-    .nav-item:hover svg, .nav-item.active svg { color: currentColor; }
-
-    .nav-badge {
-      margin-left: auto;
-      background: var(--primary);
-      color: white;
-      font-size: 10px;
-      font-weight: 600;
-      padding: 1px 6px;
-      border-radius: 999px;
-      font-family: var(--font-mono);
-    }
-    .nav-item.active .nav-badge { background: rgba(255,255,255,0.25); }
-
-    .sidebar-footer {
-      margin-top: auto;
-      padding-top: 12px;
-      border-top: 1px solid var(--sidebar-border);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .theme-toggle {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      background: var(--card);
-      cursor: pointer;
-      color: var(--foreground);
-      transition: background 0.15s;
-      margin-left: auto;
-    }
-    .theme-toggle:hover { background: var(--muted); }
-
-    /* ─── Main Layout ────────────────────────────────── */
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .topbar {
-      height: 56px;
-      min-height: 56px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      padding: 0 24px;
-      gap: 12px;
-      background: var(--background);
-    }
-
-    .topbar-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--foreground);
-    }
-
-    .topbar-subtitle {
-      font-size: 12px;
-      color: var(--muted-foreground);
-      margin-left: 4px;
-    }
-
-    .topbar-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 14px;
-      border-radius: var(--radius);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.15s;
-      border: none;
-      font-family: var(--font-sans);
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: var(--primary-foreground);
-    }
-    .btn-primary:hover { background: #7c3aed; }
-    .btn-primary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
-
-    .btn-secondary {
-      background: var(--secondary);
-      color: var(--secondary-foreground);
-      border: 1px solid var(--border);
-    }
-    .btn-secondary:hover { background: var(--muted); }
-
-    .btn-ghost {
-      background: transparent;
-      color: var(--muted-foreground);
-      border: 1px solid var(--border);
-    }
-    .btn-ghost:hover { background: var(--muted); color: var(--foreground); }
-
-    .btn svg { width: 14px; height: 14px; }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    /* ─── Content ────────────────────────────────────── */
-    .content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 24px;
-    }
-
-    .page { display: none; }
-    .page.active { display: block; }
-
-    /* ─── Cards ──────────────────────────────────────── */
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: calc(var(--radius) * 1.5);
-      padding: 20px;
-      box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) var(--shadow-blur) var(--shadow-spread) color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
-    }
-
-    .card-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--card-foreground);
-      margin-bottom: 4px;
-    }
-
-    .card-desc {
-      font-size: 12px;
-      color: var(--muted-foreground);
-      margin-bottom: 16px;
-    }
-
-    /* ─── Stats Row ──────────────────────────────────── */
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .stat-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: calc(var(--radius) * 1.5);
-      padding: 16px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .stat-label {
-      font-size: 11.5px;
-      font-weight: 500;
-      color: var(--muted-foreground);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .stat-value {
-      font-size: 26px;
-      font-weight: 700;
-      font-family: var(--font-mono);
-      color: var(--foreground);
-      line-height: 1;
-    }
-
-    .stat-sub {
-      font-size: 11px;
-      color: var(--muted-foreground);
-    }
-
-    .stat-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 4px;
-    }
-
-    /* ─── Grid Layouts ───────────────────────────────── */
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-
-    /* ─── Section Header ─────────────────────────────── */
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-
-    .section-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--foreground);
-    }
-
-    /* ─── Creative Grid ──────────────────────────────── */
-    .creative-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 12px;
-    }
-
-    .creative-item {
-      background: var(--card);
-      border: 2px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      cursor: pointer;
-      transition: border-color 0.15s, box-shadow 0.15s;
-      position: relative;
-    }
-
-    .creative-item:hover {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent);
-    }
-
-    .creative-item.selected { border-color: var(--primary); }
-    .creative-item.selected .creative-check { opacity: 1; }
-
-    .creative-thumb {
-      width: 100%;
-      aspect-ratio: 1;
-      background: var(--muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--muted-foreground);
-      font-size: 12px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .creative-thumb img { width: 100%; height: 100%; object-fit: cover; }
-
-    .creative-check {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      width: 20px;
-      height: 20px;
-      background: var(--primary);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.15s;
-    }
-    .creative-check svg { width: 11px; height: 11px; color: white; }
-
-    .creative-info {
-      padding: 8px 10px;
-      border-top: 1px solid var(--border);
-    }
-
-    .creative-name {
-      font-size: 11.5px;
-      font-weight: 500;
-      color: var(--foreground);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .creative-meta {
-      font-size: 10.5px;
-      color: var(--muted-foreground);
-      margin-top: 2px;
-    }
-
-    /* ─── Upload Zone ────────────────────────────────── */
-    .upload-zone {
-      border: 2px dashed var(--border);
-      border-radius: var(--radius);
-      padding: 32px;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
-      color: var(--muted-foreground);
-    }
-
-    .upload-zone:hover {
-      border-color: var(--primary);
-      background: color-mix(in srgb, var(--primary) 5%, transparent);
-    }
-
-    .upload-zone svg { width: 32px; height: 32px; margin: 0 auto 10px; display: block; }
-    .upload-zone p { font-size: 13px; }
-    .upload-zone span { font-size: 11.5px; color: var(--muted-foreground); }
-
-    /* ─── Form Controls ──────────────────────────────── */
-    .form-group { margin-bottom: 14px; }
-
-    .form-label {
-      display: block;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--foreground);
-      margin-bottom: 5px;
-    }
-
-    .form-input, .form-select, .form-textarea {
-      width: 100%;
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: var(--input);
-      color: var(--foreground);
-      font-size: 13px;
-      font-family: var(--font-sans);
-      transition: border-color 0.15s, box-shadow 0.15s;
-      outline: none;
-    }
-
-    .form-input:focus, .form-select:focus, .form-textarea:focus {
-      border-color: var(--ring);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 20%, transparent);
-    }
-
-    .form-textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
-    .form-select { cursor: pointer; }
-
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-    /* ─── Tags ───────────────────────────────────────── */
-    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
-
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 3px 10px;
-      border-radius: 999px;
-      font-size: 11.5px;
-      font-weight: 500;
-      border: 1px solid;
-    }
-
-    .tag-purple { background: color-mix(in srgb, var(--primary) 12%, transparent); color: var(--primary); border-color: color-mix(in srgb, var(--primary) 25%, transparent); }
-    .tag-blue { background: color-mix(in srgb, #3b82f6 12%, transparent); color: #3b82f6; border-color: color-mix(in srgb, #3b82f6 25%, transparent); }
-    .tag-green { background: color-mix(in srgb, #22c55e 12%, transparent); color: #16a34a; border-color: color-mix(in srgb, #22c55e 25%, transparent); }
-    .tag-orange { background: color-mix(in srgb, #f97316 12%, transparent); color: #ea580c; border-color: color-mix(in srgb, #f97316 25%, transparent); }
-    .tag-red { background: color-mix(in srgb, #ef4444 12%, transparent); color: #dc2626; border-color: color-mix(in srgb, #ef4444 25%, transparent); }
-
-    /* ─── Template Cards ─────────────────────────────── */
-    .template-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: calc(var(--radius) * 1.5);
-      padding: 16px;
-      cursor: pointer;
-      transition: border-color 0.15s, box-shadow 0.15s;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .template-card:hover {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 12%, transparent);
-    }
-
-    .template-card-header { display: flex; align-items: center; gap: 10px; }
-
-    .template-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .template-icon svg { width: 18px; height: 18px; }
-
-    .template-name { font-size: 13.5px; font-weight: 600; color: var(--foreground); }
-    .template-sub { font-size: 11.5px; color: var(--muted-foreground); }
-
-    .template-fields {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      font-size: 11.5px;
-      color: var(--muted-foreground);
-    }
-
-    .template-field { display: flex; gap: 6px; align-items: center; }
-    .template-field svg { width: 12px; height: 12px; flex-shrink: 0; }
-
-    .template-actions { display: flex; gap: 6px; margin-top: 4px; }
-
-    /* ─── Package Card ───────────────────────────────── */
-    .package-card {
-      background: color-mix(in srgb, var(--primary) 5%, var(--card));
-      border: 1.5px solid color-mix(in srgb, var(--primary) 25%, transparent);
-      border-radius: calc(var(--radius) * 1.5);
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .package-header { display: flex; align-items: center; gap: 10px; }
-    .package-name { font-size: 14px; font-weight: 700; color: var(--foreground); }
-    .package-components { display: flex; gap: 6px; flex-wrap: wrap; }
-    .package-actions { display: flex; gap: 6px; }
-
-    /* ─── Log ────────────────────────────────────────── */
-    .log-container {
-      background: var(--muted);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      font-family: var(--font-mono);
-      font-size: 12px;
-      overflow-y: auto;
-      max-height: 420px;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .log-entry {
-      display: flex;
-      gap: 10px;
-      align-items: baseline;
-      padding: 3px 0;
-      border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
-    }
-
-    .log-time { color: var(--muted-foreground); flex-shrink: 0; }
-    .log-level { font-weight: 600; flex-shrink: 0; min-width: 48px; }
-    .log-level.info { color: #3b82f6; }
-    .log-level.success { color: #22c55e; }
-    .log-level.warn { color: #f59e0b; }
-    .log-level.error { color: #ef4444; }
-    .log-msg { color: var(--foreground); flex: 1; word-break: break-all; }
-
-    /* ─── Modal ──────────────────────────────────────── */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.45);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 50;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s;
-    }
-
-    .modal-overlay.open { opacity: 1; pointer-events: all; }
-
-    .modal {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: calc(var(--radius) * 2);
-      width: 560px;
-      max-width: 95vw;
-      max-height: 90vh;
-      overflow-y: auto;
-      padding: 24px;
-      transform: translateY(8px);
-      transition: transform 0.2s;
-    }
-
-    .modal-overlay.open .modal { transform: translateY(0); }
-
-    .modal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-
-    .modal-title { font-size: 16px; font-weight: 700; color: var(--foreground); }
-
-    .modal-close {
-      width: 28px;
-      height: 28px;
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      background: transparent;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--muted-foreground);
-      transition: background 0.15s;
-    }
-    .modal-close:hover { background: var(--muted); }
-
-    .modal-footer {
-      display: flex;
-      gap: 8px;
-      justify-content: flex-end;
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
-
-    /* ─── Campaign Builder ───────────────────────────── */
-    /* ─── Vertical Step Tabs ─────────────────────────── */
-    .vstep {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px;
-      border-radius: var(--radius);
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      width: 100%;
-      text-align: left;
-      transition: background 0.15s;
-      font-family: var(--font-sans);
-    }
-    .vstep:hover { background: var(--sidebar-accent); }
-    .vstep:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
-
-    .vstep-num {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: var(--border);
-      color: var(--muted-foreground);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-family: var(--font-mono);
-      font-weight: 700;
-      flex-shrink: 0;
-      transition: background 0.15s, color 0.15s;
-    }
-
-    .vstep-label { display: flex; flex-direction: column; gap: 1px; }
-    .vstep-label span { font-size: 12.5px; font-weight: 600; color: var(--foreground); line-height: 1.2; }
-    .vstep-label small { font-size: 10.5px; color: var(--muted-foreground); }
-
-    .vstep.active .vstep-num { background: var(--primary); color: white; }
-    .vstep.active .vstep-label span { color: var(--primary); }
-    .vstep.done .vstep-num { background: color-mix(in srgb, var(--primary) 20%, transparent); color: var(--primary); }
-
-    /* ─── Alert ──────────────────────────────────────── */
-    .alert {
-      padding: 12px 16px;
-      border-radius: var(--radius);
-      font-size: 13px;
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      margin-bottom: 16px;
-    }
-
-    .alert svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
-    .alert-info { background: color-mix(in srgb, #3b82f6 10%, transparent); color: #1e40af; border: 1px solid color-mix(in srgb, #3b82f6 25%, transparent); }
-    .alert-success { background: color-mix(in srgb, #22c55e 10%, transparent); color: #15803d; border: 1px solid color-mix(in srgb, #22c55e 25%, transparent); }
-    .alert-warn { background: color-mix(in srgb, #f59e0b 10%, transparent); color: #b45309; border: 1px solid color-mix(in srgb, #f59e0b 25%, transparent); }
-
-    /* ─── Tab bar ────────────────────────────────────── */
-    .tab-bar {
-      display: flex;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 20px;
-      gap: 0;
-    }
-
-    .tab-btn {
-      padding: 9px 16px;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      color: var(--muted-foreground);
-      border-bottom: 2px solid transparent;
-      margin-bottom: -1px;
-      transition: color 0.15s, border-color 0.15s;
-      font-family: var(--font-sans);
-    }
-
-    .tab-btn:hover { color: var(--foreground); }
-    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
-
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
-    /* ─── Divider ────────────────────────────────────── */
-    .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
-
-    /* ─── Scrollbar ──────────────────────────────────── */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
-
-    /* ─── Responsive ─────────────────────────────────── */
-    @media (max-width: 768px) {
-      .sidebar { width: 200px; min-width: 200px; }
-      .stats-row { grid-template-columns: 1fr 1fr; }
-      .grid-2, .grid-3 { grid-template-columns: 1fr; }
-      .form-row { grid-template-columns: 1fr; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { transition: none !important; animation: none !important; }
-    }
-
-    /* ─── Utility ────────────────────────────────────── */
-    .mb-16 { margin-bottom: 16px; }
-    .mb-20 { margin-bottom: 20px; }
-    .flex { display: flex; }
-    .items-center { align-items: center; }
-    .gap-8 { gap: 8px; }
-    .gap-12 { gap: 12px; }
-    .ml-auto { margin-left: auto; }
-
-    .spinner {
-      width: 14px; height: 14px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-      display: inline-block;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FB Auto Camp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ── Reset ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+/* ── Tokens: Modern Minimal (dark default) ── */
+:root{
+  --bg:        #0a0a0a;
+  --bg-2:      #111111;
+  --bg-3:      #1a1a1a;
+  --border:    #262626;
+  --border-2:  #333333;
+  --fg:        #fafafa;
+  --fg-2:      #a3a3a3;
+  --fg-3:      #525252;
+  --accent:    #ffffff;
+  --accent-bg: rgba(255,255,255,0.08);
+  --accent-hover: rgba(255,255,255,0.12);
+  --danger:    #ef4444;
+  --success:   #22c55e;
+  --warn:      #f59e0b;
+  --info:      #3b82f6;
+  --radius:    6px;
+  --radius-lg: 10px;
+  --font:      'Inter', system-ui, sans-serif;
+  --transition: 150ms ease;
+  --sidebar-w: 220px;
+  --sidebar-w-collapsed: 52px;
+}
+[data-theme="light"]{
+  --bg:        #fafafa;
+  --bg-2:      #ffffff;
+  --bg-3:      #f4f4f5;
+  --border:    #e4e4e7;
+  --border-2:  #d4d4d8;
+  --fg:        #09090b;
+  --fg-2:      #71717a;
+  --fg-3:      #a1a1aa;
+  --accent:    #09090b;
+  --accent-bg: rgba(9,9,11,0.06);
+  --accent-hover: rgba(9,9,11,0.1);
+  --danger:    #dc2626;
+}
+
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--fg);
+  display:flex;
+  height:100vh;
+  overflow:hidden;
+  font-size:13px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── Sidebar ── */
+.sidebar{
+  width:var(--sidebar-w);
+  min-width:var(--sidebar-w);
+  background:var(--bg);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  padding:12px 8px;
+  gap:1px;
+  overflow:hidden;
+  transition:width var(--transition), min-width var(--transition);
+  flex-shrink:0;
+}
+.sidebar.collapsed{
+  width:var(--sidebar-w-collapsed);
+  min-width:var(--sidebar-w-collapsed);
+}
+
+.sidebar-logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:6px 8px 14px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:6px;
+  overflow:hidden;
+  white-space:nowrap;
+}
+.logo-mark{
+  width:24px;
+  height:24px;
+  background:var(--fg);
+  border-radius:var(--radius);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+}
+.logo-mark svg{width:12px;height:12px;color:var(--bg);}
+.logo-text{
+  font-size:13px;
+  font-weight:600;
+  color:var(--fg);
+  opacity:1;
+  transition:opacity var(--transition);
+  white-space:nowrap;
+}
+.sidebar.collapsed .logo-text{opacity:0;width:0;overflow:hidden;}
+
+.nav-label{
+  font-size:10px;
+  font-weight:500;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--fg-3);
+  padding:8px 8px 3px;
+  white-space:nowrap;
+  overflow:hidden;
+  transition:opacity var(--transition);
+}
+.sidebar.collapsed .nav-label{opacity:0;height:0;padding:0;margin:0;}
+
+.nav-item{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:7px 8px;
+  border-radius:var(--radius);
+  cursor:pointer;
+  font-size:12.5px;
+  font-weight:500;
+  color:var(--fg-2);
+  transition:background var(--transition), color var(--transition);
+  border:none;
+  background:transparent;
+  width:100%;
+  text-align:left;
+  font-family:var(--font);
+  white-space:nowrap;
+  overflow:hidden;
+  position:relative;
+}
+.nav-item:hover{background:var(--accent-bg);color:var(--fg);}
+.nav-item.active{background:var(--accent-bg);color:var(--fg);}
+.nav-item svg{width:15px;height:15px;flex-shrink:0;stroke:currentColor;}
+.nav-label-text{
+  opacity:1;
+  transition:opacity var(--transition);
+  flex:1;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.sidebar.collapsed .nav-label-text{opacity:0;width:0;}
+.nav-badge{
+  margin-left:auto;
+  background:var(--bg-3);
+  color:var(--fg-2);
+  font-size:10px;
+  font-weight:600;
+  padding:1px 5px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  flex-shrink:0;
+  transition:opacity var(--transition);
+}
+.sidebar.collapsed .nav-badge{opacity:0;width:0;padding:0;margin:0;}
+
+/* Tooltip on collapsed */
+.nav-item[data-tip]{position:relative;}
+.nav-item[data-tip]:hover::after{
+  content:attr(data-tip);
+  position:absolute;
+  left:calc(var(--sidebar-w-collapsed) + 6px);
+  top:50%;
+  transform:translateY(-50%);
+  background:var(--bg-2);
+  color:var(--fg);
+  border:1px solid var(--border);
+  padding:4px 10px;
+  border-radius:var(--radius);
+  font-size:12px;
+  white-space:nowrap;
+  pointer-events:none;
+  z-index:100;
+  opacity:0;
+  transition:opacity 100ms;
+}
+.sidebar.collapsed .nav-item[data-tip]:hover::after{opacity:1;}
+
+.sidebar-footer{
+  margin-top:auto;
+  padding-top:8px;
+  border-top:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  gap:6px;
+  overflow:hidden;
+}
+.version{
+  font-size:10.5px;
+  color:var(--fg-3);
+  transition:opacity var(--transition);
+  white-space:nowrap;
+}
+.sidebar.collapsed .version{opacity:0;width:0;}
+
+.icon-btn{
+  width:28px;
+  height:28px;
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+  background:transparent;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--fg-2);
+  flex-shrink:0;
+  transition:background var(--transition),color var(--transition);
+}
+.icon-btn:hover{background:var(--accent-bg);color:var(--fg);}
+.icon-btn svg{width:13px;height:13px;}
+
+/* Collapse toggle */
+.collapse-btn{
+  width:28px;height:28px;
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+  background:transparent;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--fg-2);
+  flex-shrink:0;
+  transition:background var(--transition),color var(--transition);
+  margin-left:auto;
+}
+.sidebar.collapsed .collapse-btn{margin-left:0;}
+.collapse-btn:hover{background:var(--accent-bg);color:var(--fg);}
+.collapse-btn svg{width:13px;height:13px;transition:transform var(--transition);}
+.sidebar.collapsed .collapse-btn svg{transform:rotate(180deg);}
+
+/* ── Main ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);}
+
+.topbar{
+  height:48px;
+  min-height:48px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  padding:0 16px;
+  gap:10px;
+  background:var(--bg);
+}
+.topbar-title{font-size:13px;font-weight:600;color:var(--fg);flex-shrink:0;}
+.topbar-extra{display:flex;align-items:center;gap:8px;flex:1;margin-left:8px;}
+
+.content{flex:1;overflow-y:auto;padding:20px;}
+
+/* ── Pages ── */
+.page{display:none!important;}
+.page.active{display:block!important;}
+#page-campaign.active{display:flex!important;}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:6px 12px;border-radius:var(--radius);
+  font-size:12.5px;font-weight:500;cursor:pointer;
+  transition:background var(--transition),color var(--transition),border-color var(--transition);
+  border:1px solid transparent;font-family:var(--font);
+  white-space:nowrap;
+}
+.btn svg{width:13px;height:13px;flex-shrink:0;}
+.btn-primary{background:var(--fg);color:var(--bg);border-color:var(--fg);}
+.btn-primary:hover{background:var(--fg-2);border-color:var(--fg-2);}
+.btn-secondary{background:transparent;color:var(--fg);border-color:var(--border-2);}
+.btn-secondary:hover{background:var(--accent-bg);border-color:var(--border-2);}
+.btn-ghost{background:transparent;color:var(--fg-2);border-color:transparent;}
+.btn-ghost:hover{background:var(--accent-bg);color:var(--fg);}
+.btn-sm{padding:4px 9px;font-size:11.5px;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn-danger{background:transparent;color:var(--danger);border-color:color-mix(in srgb,var(--danger) 25%,transparent);}
+.btn-danger:hover{background:color-mix(in srgb,var(--danger) 10%,transparent);}
+
+/* ── Cards ── */
+.card{
+  background:var(--bg-2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:16px;
+}
+.card-title{font-size:13px;font-weight:600;color:var(--fg);margin-bottom:3px;}
+.card-desc{font-size:11.5px;color:var(--fg-2);margin-bottom:14px;}
+
+/* ── Stats ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;}
+.stat-label{font-size:10.5px;font-weight:500;color:var(--fg-3);text-transform:uppercase;letter-spacing:.06em;}
+.stat-value{font-size:26px;font-weight:700;color:var(--fg);line-height:1;margin:5px 0 3px;letter-spacing:-0.5px;}
+.stat-sub{font-size:11px;color:var(--fg-3);}
+
+/* ── Grid ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+
+/* ── Section header ── */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.sec-title{font-size:13px;font-weight:600;color:var(--fg);}
+
+/* ── Forms ── */
+.form-group{margin-bottom:12px;}
+.form-label{display:block;font-size:11.5px;font-weight:500;color:var(--fg-2);margin-bottom:4px;}
+.form-input,.form-select,.form-textarea{
+  width:100%;padding:7px 10px;
+  border:1px solid var(--border);border-radius:var(--radius);
+  background:var(--bg-3);color:var(--fg);
+  font-size:12.5px;font-family:var(--font);
+  transition:border-color var(--transition);outline:none;
+}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--border-2);}
+.form-textarea{resize:vertical;min-height:70px;line-height:1.5;}
+.form-select{cursor:pointer;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* ── Tags ── */
+.tag{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:999px;font-size:10.5px;font-weight:500;border:1px solid;}
+.tag-neutral{background:var(--bg-3);color:var(--fg-2);border-color:var(--border);}
+.tag-white{background:color-mix(in srgb,var(--fg) 10%,transparent);color:var(--fg);border-color:var(--border-2);}
+.tag-green{background:color-mix(in srgb,#22c55e 10%,transparent);color:#4ade80;border-color:color-mix(in srgb,#22c55e 22%,transparent);}
+.tag-amber{background:color-mix(in srgb,#f59e0b 10%,transparent);color:#fbbf24;border-color:color-mix(in srgb,#f59e0b 22%,transparent);}
+.tag-red{background:color-mix(in srgb,#ef4444 10%,transparent);color:#f87171;border-color:color-mix(in srgb,#ef4444 22%,transparent);}
+.tag-blue{background:color-mix(in srgb,#3b82f6 10%,transparent);color:#60a5fa;border-color:color-mix(in srgb,#3b82f6 22%,transparent);}
+
+/* ── Creative grid ── */
+.creative-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;}
+.cr-item{
+  background:var(--bg-2);border:1px solid var(--border);
+  border-radius:var(--radius-lg);overflow:hidden;
+  cursor:pointer;transition:border-color var(--transition);position:relative;
+}
+.cr-item:hover{border-color:var(--border-2);}
+.cr-item.selected{border-color:var(--fg);}
+.cr-thumb{width:100%;aspect-ratio:1;background:var(--bg-3);display:flex;align-items:center;justify-content:center;color:var(--fg-3);overflow:hidden;position:relative;}
+.cr-thumb img{width:100%;height:100%;object-fit:cover;}
+.cr-check{position:absolute;top:5px;right:5px;width:16px;height:16px;background:var(--fg);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity var(--transition);}
+.cr-item.selected .cr-check{opacity:1;}
+.cr-check svg{width:9px;height:9px;color:var(--bg);}
+.cr-info{padding:6px 8px;border-top:1px solid var(--border);}
+.cr-name{font-size:11px;font-weight:500;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cr-tags{display:flex;gap:3px;flex-wrap:wrap;margin-top:3px;}
+.cr-tag{font-size:9.5px;padding:1px 5px;border-radius:3px;background:var(--bg-3);color:var(--fg-3);border:1px solid var(--border);}
+
+/* ── Upload zone ── */
+.upload-zone{
+  border:1px dashed var(--border);border-radius:var(--radius-lg);
+  cursor:pointer;transition:border-color var(--transition),background var(--transition);
+  color:var(--fg-2);
+}
+.upload-zone:hover{border-color:var(--border-2);background:var(--accent-bg);}
+
+/* ── Vertical steps ── */
+.vstep{
+  display:flex;align-items:center;gap:9px;padding:8px;
+  border-radius:var(--radius);border:none;background:transparent;
+  cursor:pointer;width:100%;text-align:left;
+  transition:background var(--transition);font-family:var(--font);
+}
+.vstep:hover{background:var(--accent-bg);}
+.vstep-num{
+  width:24px;height:24px;border-radius:50%;
+  background:var(--bg-3);color:var(--fg-3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:600;flex-shrink:0;
+  border:1px solid var(--border);
+  transition:background var(--transition),color var(--transition),border-color var(--transition);
+}
+.vstep-label span{font-size:12px;font-weight:600;color:var(--fg-2);line-height:1.2;display:block;}
+.vstep-label small{font-size:10px;color:var(--fg-3);}
+.vstep.active .vstep-num{background:var(--fg);color:var(--bg);border-color:var(--fg);}
+.vstep.active .vstep-label span{color:var(--fg);}
+.vstep.done .vstep-num{background:transparent;color:var(--fg-2);border-color:var(--border-2);}
+.vstep-connector{width:1px;height:12px;background:var(--border);margin-left:11px;}
+
+/* ── Tabs ── */
+.tab-bar{display:flex;border-bottom:1px solid var(--border);margin-bottom:16px;gap:0;}
+.tab-btn{
+  padding:7px 14px;font-size:12.5px;font-weight:500;cursor:pointer;
+  border:none;background:transparent;color:var(--fg-3);
+  border-bottom:1px solid transparent;margin-bottom:-1px;
+  transition:color var(--transition),border-color var(--transition);
+  font-family:var(--font);
+}
+.tab-btn:hover{color:var(--fg-2);}
+.tab-btn.active{color:var(--fg);border-bottom-color:var(--fg);}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+/* ── Package card ── */
+.pkg-card{
+  background:var(--bg-2);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:14px;cursor:pointer;
+  transition:border-color var(--transition);
+}
+.pkg-card:hover{border-color:var(--border-2);}
+.pkg-card.selected{border-color:var(--fg);}
+
+/* ── Log ── */
+.log-wrap{
+  background:var(--bg-2);border:1px solid var(--border);
+  border-radius:var(--radius-lg);font-family:ui-monospace,'Cascadia Code',monospace;
+  font-size:11px;overflow-y:auto;padding:10px;
+}
+.log-row{display:flex;gap:10px;align-items:baseline;padding:2.5px 0;border-bottom:1px solid var(--border);}
+.log-row:last-child{border-bottom:none;}
+.log-time{color:var(--fg-3);flex-shrink:0;}
+.log-lv{font-weight:600;flex-shrink:0;min-width:46px;}
+.log-lv.info{color:var(--info);}.log-lv.success{color:var(--success);}.log-lv.warn{color:var(--warn);}.log-lv.error{color:var(--danger);}
+.log-msg{color:var(--fg-2);flex:1;word-break:break-all;}
+
+/* ── Modal ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.6);
+  display:flex;align-items:center;justify-content:center;z-index:50;
+  opacity:0;pointer-events:none;transition:opacity 150ms;
+}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{
+  background:var(--bg-2);border:1px solid var(--border);
+  border-radius:var(--radius-lg);width:480px;max-width:95vw;
+  max-height:88vh;overflow-y:auto;padding:20px;
+  transform:translateY(6px);transition:transform 150ms;
+}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.modal-title{font-size:14px;font-weight:600;color:var(--fg);}
+.modal-footer{display:flex;gap:7px;justify-content:flex-end;margin-top:16px;padding-top:12px;border-top:1px solid var(--border);}
+
+/* ── Alert ── */
+.alert{padding:10px 12px;border-radius:var(--radius);font-size:12px;display:flex;gap:8px;align-items:flex-start;margin-bottom:12px;border:1px solid;}
+.alert svg{width:13px;height:13px;flex-shrink:0;margin-top:1px;}
+.alert-warn{background:color-mix(in srgb,var(--warn) 8%,transparent);color:var(--warn);border-color:color-mix(in srgb,var(--warn) 20%,transparent);}
+.alert-info{background:color-mix(in srgb,var(--info) 8%,transparent);color:color-mix(in srgb,var(--info) 80%,var(--fg));border-color:color-mix(in srgb,var(--info) 20%,transparent);}
+.alert-success{background:color-mix(in srgb,var(--success) 8%,transparent);color:var(--success);border-color:color-mix(in srgb,var(--success) 20%,transparent);}
+
+/* ── Autocomplete ── */
+.ac-wrap{position:relative;}
+.ac-dropdown{
+  position:absolute;top:calc(100% + 4px);left:0;right:0;
+  background:var(--bg-2);border:1px solid var(--border);
+  border-radius:var(--radius);z-index:20;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+  max-height:150px;overflow-y:auto;display:none;
+}
+.ac-dropdown.open{display:block;}
+.ac-item{padding:7px 10px;font-size:12.5px;cursor:pointer;color:var(--fg-2);transition:background var(--transition);}
+.ac-item:hover{background:var(--accent-bg);color:var(--fg);}
+
+/* ── Format selector ── */
+.fmt-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.fmt-opt{
+  border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:12px 8px;text-align:center;cursor:pointer;
+  transition:border-color var(--transition),background var(--transition);
+  background:var(--bg-2);
+}
+.fmt-opt:hover{border-color:var(--border-2);}
+.fmt-opt.active{border-color:var(--fg);background:var(--accent-bg);}
+.fmt-opt svg{width:18px;height:18px;margin:0 auto 6px;display:block;color:var(--fg-3);}
+.fmt-opt.active svg{color:var(--fg);}
+.fmt-opt span{font-size:11.5px;font-weight:600;color:var(--fg-2);display:block;}
+.fmt-opt.active span{color:var(--fg);}
+.fmt-opt small{font-size:10px;color:var(--fg-3);}
+
+/* ── Split preview ── */
+.split-row{display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.split-badge{font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:var(--radius);background:var(--bg-3);color:var(--fg-2);border:1px solid var(--border);}
+
+/* ── Misc ── */
+.divider{border:none;border-top:1px solid var(--border);margin:12px 0;}
+.flex{display:flex;}.items-center{align-items:center;}.gap-8{gap:8px;}.ml-auto{margin-left:auto;}
+.mb-12{margin-bottom:12px;}.mb-16{margin-bottom:16px;}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:999px;}
+
+.spinner{width:12px;height:12px;border:1.5px solid rgba(0,0,0,.2);border-top-color:var(--bg);border-radius:50%;animation:spin .6s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
+</style>
 </head>
 <body>
 
-<!-- ═══════════════════ SIDEBAR ════════════════════ -->
-<aside class="sidebar">
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
-    <div class="logo-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-      </svg>
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
     </div>
-    <span>FB Auto Camp</span>
+    <span class="logo-text">FB Auto Camp</span>
   </div>
 
-  <span class="nav-section-label">Workspace</span>
-
-  <button class="nav-item active" onclick="navigate('dashboard', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-    Dashboard
+  <span class="nav-label">Workspace</span>
+  <button class="nav-item active" data-tip="Dashboard" onclick="nav('dashboard',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <span class="nav-label-text">Dashboard</span>
+  </button>
+  <button class="nav-item" data-tip="Campaign" onclick="nav('campaign',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    <span class="nav-label-text">Campaign</span>
+    <span class="nav-badge" id="cr-badge">0</span>
   </button>
 
-  <button class="nav-item" onclick="navigate('creative', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-    Campaign
-    <span class="nav-badge" id="cr-count">0</span>
+  <span class="nav-label">Library</span>
+  <button class="nav-item" data-tip="Ad Accounts" onclick="nav('accounts',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+    <span class="nav-label-text">Ad Accounts</span>
+    <span class="nav-badge" id="acc-badge">0</span>
+  </button>
+  <button class="nav-item" data-tip="Templates" onclick="nav('template',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <span class="nav-label-text">Template & Package</span>
   </button>
 
-  <span class="nav-section-label">Library</span>
-
-  <button class="nav-item" onclick="navigate('template', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-    Template & Package
-  </button>
-
-  <span class="nav-section-label">System</span>
-
-  <button class="nav-item" onclick="navigate('logging', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
-    Logging
-    <span class="nav-badge" id="log-count">0</span>
+  <span class="nav-label">System</span>
+  <button class="nav-item" data-tip="Logging" onclick="nav('logging',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+    <span class="nav-label-text">Logging</span>
+    <span class="nav-badge" id="log-badge">0</span>
   </button>
 
   <div class="sidebar-footer">
-    <span style="font-size:11.5px;color:var(--muted-foreground)">v0.1.0</span>
-    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle dark mode">
-      <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
-        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-      </svg>
+    <span class="version">v0.2</span>
+    <button class="icon-btn" onclick="toggleTheme()" aria-label="Toggle theme" style="margin-left:auto">
+      <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <button class="collapse-btn" onclick="toggleSidebar()" aria-label="Collapse sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
     </button>
   </div>
 </aside>
 
-<!-- ═══════════════════ MAIN ════════════════════════ -->
+<!-- ═══ MAIN ═══ -->
 <div class="main">
   <header class="topbar">
     <span class="topbar-title" id="page-title">Dashboard</span>
-    <span class="topbar-subtitle" id="page-sub"></span>
-    <div class="topbar-actions" id="topbar-actions"></div>
+    <div class="topbar-extra" id="topbar-extra"></div>
   </header>
 
-  <div class="content">
+  <div class="content" id="main-content">
 
-    <!-- ──────── DASHBOARD ──────── -->
-    <div class="page active" id="page-dashboard">
-      <div class="stats-row">
-        <div class="stat-card">
-          <div class="stat-icon" style="background:color-mix(in srgb,#8b5cf6 15%,transparent)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" width="16" height="16"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-          </div>
-          <div class="stat-label">Campaign đã tạo</div>
-          <div class="stat-value" id="stat-camps">0</div>
-          <div class="stat-sub">Tổng cộng</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon" style="background:color-mix(in srgb,#22c55e 15%,transparent)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>
-          </div>
-          <div class="stat-label">Thành công</div>
-          <div class="stat-value" id="stat-success">0</div>
-          <div class="stat-sub">Đã active</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon" style="background:color-mix(in srgb,#3b82f6 15%,transparent)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" width="16" height="16"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          </div>
-          <div class="stat-label">Creative</div>
-          <div class="stat-value" id="stat-cr">0</div>
-          <div class="stat-sub">Trong thư viện</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon" style="background:color-mix(in srgb,#f59e0b 15%,transparent)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          </div>
-          <div class="stat-label">Package</div>
-          <div class="stat-value" id="stat-pkg">0</div>
-          <div class="stat-sub">Template bundle</div>
-        </div>
+  <!-- ── DASHBOARD ── -->
+  <div class="page active" id="page-dashboard">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Campaigns</div>
+        <div class="stat-value" id="s-camps">0</div>
+        <div class="stat-sub">Tổng đã tạo</div>
       </div>
-
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-title">Bắt đầu nhanh</div>
-          <div class="card-desc">Workflow để lên campaign đầu tiên</div>
-          <div style="display:flex;flex-direction:column;gap:10px">
-            <div class="alert alert-info">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              <span>Chưa có Access Token. Thêm vào file <code style="font-family:var(--font-mono);background:var(--muted);padding:1px 5px;border-radius:4px">.env</code> để bắt đầu.</span>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:8px">
-              <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted-foreground)">
-                <div style="width:24px;height:24px;border-radius:50%;background:var(--muted);display:flex;align-items:center;justify-content:center;font-size:11px;font-family:var(--font-mono);color:var(--primary);font-weight:700;flex-shrink:0">1</div>
-                Upload Creative vào thư viện
-              </div>
-              <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted-foreground)">
-                <div style="width:24px;height:24px;border-radius:50%;background:var(--muted);display:flex;align-items:center;justify-content:center;font-size:11px;font-family:var(--font-mono);color:var(--primary);font-weight:700;flex-shrink:0">2</div>
-                Tạo Template APP, TARGET, AD
-              </div>
-              <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted-foreground)">
-                <div style="width:24px;height:24px;border-radius:50%;background:var(--muted);display:flex;align-items:center;justify-content:center;font-size:11px;font-family:var(--font-mono);color:var(--primary);font-weight:700;flex-shrink:0">3</div>
-                Bundle thành Package
-              </div>
-              <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted-foreground)">
-                <div style="width:24px;height:24px;border-radius:50%;background:var(--muted);display:flex;align-items:center;justify-content:center;font-size:11px;font-family:var(--font-mono);color:var(--primary);font-weight:700;flex-shrink:0">4</div>
-                Lên Campaign tự động
-              </div>
-            </div>
-          </div>
-          <div style="margin-top:16px">
-            <button class="btn btn-primary" onclick="navigate('creative', document.querySelectorAll('.nav-item')[1])">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-              Lên Campaign ngay
-            </button>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Activity Log gần đây</div>
-          <div class="card-desc">10 sự kiện mới nhất</div>
-          <div class="log-container" style="max-height:220px" id="mini-log">
-            <div style="text-align:center;color:var(--muted-foreground);font-size:12px;padding:20px 0">Chưa có activity</div>
-          </div>
-          <div style="margin-top:10px">
-            <button class="btn btn-ghost" style="font-size:12px" onclick="navigate('logging', document.querySelectorAll('.nav-item')[3])">
-              Xem tất cả log
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </button>
-          </div>
-        </div>
+      <div class="stat-card">
+        <div class="stat-label">Success</div>
+        <div class="stat-value" id="s-ok">0</div>
+        <div class="stat-sub">Đã active</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Creatives</div>
+        <div class="stat-value" id="s-cr">0</div>
+        <div class="stat-sub">Trong thư viện</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Packages</div>
+        <div class="stat-value" id="s-pkg">0</div>
+        <div class="stat-sub">Template bundle</div>
       </div>
     </div>
-
-    <!-- ──────── CAMPAIGN (merged, new layout) ──────── -->
-    <div class="page" id="page-creative" style="padding:0;display:flex;flex-direction:column;height:calc(100vh - 56px);overflow:hidden">
-
-      <!-- TOP NAVBAR: campaign quick config + launch always visible -->
-      <div style="background:var(--card);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap">
-        <input class="form-input" id="camp-name" placeholder="Tên campaign..." type="text" style="width:200px;flex-shrink:0"/>
-        <input class="form-input" id="camp-account" placeholder="act_..." type="text" style="width:160px;flex-shrink:0"/>
-        <select class="form-select" id="camp-objective" style="width:160px;flex-shrink:0">
-          <option value="OUTCOME_APP_PROMOTION">App Promotion</option>
-          <option value="OUTCOME_SALES">Sales</option>
-          <option value="OUTCOME_LEADS">Leads</option>
-          <option value="OUTCOME_TRAFFIC">Traffic</option>
-          <option value="OUTCOME_AWARENESS">Awareness</option>
-        </select>
-        <div style="height:28px;width:1px;background:var(--border);flex-shrink:0"></div>
-        <span id="selected-cr-count" style="font-size:12px;color:var(--muted-foreground);white-space:nowrap">0 CR đã chọn</span>
-        <div id="launch-result" style="font-size:12px"></div>
-        <button class="btn btn-primary" id="btn-launch" onclick="launchCampaign()" style="margin-left:auto;flex-shrink:0">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-          Launch Campaign
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Quick Start</div>
+        <div class="card-desc">Workflow lên campaign đầu tiên</div>
+        <div class="alert alert-info">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Thêm Access Token vào <code style="font-family:monospace;background:var(--bg-3);padding:1px 5px;border-radius:3px;font-size:10.5px">.env</code> để bắt đầu.
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--fg-2)"><span style="width:20px;height:20px;border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0">1</span>Thêm Ad Account</div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--fg-2)"><span style="width:20px;height:20px;border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0">2</span>Upload Creative & gán config</div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--fg-2)"><span style="width:20px;height:20px;border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0">3</span>Tạo Template & Package</div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--fg-2)"><span style="width:20px;height:20px;border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0">4</span>Lên Campaign tự động</div>
+        </div>
+        <button class="btn btn-primary" onclick="nav('campaign',document.querySelectorAll('.nav-item')[1])">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Vào Campaign
         </button>
       </div>
+      <div class="card">
+        <div class="card-title">Activity</div>
+        <div class="log-wrap" style="max-height:190px" id="mini-log">
+          <div style="text-align:center;color:var(--fg-3);padding:20px;font-size:11.5px">Chưa có activity</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="nav('logging',document.querySelectorAll('.nav-item')[4])">Xem tất cả →</button>
+      </div>
+    </div>
+  </div>
 
-      <!-- BODY: vertical tabs + content -->
-      <div style="flex:1;display:flex;overflow:hidden">
+  <!-- ── CAMPAIGN ── -->
+  <div class="page" id="page-campaign" style="padding:0;flex-direction:column;height:calc(100vh - 48px);overflow:hidden;">
+    <!-- Toolbar -->
+    <div id="camp-toolbar" style="background:var(--bg);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;"></div>
+    <!-- Body -->
+    <div style="flex:1;display:flex;overflow:hidden;">
+      <!-- Steps sidebar -->
+      <div style="width:148px;min-width:148px;background:var(--bg);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:12px 6px;flex-shrink:0;">
+        <button class="vstep active" id="vstep-1" onclick="setStep(1)">
+          <div class="vstep-num">1</div>
+          <div class="vstep-label"><span>Creative</span><small>Upload & chọn</small></div>
+        </button>
+        <div class="vstep-connector"></div>
+        <button class="vstep" id="vstep-2" onclick="setStep(2)">
+          <div class="vstep-num">2</div>
+          <div class="vstep-label"><span>Config</span><small>Package & budget</small></div>
+        </button>
+        <div class="vstep-connector"></div>
+        <button class="vstep" id="vstep-3" onclick="setStep(3)">
+          <div class="vstep-num">3</div>
+          <div class="vstep-label"><span>Preview</span><small>& Launch</small></div>
+        </button>
+      </div>
+      <!-- Content -->
+      <div style="flex:1;overflow-y:auto;padding:18px;" id="step-content">
 
-        <!-- Vertical step tabs -->
-        <div style="width:160px;min-width:160px;background:var(--muted);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:16px 8px;gap:4px;flex-shrink:0">
-          <button class="vstep active" id="step-1" onclick="gotoStep1()">
-            <div class="vstep-num">1</div>
-            <div class="vstep-label">
-              <span>Creative</span>
-              <small>Upload & chọn CR</small>
+        <!-- STEP 1 -->
+        <div class="tab-content active" id="sc-1">
+          <input type="file" id="file-input" multiple accept="image/*,video/*" style="display:none" onchange="handleUpload(this.files)"/>
+          <div class="upload-zone mb-16" onclick="document.getElementById('file-input').click()" role="button" tabindex="0"
+               style="padding:16px 20px;display:flex;align-items:center;gap:16px;"
+               onkeydown="if(event.key==='Enter')document.getElementById('file-input').click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="30" height="30" style="flex-shrink:0;color:var(--fg-3)"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div>
+              <p style="font-size:12.5px;font-weight:600;margin-bottom:2px;color:var(--fg)">Kéo & thả hoặc click để upload</p>
+              <span style="font-size:11.5px;color:var(--fg-2)">PNG, JPG, MP4 — tối đa 50MB</span>
             </div>
-          </button>
-          <div style="width:2px;height:16px;background:var(--border);margin-left:15px"></div>
-          <button class="vstep" id="step-2" onclick="gotoStep2()">
-            <div class="vstep-num">2</div>
-            <div class="vstep-label">
-              <span>Templates</span>
-              <small>APP · TARGET · AD</small>
+            <button class="btn btn-primary" style="margin-left:auto;pointer-events:none;flex-shrink:0" tabindex="-1">Upload</button>
+          </div>
+          <div class="flex items-center gap-8 mb-12">
+            <span style="font-size:12.5px;font-weight:600;">Thư viện (<span id="cr-total">0</span>)</span>
+            <span id="cr-sel-count" style="font-size:11.5px;color:var(--fg-3)">0 đã chọn</span>
+            <button class="btn btn-ghost btn-sm" onclick="clearSel()" style="margin-left:auto">Bỏ chọn</button>
+          </div>
+          <div class="creative-grid" id="cr-grid">
+            <div style="grid-column:1/-1;text-align:center;padding:50px 0;color:var(--fg-3)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" width="36" height="36" style="margin:0 auto 10px;display:block;opacity:.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <p style="font-size:12px">Upload ảnh hoặc video để bắt đầu</p>
             </div>
-          </button>
-          <div style="width:2px;height:16px;background:var(--border);margin-left:15px"></div>
-          <button class="vstep" id="step-3" onclick="gotoStep3()">
-            <div class="vstep-num">3</div>
-            <div class="vstep-label">
-              <span>Preview</span>
-              <small>Kiểm tra & launch</small>
-            </div>
-          </button>
+          </div>
+          <div style="margin-top:16px;display:flex;justify-content:flex-end;">
+            <button class="btn btn-primary" onclick="setStep(2)">Config →</button>
+          </div>
         </div>
 
-        <!-- Content area -->
-        <div style="flex:1;overflow-y:auto;padding:20px">
+        <!-- STEP 2 -->
+        <div class="tab-content" id="sc-2">
+          <!-- Package picker -->
+          <div class="card mb-16">
+            <div class="card-title">Package</div>
+            <div class="card-desc">Chọn 1 hoặc nhiều — mỗi package tạo 1 campaign riêng</div>
+            <div id="pkg-picker" class="grid-3" style="margin-bottom:10px">
+              <div style="grid-column:1/-1;text-align:center;font-size:12px;color:var(--fg-3);padding:20px">Chưa có package. Tạo trong Template & Package.</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <span id="sel-pkg-info" style="font-size:11.5px;color:var(--fg-3)">Chưa chọn</span>
+              <button class="btn btn-ghost btn-sm" onclick="clearPkgSel()">Bỏ chọn</button>
+            </div>
+          </div>
 
-          <!-- Step 1: Upload + Creative library -->
-          <div class="tab-content active" id="builder-step-1">
-            <input type="file" id="file-input" multiple accept="image/*,video/*" style="display:none" onchange="handleFileUpload(this.files)"/>
-            <!-- Upload zone compact -->
-            <div class="upload-zone mb-16" onclick="triggerUpload()" role="button" tabindex="0" aria-label="Upload creative" style="padding:20px 16px;display:flex;align-items:center;gap:16px;text-align:left">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36" style="flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <!-- Template config — always visible -->
+          <div id="tpl-config-wrap" class="mb-16">
+            <!-- Header -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
               <div>
-                <p style="font-size:13.5px;font-weight:500;margin-bottom:2px">Kéo & thả hoặc click để upload</p>
-                <span style="font-size:12px">PNG, JPG, MP4, GIF — tối đa 50MB mỗi file</span>
-              </div>
-              <button class="btn btn-primary" style="margin-left:auto;pointer-events:none;flex-shrink:0" tabindex="-1">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                Upload
-              </button>
-            </div>
-
-            <!-- Library toolbar -->
-            <div class="flex items-center gap-8 mb-16">
-              <span style="font-size:13px;font-weight:600;color:var(--foreground)">Thư viện (<span id="cr-total">0</span>)</span>
-              <input class="form-input" style="width:180px;margin-left:auto" placeholder="Tìm kiếm..." type="search" oninput="filterCreatives(this.value)"/>
-              <button class="btn btn-ghost" style="font-size:11.5px;padding:5px 10px" onclick="clearSelectedCreatives()">Bỏ chọn</button>
-            </div>
-
-            <!-- CR grid -->
-            <div class="creative-grid" id="cr-grid">
-              <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted-foreground)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40" style="margin:0 auto 12px;display:block;opacity:0.35"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                <p style="font-size:13px">Upload ảnh hoặc video để bắt đầu.</p>
+                <div style="font-size:13px;font-weight:600;color:var(--fg)">Templates</div>
+                <div id="tpl-ctx-hint" style="font-size:11.5px;color:var(--fg-3);margin-top:1px">Điền thủ công hoặc chọn package bên trên để tự điền</div>
               </div>
             </div>
 
-            <div style="margin-top:20px;display:flex;justify-content:flex-end">
-              <button class="btn btn-primary" onclick="gotoStep2()">
-                Tiếp theo — Config Templates
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </button>
+            <!-- Editable view (0 or 1 package) -->
+            <div id="tpl-edit-view" class="grid-3" style="align-items:start">
+              <div class="card">
+                <div class="card-title" style="display:flex;align-items:center;gap:6px;margin-bottom:12px">
+                  <span style="width:6px;height:6px;border-radius:50%;background:var(--fg);display:inline-block"></span>APP
+                </div>
+                <div class="form-group"><label class="form-label">Chọn template</label>
+                  <select class="form-select" id="sel-app" onchange="fillApp(this.value)"><option value="">— hoặc tạo mới —</option></select></div>
+                <hr class="divider">
+                <div class="form-group"><label class="form-label">Package Name <span style="color:var(--danger)">*</span></label><input class="form-input" id="app-pkg" placeholder="com.example.app"/></div>
+                <div class="form-row">
+                  <div class="form-group"><label class="form-label">App ID</label><input class="form-input" id="app-id" placeholder="1234567890"/></div>
+                  <div class="form-group"><label class="form-label">Dev ID</label><input class="form-input" id="app-dev" placeholder="Dev ID"/></div>
+                </div>
+                <div class="form-group"><label class="form-label">FB Page ID</label><input class="form-input" id="app-page" placeholder="Page ID"/></div>
+                <button class="btn btn-secondary btn-sm" style="width:100%" onclick="saveTpl('app')">Lưu APP template</button>
+              </div>
+              <div class="card">
+                <div class="card-title" style="display:flex;align-items:center;gap:6px;margin-bottom:12px">
+                  <span style="width:6px;height:6px;border-radius:50%;background:var(--fg-2);display:inline-block"></span>TARGET
+                </div>
+                <div class="form-group"><label class="form-label">Chọn template</label>
+                  <select class="form-select" id="sel-tgt" onchange="fillTgt(this.value)"><option value="">— hoặc tạo mới —</option></select></div>
+                <hr class="divider">
+                <div class="form-group"><label class="form-label">Country</label><input class="form-input" id="tgt-country" placeholder="VN, US, TH"/></div>
+                <div class="form-row">
+                  <div class="form-group"><label class="form-label">Gender</label>
+                    <select class="form-select" id="tgt-gender"><option value="all">All</option><option value="male">Male</option><option value="female">Female</option></select></div>
+                  <div class="form-group"><label class="form-label">Language</label><input class="form-input" id="tgt-lang" placeholder="vi, en"/></div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group"><label class="form-label">Age Min</label><input class="form-input" id="tgt-amin" placeholder="18" type="number"/></div>
+                  <div class="form-group"><label class="form-label">Age Max</label><input class="form-input" id="tgt-amax" placeholder="45" type="number"/></div>
+                </div>
+                <button class="btn btn-secondary btn-sm" style="width:100%" onclick="saveTpl('target')">Lưu TARGET template</button>
+              </div>
+              <div class="card">
+                <div class="card-title" style="display:flex;align-items:center;gap:6px;margin-bottom:12px">
+                  <span style="width:6px;height:6px;border-radius:50%;background:var(--fg-3);display:inline-block"></span>AD
+                </div>
+                <div class="form-group"><label class="form-label">Chọn template</label>
+                  <select class="form-select" id="sel-ad" onchange="fillAd(this.value)"><option value="">— hoặc tạo mới —</option></select></div>
+                <hr class="divider">
+                <div class="form-group"><label class="form-label">Headlines</label>
+                  <textarea class="form-textarea" id="ad-headlines" placeholder="Download ngay&#10;Thử miễn phí" style="min-height:58px"></textarea></div>
+                <div class="form-group"><label class="form-label">Primary Text</label>
+                  <textarea class="form-textarea" id="ad-text" placeholder="Nội dung quảng cáo..." style="min-height:58px"></textarea></div>
+                <button class="btn btn-secondary btn-sm" style="width:100%" onclick="saveTpl('ad')">Lưu AD template</button>
+              </div>
+            </div>
+
+            <!-- Multi-package read-only view -->
+            <div id="tpl-multi-view" style="display:none">
+              <div id="tpl-multi-rows"></div>
             </div>
           </div>
 
-          <!-- Step 2: Templates (3 cols) -->
-          <div class="tab-content" id="builder-step-2">
-            <div class="grid-3" style="align-items:start;margin-bottom:20px">
-
-              <!-- APP -->
-              <div class="card">
-                <div class="card-title" style="display:flex;align-items:center;gap:8px">
-                  <div style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;flex-shrink:0"></div>APP
-                </div>
-                <div class="form-group">
-                  <select class="form-select" id="sel-app-template" onchange="fillAppTemplate(this.value)">
-                    <option value="">— Chọn có sẵn —</option>
-                  </select>
-                </div>
-                <hr class="divider">
-                <div class="form-group">
-                  <label class="form-label">Package Name <span style="color:#ef4444">*</span></label>
-                  <input class="form-input" id="app-pkg" placeholder="com.example.app" type="text"/>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">App ID</label>
-                  <input class="form-input" id="app-id" placeholder="1234567890" type="text"/>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Developer ID</label>
-                  <input class="form-input" id="app-dev" placeholder="Dev ID" type="text"/>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">FB Page ID</label>
-                  <input class="form-input" id="app-page" placeholder="Page ID" type="text"/>
-                </div>
-                <button class="btn btn-secondary" style="font-size:11.5px;width:100%" onclick="saveAppTemplate()">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                  Lưu template
-                </button>
-              </div>
-
-              <!-- TARGET -->
-              <div class="card">
-                <div class="card-title" style="display:flex;align-items:center;gap:8px">
-                  <div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0"></div>TARGET
-                </div>
-                <div class="form-group">
-                  <select class="form-select" id="sel-target-template" onchange="fillTargetTemplate(this.value)">
-                    <option value="">— Chọn có sẵn —</option>
-                  </select>
-                </div>
-                <hr class="divider">
-                <div class="form-group">
-                  <label class="form-label">Country</label>
-                  <input class="form-input" id="tgt-country" placeholder="VN, US, TH..." type="text"/>
-                </div>
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">Gender</label>
-                    <select class="form-select" id="tgt-gender">
-                      <option value="all">All</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Language</label>
-                    <input class="form-input" id="tgt-lang" placeholder="vi, en..." type="text"/>
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">Age Min</label>
-                    <input class="form-input" id="tgt-age-min" placeholder="18" type="number" min="18" max="65"/>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Age Max</label>
-                    <input class="form-input" id="tgt-age-max" placeholder="45" type="number" min="18" max="65"/>
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">Budget Type</label>
-                    <select class="form-select" id="tgt-budget-type">
-                      <option value="CBO">CBO</option>
-                      <option value="ABO">ABO</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Budget ($/ngày)</label>
-                    <input class="form-input" id="tgt-budget" placeholder="50" type="number" min="1"/>
-                  </div>
-                </div>
-                <button class="btn btn-secondary" style="font-size:11.5px;width:100%" onclick="saveTargetTemplate()">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                  Lưu template
-                </button>
-              </div>
-
-              <!-- AD -->
-              <div class="card">
-                <div class="card-title" style="display:flex;align-items:center;gap:8px">
-                  <div style="width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0"></div>AD
-                </div>
-                <div class="form-group">
-                  <select class="form-select" id="sel-ad-template" onchange="fillAdTemplate(this.value)">
-                    <option value="">— Chọn có sẵn —</option>
-                  </select>
-                </div>
-                <hr class="divider">
-                <div class="form-group">
-                  <label class="form-label">Headlines <span style="color:var(--muted-foreground);font-weight:400">(mỗi dòng 1)</span></label>
-                  <textarea class="form-textarea" id="ad-headlines" placeholder="Download ngay&#10;Thử miễn phí&#10;Khám phá ngay" style="min-height:72px"></textarea>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Primary Text</label>
-                  <textarea class="form-textarea" id="ad-text" placeholder="Nội dung quảng cáo..." style="min-height:72px"></textarea>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Số CR / Ad</label>
-                  <input class="form-input" id="ad-cr-count" placeholder="3" type="number" min="1" max="10"/>
-                </div>
-                <button class="btn btn-secondary" style="font-size:11.5px;width:100%" onclick="saveAdTemplate()">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                  Lưu template
-                </button>
-              </div>
+          <!-- Campaign config -->
+          <div class="grid-2 mb-16">
+            <div class="card">
+              <div class="card-title">Campaign Info</div>
+              <div class="form-group" style="margin-top:12px"><label class="form-label">Tên Campaign <span style="color:var(--danger)">*</span></label>
+                <input class="form-input" id="camp-name" placeholder="App_VN_iOS_Jun2025"/></div>
+              <div class="form-group"><label class="form-label">Ad Account <span style="color:var(--danger)">*</span></label>
+                <select class="form-select" id="camp-account"><option value="">— Chọn Ad Account —</option></select></div>
             </div>
-
-            <div class="flex gap-8">
-              <button class="btn btn-ghost" onclick="gotoStep1()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                Quay lại
-              </button>
-              <button class="btn btn-primary" onclick="gotoStep3()" style="margin-left:auto">
-                Preview
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </button>
+            <div class="card">
+              <div class="card-title">Budget & Bid</div>
+              <div class="form-row" style="margin-top:12px">
+                <div class="form-group"><label class="form-label">Budget Type</label>
+                  <select class="form-select" id="tgt-budget-type"><option value="CBO">CBO</option><option value="ABO">ABO</option></select></div>
+                <div class="form-group"><label class="form-label">Budget ($/ngày)</label>
+                  <input class="form-input" id="tgt-budget" placeholder="50" type="number"/></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Bid Strategy</label>
+                  <select class="form-select" id="bid-strategy">
+                    <option value="LOWEST_COST_WITHOUT_CAP">Lowest Cost</option>
+                    <option value="LOWEST_COST_WITH_BID_CAP">Bid Cap</option>
+                    <option value="COST_CAP">Cost Cap</option>
+                    <option value="MINIMUM_ROAS">Min ROAS</option>
+                  </select></div>
+                <div class="form-group"><label class="form-label">Bid Amount ($)</label>
+                  <input class="form-input" id="bid-amount" placeholder="0.00" type="number" step="0.01"/></div>
+              </div>
             </div>
           </div>
 
-          <!-- Step 3: Preview -->
-          <div class="tab-content" id="builder-step-3">
-            <div class="grid-2" style="align-items:start">
-              <div class="card">
-                <div class="card-title">Preview Campaign</div>
-                <div class="card-desc">Kiểm tra trước khi launch</div>
-                <div id="preview-content" style="font-size:13px"></div>
+          <!-- Creative distribution -->
+          <div class="card mb-16">
+            <div class="card-title">Creative Distribution</div>
+            <div class="card-desc">Format & số lượng CR/Ad để tính campaign split</div>
+            <div class="fmt-opts">
+              <div class="fmt-opt active" id="fmt-single" onclick="selectFmt('single',this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                <span>Single</span><small>1 CR / Ad</small>
               </div>
-              <div class="card">
-                <div class="alert alert-warn" style="margin-bottom:0">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                  <span>Campaign tạo ở trạng thái <strong>PAUSED</strong>. Vào Ads Manager để bật.</span>
-                </div>
+              <div class="fmt-opt" id="fmt-carousel" onclick="selectFmt('carousel',this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="10" height="12" rx="1"/><rect x="14" y="6" width="8" height="12" rx="1"/></svg>
+                <span>Carousel</span><small>multi CR</small>
+              </div>
+              <div class="fmt-opt" id="fmt-flex" onclick="selectFmt('flex',this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="7" height="7" rx="1"/><rect x="10" y="4" width="12" height="7" rx="1"/><rect x="2" y="13" width="12" height="7" rx="1"/><rect x="16" y="13" width="6" height="7" rx="1"/></svg>
+                <span>Flexible</span><small>max 10 CR</small>
               </div>
             </div>
-            <div class="flex gap-8" style="margin-top:16px">
-              <button class="btn btn-ghost" onclick="gotoStep2()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                Sửa lại
-              </button>
+            <div class="form-row" style="max-width:280px;margin-bottom:14px">
+              <div class="form-group"><label class="form-label">CR / Ad <span id="fmt-max-hint" style="color:var(--fg-3);font-weight:400"></span></label>
+                <input class="form-input" id="cr-per-ad" placeholder="6" type="number" min="1" max="10" oninput="calcSplit()"/></div>
+              <div class="form-group" style="align-self:end">
+                <div style="font-size:11px;color:var(--fg-3);margin-bottom:4px">CR đã chọn</div>
+                <div style="font-size:22px;font-weight:700;color:var(--fg);letter-spacing:-0.5px" id="cr-sel-disp">0</div>
+              </div>
+            </div>
+            <div id="split-preview" style="display:none">
+              <div style="font-size:11.5px;font-weight:600;color:var(--fg-2);margin-bottom:8px">Phân phối:</div>
+              <div id="split-rows"></div>
             </div>
           </div>
 
+          <div class="flex gap-8">
+            <button class="btn btn-ghost" onclick="setStep(1)">← Quay lại</button>
+            <div style="margin-left:auto;display:flex;gap:8px">
+              <button class="btn btn-secondary" onclick="saveNewPkg()">Lưu Package mới</button>
+              <button class="btn btn-primary" onclick="setStep(3)">Preview →</button>
+            </div>
+          </div>
         </div>
+
+        <!-- STEP 3 -->
+        <div class="tab-content" id="sc-3">
+          <div class="grid-2 mb-16" style="align-items:start">
+            <div class="card">
+              <div class="card-title">Preview</div>
+              <div id="preview-content" style="margin-top:12px;font-size:12.5px"></div>
+            </div>
+            <div class="card">
+              <div class="card-title">Campaign Split</div>
+              <div id="preview-split" style="font-size:12.5px;margin:12px 0 14px"></div>
+              <div class="alert alert-warn" style="margin-bottom:14px">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Campaign tạo ở trạng thái <strong>PAUSED</strong>.
+              </div>
+              <div id="launch-result" style="margin-bottom:10px"></div>
+              <div class="flex gap-8">
+                <button class="btn btn-ghost" onclick="setStep(2)">← Sửa lại</button>
+                <button class="btn btn-primary" id="btn-launch" onclick="launchCamp()" style="margin-left:auto">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                  Launch Campaign
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
+  </div>
 
-    <!-- ──────── TEMPLATE & PACKAGE ──────── -->
-    <div class="page" id="page-template">
-      <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('tab-app', this)">APP</button>
-        <button class="tab-btn" onclick="switchTab('tab-target', this)">TARGET</button>
-        <button class="tab-btn" onclick="switchTab('tab-ad', this)">AD</button>
-        <button class="tab-btn" onclick="switchTab('tab-package', this)">Package</button>
-      </div>
+  <!-- ── AD ACCOUNTS ── -->
+  <div class="page" id="page-accounts">
+    <div class="sec-hdr">
+      <div class="sec-title">Ad Accounts (<span id="acc-total">0</span>)</div>
+      <button class="btn btn-primary" onclick="openModal('modal-acc')">+ Thêm</button>
+    </div>
+    <div class="grid-3" id="acc-list">
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--fg-3);font-size:12px">Chưa có Ad Account</div>
+    </div>
+  </div>
 
-      <!-- APP Tab -->
-      <div class="tab-content active" id="tab-app">
-        <div class="section-header">
-          <div class="section-title">APP Templates</div>
-          <button class="btn btn-primary" onclick="openModal('modal-app')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Tạo mới
-          </button>
-        </div>
-        <div class="grid-3" id="app-template-list">
-          <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted-foreground);font-size:13px">Chưa có APP template</div>
-        </div>
-      </div>
+  <!-- ── TEMPLATE ── -->
+  <div class="page" id="page-template">
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('t-app',this)">APP</button>
+      <button class="tab-btn" onclick="switchTab('t-target',this)">TARGET</button>
+      <button class="tab-btn" onclick="switchTab('t-ad',this)">AD</button>
+      <button class="tab-btn" onclick="switchTab('t-pkg',this)">Package</button>
+    </div>
+    <div class="tab-content active" id="t-app">
+      <div class="sec-hdr"><div class="sec-title">APP Templates</div><button class="btn btn-primary" onclick="openModal('modal-app')">+ Tạo mới</button></div>
+      <div class="grid-3" id="app-list"><div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--fg-3);font-size:12px">Chưa có template</div></div>
+    </div>
+    <div class="tab-content" id="t-target">
+      <div class="sec-hdr"><div class="sec-title">TARGET Templates</div><button class="btn btn-primary" onclick="openModal('modal-target')">+ Tạo mới</button></div>
+      <div class="grid-3" id="target-list"><div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--fg-3);font-size:12px">Chưa có template</div></div>
+    </div>
+    <div class="tab-content" id="t-ad">
+      <div class="sec-hdr"><div class="sec-title">AD Templates</div><button class="btn btn-primary" onclick="openModal('modal-ad')">+ Tạo mới</button></div>
+      <div class="grid-3" id="ad-list"><div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--fg-3);font-size:12px">Chưa có template</div></div>
+    </div>
+    <div class="tab-content" id="t-pkg">
+      <div class="sec-hdr"><div class="sec-title">Packages</div><button class="btn btn-primary" onclick="openModal('modal-pkg')">+ Tạo Package</button></div>
+      <div class="grid-3" id="pkg-list"><div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--fg-3);font-size:12px">Chưa có package</div></div>
+    </div>
+  </div>
 
-      <!-- TARGET Tab -->
-      <div class="tab-content" id="tab-target">
-        <div class="section-header">
-          <div class="section-title">TARGET Templates</div>
-          <button class="btn btn-primary" onclick="openModal('modal-target')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Tạo mới
-          </button>
-        </div>
-        <div class="grid-3" id="target-template-list">
-          <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted-foreground);font-size:13px">Chưa có TARGET template</div>
-        </div>
-      </div>
-
-      <!-- AD Tab -->
-      <div class="tab-content" id="tab-ad">
-        <div class="section-header">
-          <div class="section-title">AD Templates</div>
-          <button class="btn btn-primary" onclick="openModal('modal-ad')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Tạo mới
-          </button>
-        </div>
-        <div class="grid-3" id="ad-template-list">
-          <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted-foreground);font-size:13px">Chưa có AD template</div>
-        </div>
-      </div>
-
-      <!-- Package Tab -->
-      <div class="tab-content" id="tab-package">
-        <div class="section-header">
-          <div class="section-title">Packages</div>
-          <button class="btn btn-primary" onclick="openModal('modal-package')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Tạo Package
-          </button>
-        </div>
-        <div class="grid-3" id="package-list">
-          <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted-foreground);font-size:13px">Chưa có Package nào</div>
-        </div>
+  <!-- ── LOGGING ── -->
+  <div class="page" id="page-logging">
+    <div class="sec-hdr">
+      <div class="sec-title">System Log</div>
+      <div class="flex gap-8">
+        <select class="form-select" style="width:110px;font-size:12px" onchange="filterLog(this.value)">
+          <option value="all">All</option><option value="info">Info</option><option value="success">Success</option><option value="warn">Warn</option><option value="error">Error</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="clearLogs()">Clear</button>
       </div>
     </div>
-
-    <!-- ──────── LOGGING ──────── -->
-    <div class="page" id="page-logging">
-      <div class="section-header mb-16">
-        <div>
-          <div class="section-title">System Log</div>
-          <div style="font-size:12px;color:var(--muted-foreground);margin-top:2px">Toàn bộ activity của hệ thống</div>
-        </div>
-        <div class="flex gap-8">
-          <select class="form-select" style="width:120px" onchange="filterLogs(this.value)" id="log-filter">
-            <option value="all">All</option>
-            <option value="info">Info</option>
-            <option value="success">Success</option>
-            <option value="warn">Warn</option>
-            <option value="error">Error</option>
-          </select>
-          <button class="btn btn-ghost" onclick="clearLogs()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-            Clear
-          </button>
-        </div>
-      </div>
-      <div class="log-container" id="main-log" style="max-height:calc(100vh - 200px)">
-        <div style="text-align:center;color:var(--muted-foreground);font-size:12px;padding:20px 0">Chưa có log</div>
-      </div>
+    <div class="log-wrap" id="main-log" style="max-height:calc(100vh - 150px)">
+      <div style="text-align:center;color:var(--fg-3);padding:20px;font-size:11.5px">Chưa có log</div>
     </div>
+  </div>
 
   </div>
 </div>
 
-<!-- ═══════════════ MODALS ═══════════════════════ -->
+<!-- ═══ MODALS ═══ -->
+<div class="modal-overlay" id="modal-acc">
+  <div class="modal">
+    <div class="modal-hdr"><span class="modal-title">Thêm Ad Account</span><button class="icon-btn" onclick="closeModal('modal-acc')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="form-group"><label class="form-label">Tên hiển thị</label><input class="form-input" id="acc-label" placeholder="VN Main Account"/></div>
+    <div class="form-group"><label class="form-label">Ad Account ID <span style="color:var(--danger)">*</span></label><input class="form-input" id="acc-id" placeholder="act_1234567890"/></div>
+    <div class="form-group"><label class="form-label">Ghi chú</label><input class="form-input" id="acc-note" placeholder="Tùy chọn..."/></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-acc')">Hủy</button><button class="btn btn-primary" onclick="saveAccount()">Lưu</button></div>
+  </div>
+</div>
 
-<!-- Modal APP Template -->
 <div class="modal-overlay" id="modal-app">
   <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title">Tạo APP Template</span>
-      <button class="modal-close" onclick="closeModal('modal-app')" aria-label="Đóng">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Tên template</label>
-      <input class="form-input" id="modal-app-name" placeholder="App Game VN" type="text"/>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Package Name <span style="color:#ef4444">*</span></label>
-      <input class="form-input" id="modal-app-pkg" placeholder="com.example.app" type="text"/>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">App ID</label>
-        <input class="form-input" id="modal-app-appid" placeholder="1234567890" type="text"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Developer ID</label>
-        <input class="form-input" id="modal-app-devid" placeholder="Dev ID" type="text"/>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">FB Page ID</label>
-      <input class="form-input" id="modal-app-pageid" placeholder="Page ID" type="text"/>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-app')">Hủy</button>
-      <button class="btn btn-primary" onclick="createAppTemplate()">Lưu Template</button>
-    </div>
+    <div class="modal-hdr"><span class="modal-title">Tạo APP Template</span><button class="icon-btn" onclick="closeModal('modal-app')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="form-group"><label class="form-label">Tên template</label><input class="form-input" id="m-app-name" placeholder="My App VN"/></div>
+    <div class="form-group"><label class="form-label">Package Name <span style="color:var(--danger)">*</span></label><input class="form-input" id="m-app-pkg" placeholder="com.example.app"/></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">App ID</label><input class="form-input" id="m-app-id" placeholder="1234567890"/></div><div class="form-group"><label class="form-label">Dev ID</label><input class="form-input" id="m-app-dev" placeholder="Dev ID"/></div></div>
+    <div class="form-group"><label class="form-label">FB Page ID</label><input class="form-input" id="m-app-page" placeholder="Page ID"/></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-app')">Hủy</button><button class="btn btn-primary" onclick="createTpl('app')">Lưu</button></div>
   </div>
 </div>
 
-<!-- Modal TARGET Template -->
 <div class="modal-overlay" id="modal-target">
   <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title">Tạo TARGET Template</span>
-      <button class="modal-close" onclick="closeModal('modal-target')" aria-label="Đóng">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Tên template</label>
-      <input class="form-input" id="modal-tgt-name" placeholder="VN Male 18-35" type="text"/>
-    </div>
+    <div class="modal-hdr"><span class="modal-title">Tạo TARGET Template</span><button class="icon-btn" onclick="closeModal('modal-target')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="form-group"><label class="form-label">Tên template</label><input class="form-input" id="m-tgt-name" placeholder="VN Male 18-35"/></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Country</label><input class="form-input" id="m-tgt-country" placeholder="VN"/></div><div class="form-group"><label class="form-label">Language</label><input class="form-input" id="m-tgt-lang" placeholder="vi"/></div></div>
     <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Country</label>
-        <input class="form-input" id="modal-tgt-country" placeholder="VN" type="text"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Language</label>
-        <input class="form-input" id="modal-tgt-lang" placeholder="vi" type="text"/>
-      </div>
+      <div class="form-group"><label class="form-label">Gender</label><select class="form-select" id="m-tgt-gender"><option value="all">All</option><option value="male">Male</option><option value="female">Female</option></select></div>
+      <div class="form-group"><label class="form-label">Age</label><div class="form-row"><input class="form-input" id="m-tgt-amin" placeholder="18" type="number"/><input class="form-input" id="m-tgt-amax" placeholder="45" type="number"/></div></div>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Gender</label>
-        <select class="form-select" id="modal-tgt-gender">
-          <option value="all">All</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Budget Type</label>
-        <select class="form-select" id="modal-tgt-budget-type">
-          <option value="CBO">CBO</option>
-          <option value="ABO">ABO</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Age Min</label>
-        <input class="form-input" id="modal-tgt-age-min" placeholder="18" type="number"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Age Max</label>
-        <input class="form-input" id="modal-tgt-age-max" placeholder="45" type="number"/>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Budget (USD/ngày)</label>
-      <input class="form-input" id="modal-tgt-budget" placeholder="50" type="number"/>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-target')">Hủy</button>
-      <button class="btn btn-primary" onclick="createTargetTemplate()">Lưu Template</button>
-    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-target')">Hủy</button><button class="btn btn-primary" onclick="createTpl('target')">Lưu</button></div>
   </div>
 </div>
 
-<!-- Modal AD Template -->
 <div class="modal-overlay" id="modal-ad">
   <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title">Tạo AD Template</span>
-      <button class="modal-close" onclick="closeModal('modal-ad')" aria-label="Đóng">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Tên template</label>
-      <input class="form-input" id="modal-ad-name" placeholder="Gaming Copy V1" type="text"/>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Headlines <span style="color:var(--muted-foreground);font-weight:400">(mỗi dòng 1 headline)</span></label>
-      <textarea class="form-textarea" id="modal-ad-headlines" placeholder="Download ngay&#10;Thử miễn phí"></textarea>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Primary Text</label>
-      <textarea class="form-textarea" id="modal-ad-text" placeholder="Nội dung quảng cáo..."></textarea>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Số lượng CR / Ad</label>
-      <input class="form-input" id="modal-ad-cr-count" placeholder="3" type="number" min="1" max="10"/>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-ad')">Hủy</button>
-      <button class="btn btn-primary" onclick="createAdTemplate()">Lưu Template</button>
-    </div>
+    <div class="modal-hdr"><span class="modal-title">Tạo AD Template</span><button class="icon-btn" onclick="closeModal('modal-ad')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="form-group"><label class="form-label">Tên template</label><input class="form-input" id="m-ad-name" placeholder="Gaming Copy V1"/></div>
+    <div class="form-group"><label class="form-label">Headlines</label><textarea class="form-textarea" id="m-ad-headlines" placeholder="Download ngay&#10;Thử miễn phí"></textarea></div>
+    <div class="form-group"><label class="form-label">Primary Text</label><textarea class="form-textarea" id="m-ad-text" placeholder="Nội dung quảng cáo..."></textarea></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-ad')">Hủy</button><button class="btn btn-primary" onclick="createTpl('ad')">Lưu</button></div>
   </div>
 </div>
 
-<!-- Modal Package -->
-<div class="modal-overlay" id="modal-package">
+<div class="modal-overlay" id="modal-pkg">
   <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title">Tạo Package</span>
-      <button class="modal-close" onclick="closeModal('modal-package')" aria-label="Đóng">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Tên Package <span style="color:#ef4444">*</span></label>
-      <input class="form-input" id="modal-pkg-name" placeholder="VN Game Package V1" type="text"/>
-    </div>
-    <div class="form-group">
-      <label class="form-label">APP Template <span style="color:#ef4444">*</span></label>
-      <select class="form-select" id="modal-pkg-app">
-        <option value="">— Chọn APP template —</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">TARGET Template <span style="color:#ef4444">*</span></label>
-      <select class="form-select" id="modal-pkg-target">
-        <option value="">— Chọn TARGET template —</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">AD Template <span style="color:#ef4444">*</span></label>
-      <select class="form-select" id="modal-pkg-ad">
-        <option value="">— Chọn AD template —</option>
-      </select>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-package')">Hủy</button>
-      <button class="btn btn-primary" onclick="createPackage()">Tạo Package</button>
-    </div>
+    <div class="modal-hdr"><span class="modal-title">Tạo Package</span><button class="icon-btn" onclick="closeModal('modal-pkg')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="form-group"><label class="form-label">Tên Package <span style="color:var(--danger)">*</span></label><input class="form-input" id="m-pkg-name" placeholder="VN Game V1"/></div>
+    <div class="form-group"><label class="form-label">APP Template <span style="color:var(--danger)">*</span></label><select class="form-select" id="m-pkg-app"><option value="">— Chọn —</option></select></div>
+    <div class="form-group"><label class="form-label">TARGET Template <span style="color:var(--danger)">*</span></label><select class="form-select" id="m-pkg-tgt"><option value="">— Chọn —</option></select></div>
+    <div class="form-group"><label class="form-label">AD Template <span style="color:var(--danger)">*</span></label><select class="form-select" id="m-pkg-ad"><option value="">— Chọn —</option></select></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-pkg')">Hủy</button><button class="btn btn-primary" onclick="createPkg()">Tạo</button></div>
   </div>
 </div>
 
-<!-- ═══════════════════ JS ═══════════════════════ -->
+<!-- Creative config modal -->
+<div class="modal-overlay" id="modal-cr-config">
+  <div class="modal">
+    <div class="modal-hdr"><span class="modal-title">Config Creative</span><button class="icon-btn" onclick="closeModal('modal-cr-config')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div id="cr-config-files" style="font-size:11.5px;color:var(--fg-3);margin-bottom:14px"></div>
+    <div class="form-group"><label class="form-label">App</label>
+      <div class="ac-wrap"><input class="form-input" id="cr-cfg-app" placeholder="e.g. GameX" autocomplete="off" oninput="showAC('cr-cfg-app','ac-app',this.value,'app')" onblur="hideAC('ac-app')"/>
+      <div class="ac-dropdown" id="ac-app"></div></div></div>
+    <div class="form-group"><label class="form-label">Style</label>
+      <div class="ac-wrap"><input class="form-input" id="cr-cfg-style" placeholder="e.g. UGC, Cinematic" autocomplete="off" oninput="showAC('cr-cfg-style','ac-style',this.value,'style')" onblur="hideAC('ac-style')"/>
+      <div class="ac-dropdown" id="ac-style"></div></div></div>
+    <div class="form-group"><label class="form-label">Target</label>
+      <div class="ac-wrap"><input class="form-input" id="cr-cfg-target" placeholder="e.g. Male 18-35 VN" autocomplete="off" oninput="showAC('cr-cfg-target','ac-target',this.value,'target')" onblur="hideAC('ac-target')"/>
+      <div class="ac-dropdown" id="ac-target"></div></div></div>
+    <div class="form-group"><label class="form-label">Custom</label>
+      <div class="ac-wrap"><input class="form-input" id="cr-cfg-custom" placeholder="Tag tùy chỉnh..." autocomplete="off" oninput="showAC('cr-cfg-custom','ac-custom',this.value,'custom')" onblur="hideAC('ac-custom')"/>
+      <div class="ac-dropdown" id="ac-custom"></div></div></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-cr-config')">Bỏ qua</button><button class="btn btn-primary" onclick="confirmCrConfig()">Lưu config</button></div>
+  </div>
+</div>
+
 <script>
-  // ── State ──────────────────────────────────────────
-  const state = {
-    creatives: [],
-    selectedCreatives: [],
-    templates: { app: [], target: [], ad: [] },
-    packages: [],
-    logs: [],
-    campaigns: [],
-    currentStep: 1,
-  };
+const S={creatives:[],selected:new Set(),templates:{app:[],target:[],ad:[]},packages:[],accounts:[],logs:[],campaigns:[],selPkgs:new Set(),crFormat:'single',acValues:{app:new Set(),style:new Set(),target:new Set(),custom:new Set()},pendingFiles:[]};
 
-  // ── Logger ─────────────────────────────────────────
-  function addLog(level, msg) {
-    const now = new Date();
-    const time = now.toTimeString().slice(0, 8);
-    const entry = { level, msg, time, id: Date.now() };
-    state.logs.unshift(entry);
-    renderLogs();
-    updateBadges();
-  }
+function log(level,msg){const t=new Date().toTimeString().slice(0,8);S.logs.unshift({level,msg,t});renderLogs();updateBadges();}
+function renderLogs(filter='all'){const rows=filter==='all'?S.logs:S.logs.filter(l=>l.level===filter);const html=rows.length===0?'<div style="text-align:center;color:var(--fg-3);padding:16px;font-size:11.5px">Không có log</div>':rows.map(l=>`<div class="log-row"><span class="log-time">${l.t}</span><span class="log-lv ${l.level}">${l.level.toUpperCase()}</span><span class="log-msg">${l.msg}</span></div>`).join('');const el=document.getElementById('main-log');if(el)el.innerHTML=html;const mini=document.getElementById('mini-log');if(mini)mini.innerHTML=S.logs.slice(0,5).map(l=>`<div class="log-row"><span class="log-time">${l.t}</span><span class="log-lv ${l.level}">${l.level.toUpperCase()}</span><span class="log-msg">${l.msg}</span></div>`).join('')||'<div style="text-align:center;color:var(--fg-3);padding:12px;font-size:11px">Chưa có activity</div>';}
+function filterLog(v){renderLogs(v);}
+function clearLogs(){S.logs=[];renderLogs();updateBadges();}
 
-  function renderLogs(filter = document.getElementById('log-filter')?.value || 'all') {
-    const logs = filter === 'all' ? state.logs : state.logs.filter(l => l.level === filter);
-    const container = document.getElementById('main-log');
-    const mini = document.getElementById('mini-log');
-    const html = logs.length === 0
-      ? '<div style="text-align:center;color:var(--muted-foreground);font-size:12px;padding:20px 0">Không có log</div>'
-      : logs.map(l => `
-        <div class="log-entry">
-          <span class="log-time">${l.time}</span>
-          <span class="log-level ${l.level}">${l.level.toUpperCase()}</span>
-          <span class="log-msg">${l.msg}</span>
-        </div>`).join('');
-    if (container) container.innerHTML = html;
-    if (mini) {
-      const recent = state.logs.slice(0, 6);
-      mini.innerHTML = recent.length === 0
-        ? '<div style="text-align:center;color:var(--muted-foreground);font-size:12px;padding:20px 0">Chưa có activity</div>'
-        : recent.map(l => `
-          <div class="log-entry">
-            <span class="log-time">${l.time}</span>
-            <span class="log-level ${l.level}">${l.level.toUpperCase()}</span>
-            <span class="log-msg">${l.msg}</span>
-          </div>`).join('');
-    }
-  }
+function nav(id,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');if(el)el.classList.add('active');const titles={dashboard:'Dashboard',campaign:'Campaign',accounts:'Ad Accounts',template:'Template & Package',logging:'Logging'};document.getElementById('page-title').textContent=titles[id]||id;const tb=document.getElementById('topbar-extra');if(id==='campaign'){tb.innerHTML=buildCampToolbar();syncAccountSelect();}else tb.innerHTML='';}
 
-  function filterLogs(val) { renderLogs(val); }
+function buildCampToolbar(){return`<input class="form-input" style="width:160px;font-size:12px" placeholder="Tìm CR..." type="search" oninput="filterCR()" id="tb-search"/><select class="form-select" style="width:110px;font-size:12px" onchange="filterCR()" id="tb-app"><option value="">App: All</option></select><select class="form-select" style="width:110px;font-size:12px" onchange="filterCR()" id="tb-style"><option value="">Style: All</option></select><select class="form-select" style="width:110px;font-size:12px" onchange="filterCR()" id="tb-target"><option value="">Target: All</option></select><select class="form-select" style="width:110px;font-size:12px" onchange="filterCR()" id="tb-custom"><option value="">Custom: All</option></select><span id="tb-cr-count" style="font-size:11.5px;color:var(--fg-3);white-space:nowrap;flex-shrink:0"></span>`;}
 
-  function clearLogs() {
-    state.logs = [];
-    renderLogs();
-    updateBadges();
-  }
+function syncToolbarFilters(){['app','style','target','custom'].forEach(k=>{const el=document.getElementById('tb-'+k);if(!el)return;const cur=el.value;el.innerHTML=`<option value="">${k.charAt(0).toUpperCase()+k.slice(1)}: All</option>`+[...S.acValues[k]].sort().map(v=>`<option value="${v}">${v}</option>`).join('');el.value=cur;});}
 
-  // ── Navigation ─────────────────────────────────────
-  function navigate(pageId, el) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('page-' + pageId).classList.add('active');
-    if (el) el.classList.add('active');
+function toggleTheme(){const h=document.documentElement;const dark=h.getAttribute('data-theme')==='dark';h.setAttribute('data-theme',dark?'light':'dark');document.getElementById('theme-icon').innerHTML=dark?'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>':'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';}
 
-    const titles = {
-      dashboard: ['Dashboard', ''],
-      creative: ['Campaign', '— Upload CR & lên campaign'],
-      template: ['Template & Package', '— Quản lý templates'],
-      logging: ['Logging', '— System activity'],
-    };
-    const [title, sub] = titles[pageId] || [pageId, ''];
-    document.getElementById('page-title').textContent = title;
-    document.getElementById('page-sub').textContent = sub;
-  }
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('collapsed');}
 
-  // ── Theme ──────────────────────────────────────────
-  function toggleTheme() {
-    const html = document.documentElement;
-    const isDark = html.getAttribute('data-theme') === 'dark';
-    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-    const icon = document.getElementById('theme-icon');
-    if (isDark) {
-      icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+function openModal(id){if(id==='modal-pkg')populatePkgSelects();document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.addEventListener('click',e=>{if(e.target.classList.contains('modal-overlay'))e.target.classList.remove('open');});
+
+function switchTab(id,btn){document.querySelectorAll('#page-template .tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');}
+
+function setStep(n){for(let i=1;i<=3;i++){const btn=document.getElementById('vstep-'+i);const content=document.getElementById('sc-'+i);if(btn)btn.classList.remove('active','done');if(content)content.classList.remove('active');if(btn&&i<n)btn.classList.add('done');if(i===n){if(btn)btn.classList.add('active');if(content)content.classList.add('active');}}if(n===2){syncTplSelects();renderPkgPicker();}if(n===3)buildPreview();updateCrSelCount();}
+
+function handleUpload(files){S.pendingFiles=Array.from(files);document.getElementById('cr-config-files').textContent=`${S.pendingFiles.length} file: ${S.pendingFiles.map(f=>f.name).join(', ')}`;['cr-cfg-app','cr-cfg-style','cr-cfg-target','cr-cfg-custom'].forEach(id=>document.getElementById(id).value='');openModal('modal-cr-config');document.getElementById('file-input').value='';}
+
+function confirmCrConfig(){const cfg={app:document.getElementById('cr-cfg-app').value.trim(),style:document.getElementById('cr-cfg-style').value.trim(),target:document.getElementById('cr-cfg-target').value.trim(),custom:document.getElementById('cr-cfg-custom').value.trim()};['app','style','target','custom'].forEach(k=>{if(cfg[k])S.acValues[k].add(cfg[k]);});S.pendingFiles.forEach(file=>{S.creatives.push({id:Date.now()+Math.random(),name:file.name,size:(file.size/1024/1024).toFixed(1)+' MB',type:file.type.startsWith('video')?'video':'image',url:URL.createObjectURL(file),...cfg});log('info',`Uploaded: ${file.name}`);});closeModal('modal-cr-config');renderCRGrid();syncToolbarFilters();updateBadges();calcSplit();}
+
+function renderCRGrid(){const g=document.getElementById('cr-grid');if(!g)return;if(S.creatives.length===0){g.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:50px 0;color:var(--fg-3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" width="36" height="36" style="margin:0 auto 10px;display:block;opacity:.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><p style="font-size:12px">Upload ảnh hoặc video để bắt đầu</p></div>';return;}const q=(document.getElementById('tb-search')?.value||'').toLowerCase();const fa=document.getElementById('tb-app')?.value||'';const fs=document.getElementById('tb-style')?.value||'';const ft=document.getElementById('tb-target')?.value||'';const fc=document.getElementById('tb-custom')?.value||'';const visible=S.creatives.filter(cr=>{if(q&&!cr.name.toLowerCase().includes(q))return false;if(fa&&cr.app!==fa)return false;if(fs&&cr.style!==fs)return false;if(ft&&cr.target!==ft)return false;if(fc&&cr.custom!==fc)return false;return true;});g.innerHTML=visible.map(cr=>`<div class="cr-item ${S.selected.has(cr.id)?'selected':''}" onclick="toggleCR(${JSON.stringify(cr.id)})" tabindex="0" role="checkbox" aria-checked="${S.selected.has(cr.id)}"><div class="cr-thumb">${cr.type==='image'?`<img src="${cr.url}" alt="${cr.name}" loading="lazy"/>`:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="26" height="26"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>`}<div class="cr-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div></div><div class="cr-info"><div class="cr-name" title="${cr.name}">${cr.name}</div><div class="cr-tags">${cr.app?`<span class="cr-tag">${cr.app}</span>`:''} ${cr.style?`<span class="cr-tag">${cr.style}</span>`:''}</div></div></div>`).join('');document.getElementById('cr-total').textContent=S.creatives.length;updateCrSelCount();}
+
+function filterCR(){renderCRGrid();}
+function toggleCR(id){if(S.selected.has(id))S.selected.delete(id);else S.selected.add(id);renderCRGrid();updateCrSelCount();calcSplit();}
+function clearSel(){S.selected.clear();renderCRGrid();updateCrSelCount();calcSplit();}
+function updateCrSelCount(){const n=S.selected.size;const el=document.getElementById('cr-sel-count');if(el)el.textContent=`${n} đã chọn`;const disp=document.getElementById('cr-sel-disp');if(disp)disp.textContent=n;const tb=document.getElementById('tb-cr-count');if(tb)tb.textContent=`${n} CR chọn`;document.getElementById('cr-badge').textContent=S.creatives.length;}
+
+function showAC(inputId,dropId,val,key){const items=[...S.acValues[key]].filter(v=>v.toLowerCase().includes(val.toLowerCase())&&v!==val);const d=document.getElementById(dropId);if(items.length===0||!val){d.classList.remove('open');return;}d.innerHTML=items.map(v=>`<div class="ac-item" onmousedown="pickAC('${inputId}','${dropId}','${v}')">${v}</div>`).join('');d.classList.add('open');}
+function hideAC(id){setTimeout(()=>document.getElementById(id).classList.remove('open'),150);}
+function pickAC(inputId,dropId,val){document.getElementById(inputId).value=val;document.getElementById(dropId).classList.remove('open');}
+
+function selectFmt(fmt,el){S.crFormat=fmt;document.querySelectorAll('.fmt-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');const hint=document.getElementById('fmt-max-hint');const inp=document.getElementById('cr-per-ad');if(fmt==='single'){if(hint)hint.textContent='(mặc định 1)';if(inp){inp.value=1;inp.readOnly=true;}}else if(fmt==='flex'){if(hint)hint.textContent='(max 10)';if(inp){inp.max=10;inp.readOnly=false;}}else{if(hint)hint.textContent='';if(inp){inp.max=50;inp.readOnly=false;}}calcSplit();}
+
+function calcSplit(){const total=S.selected.size;const perAd=parseInt(document.getElementById('cr-per-ad')?.value)||1;const el=document.getElementById('split-preview');const rows=document.getElementById('split-rows');if(!el||!rows)return;if(total===0||perAd<=0){el.style.display='none';return;}el.style.display='block';const fullCamps=Math.floor(total/perAd);const rem=total%perAd;const pkgCount=S.selPkgs.size||1;let html='';for(let p=0;p<pkgCount;p++){const pkgName=S.selPkgs.size?[...S.selPkgs].map(id=>S.packages.find(pk=>pk.id===id)?.name||'?')[p]:`Camp ${p+1}`;if(pkgCount>1)html+=`<div style="font-size:10.5px;font-weight:600;color:var(--fg-3);margin:8px 0 4px;text-transform:uppercase;letter-spacing:.06em">${pkgName}</div>`;if(fullCamps>0)html+=`<div class="split-row"><span class="split-badge">${fullCamps} camp</span><span style="color:var(--fg-2)">× 1 AdSet × 1 Ad × <strong style="color:var(--fg)">${perAd} CR</strong></span></div>`;if(rem>0)html+=`<div class="split-row"><span class="split-badge">1 camp</span><span style="color:var(--fg-2)">× 1 AdSet × 1 Ad × <strong style="color:var(--fg)">${rem} CR</strong></span></div>`;html+=`<div style="font-size:11px;color:var(--fg-3);margin-top:4px">→ ${fullCamps+(rem>0?1:0)} campaign, ${total} CR</div>`;if(p<pkgCount-1)html+='<hr class="divider">';}rows.innerHTML=html;}
+
+function renderPkgPicker(){const el=document.getElementById('pkg-picker');if(!el)return;if(S.packages.length===0){el.innerHTML='<div style="grid-column:1/-1;text-align:center;font-size:12px;color:var(--fg-3);padding:20px">Chưa có package.</div>';return;}el.innerHTML=S.packages.map(p=>`<div class="pkg-card ${S.selPkgs.has(p.id)?'selected':''}" onclick="togglePkg(${p.id})" style="cursor:pointer"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg><span style="font-size:12.5px;font-weight:600">${p.name}</span>${S.selPkgs.has(p.id)?'<span class="tag tag-white" style="margin-left:auto">✓</span>':''}</div><div style="display:flex;gap:4px;flex-wrap:wrap"><span class="tag tag-neutral">${S.templates.app.find(t=>t.id==p.appId)?.name||'?'}</span><span class="tag tag-neutral">${S.templates.target.find(t=>t.id==p.targetId)?.name||'?'}</span><span class="tag tag-neutral">${S.templates.ad.find(t=>t.id==p.adId)?.name||'?'}</span></div></div>`).join('');updatePkgInfo();}
+
+function togglePkg(id){if(S.selPkgs.has(id))S.selPkgs.delete(id);else S.selPkgs.add(id);renderPkgPicker();showTplConfig();calcSplit();}
+function clearPkgSel(){S.selPkgs.clear();renderPkgPicker();showTplConfig();calcSplit();}
+function showTplConfig(){
+  const editView=document.getElementById('tpl-edit-view');
+  const multiView=document.getElementById('tpl-multi-view');
+  const hint=document.getElementById('tpl-ctx-hint');
+  if(!editView||!multiView)return;
+  const n=S.selPkgs.size;
+  if(n<=1){
+    // 0 or 1 package — editable
+    editView.style.display='grid';
+    multiView.style.display='none';
+    if(n===1){
+      const pkg=S.packages.find(p=>p.id===[...S.selPkgs][0]);
+      if(pkg){fillApp(pkg.appId);fillTgt(pkg.targetId);fillAd(pkg.adId);}
+      if(hint)hint.textContent=`Package "${pkg?.name}" — có thể đổi template`;
     } else {
-      icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+      if(hint)hint.textContent='Điền thủ công hoặc chọn package bên trên để tự điền';
     }
-  }
-
-  // ── Modals ─────────────────────────────────────────
-  function openModal(id) {
-    if (id === 'modal-package') populatePackageSelects();
-    document.getElementById(id).classList.add('open');
-  }
-  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-  document.addEventListener('click', e => {
-    if (e.target.classList.contains('modal-overlay')) {
-      e.target.classList.remove('open');
-    }
-  });
-
-  // ── Tab Bar ────────────────────────────────────────
-  function switchTab(tabId, btn) {
-    document.querySelectorAll('#page-template .tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    btn.classList.add('active');
-  }
-
-  // ── Creative Management ────────────────────────────
-  function triggerUpload() { document.getElementById('file-input').click(); }
-
-  function handleFileUpload(files) {
-    Array.from(files).forEach(file => {
-      const id = Date.now() + Math.random();
-      const cr = {
-        id,
-        name: file.name,
-        size: (file.size / 1024 / 1024).toFixed(1) + ' MB',
-        type: file.type.startsWith('video') ? 'video' : 'image',
-        url: URL.createObjectURL(file),
-      };
-      state.creatives.push(cr);
-      addLog('info', `Uploaded: ${file.name} (${cr.size})`);
-    });
-    renderCreativeGrid();
-    updateBadges();
-  }
-
-  function renderCreativeGrid() {
-    const grid = document.getElementById('cr-grid');
-    if (state.creatives.length === 0) {
-      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted-foreground)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40" style="margin:0 auto 12px;display:block;opacity:0.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-        Chưa có Creative. Upload ảnh hoặc video để bắt đầu.
-      </div>`;
-      return;
-    }
-    grid.innerHTML = state.creatives.map(cr => `
-      <div class="creative-item ${state.selectedCreatives.includes(cr.id) ? 'selected' : ''}"
-           onclick="toggleCreative('${cr.id}')" tabindex="0" role="checkbox"
-           aria-checked="${state.selectedCreatives.includes(cr.id)}"
-           onkeydown="if(event.key==='Enter'||event.key===' ')toggleCreative('${cr.id}')">
-        <div class="creative-thumb">
-          ${cr.type === 'image'
-            ? `<img src="${cr.url}" alt="${cr.name}" loading="lazy"/>`
-            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>`}
-          <div class="creative-check">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+  } else {
+    // multiple packages — read-only per-package view
+    editView.style.display='none';
+    multiView.style.display='block';
+    if(hint)hint.textContent=`${n} packages đã chọn — read-only, mỗi package tạo 1 campaign`;
+    const rows=document.getElementById('tpl-multi-rows');
+    if(!rows)return;
+    rows.innerHTML=[...S.selPkgs].map(id=>{
+      const pkg=S.packages.find(p=>p.id===id);if(!pkg)return'';
+      const app=S.templates.app.find(t=>t.id==pkg.appId);
+      const tgt=S.templates.target.find(t=>t.id==pkg.targetId);
+      const ad=S.templates.ad.find(t=>t.id==pkg.adId);
+      return`<div style="margin-bottom:12px">
+        <div style="font-size:11px;font-weight:600;color:var(--fg-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          ${pkg.name}
+        </div>
+        <div class="grid-3" style="opacity:.38;pointer-events:none;user-select:none">
+          <div class="card" style="border-style:dashed">
+            <div style="font-size:10.5px;font-weight:600;color:var(--fg-3);margin-bottom:8px">APP</div>
+            <div style="font-size:12px;font-weight:500;color:var(--fg)">${app?.name||'—'}</div>
+            <div style="font-size:11px;color:var(--fg-3);margin-top:3px">${app?.pkg||''}</div>
           </div>
-        </div>
-        <div class="creative-info">
-          <div class="creative-name" title="${cr.name}">${cr.name}</div>
-          <div class="creative-meta">${cr.type} · ${cr.size}</div>
-        </div>
-      </div>`).join('');
-    document.getElementById('cr-total').textContent = state.creatives.length;
-  }
-
-  function toggleCreative(id) {
-    const idx = state.selectedCreatives.indexOf(id);
-    if (idx === -1) state.selectedCreatives.push(id);
-    else state.selectedCreatives.splice(idx, 1);
-    renderCreativeGrid();
-    const el = document.getElementById('selected-cr-count');
-    if (el) el.textContent = state.selectedCreatives.length + ' đã chọn';
-  }
-
-  function clearSelectedCreatives() {
-    state.selectedCreatives = [];
-    renderCreativeGrid();
-    const el = document.getElementById('selected-cr-count');
-    if (el) el.textContent = '0 đã chọn';
-  }
-
-  function filterCreatives(q) {
-    const grid = document.getElementById('cr-grid');
-    const items = grid.querySelectorAll('.creative-item');
-    items.forEach(item => {
-      const name = item.querySelector('.creative-name').textContent.toLowerCase();
-      item.style.display = name.includes(q.toLowerCase()) ? '' : 'none';
-    });
-  }
-
-
-  // ── Templates ──────────────────────────────────────
-  function createAppTemplate() {
-    const t = {
-      id: Date.now(),
-      name: document.getElementById('modal-app-name').value || 'APP Template',
-      pkg: document.getElementById('modal-app-pkg').value,
-      appId: document.getElementById('modal-app-appid').value,
-      devId: document.getElementById('modal-app-devid').value,
-      pageId: document.getElementById('modal-app-pageid').value,
-    };
-    if (!t.pkg) { alert('Package Name là bắt buộc'); return; }
-    state.templates.app.push(t);
-    addLog('success', `Tạo APP template: ${t.name}`);
-    closeModal('modal-app');
-    renderAppTemplates();
-    syncTemplateSelects();
-    ['modal-app-name','modal-app-pkg','modal-app-appid','modal-app-devid','modal-app-pageid'].forEach(id => document.getElementById(id).value = '');
-  }
-
-  function createTargetTemplate() {
-    const t = {
-      id: Date.now(),
-      name: document.getElementById('modal-tgt-name').value || 'TARGET Template',
-      country: document.getElementById('modal-tgt-country').value,
-      lang: document.getElementById('modal-tgt-lang').value,
-      gender: document.getElementById('modal-tgt-gender').value,
-      ageMin: document.getElementById('modal-tgt-age-min').value,
-      ageMax: document.getElementById('modal-tgt-age-max').value,
-      budgetType: document.getElementById('modal-tgt-budget-type').value,
-      budget: document.getElementById('modal-tgt-budget').value,
-    };
-    state.templates.target.push(t);
-    addLog('success', `Tạo TARGET template: ${t.name}`);
-    closeModal('modal-target');
-    renderTargetTemplates();
-    syncTemplateSelects();
-  }
-
-  function createAdTemplate() {
-    const t = {
-      id: Date.now(),
-      name: document.getElementById('modal-ad-name').value || 'AD Template',
-      headlines: document.getElementById('modal-ad-headlines').value,
-      text: document.getElementById('modal-ad-text').value,
-      crCount: document.getElementById('modal-ad-cr-count').value || 3,
-    };
-    state.templates.ad.push(t);
-    addLog('success', `Tạo AD template: ${t.name}`);
-    closeModal('modal-ad');
-    renderAdTemplates();
-    syncTemplateSelects();
-  }
-
-  function createPackage() {
-    const name = document.getElementById('modal-pkg-name').value;
-    const appId = document.getElementById('modal-pkg-app').value;
-    const targetId = document.getElementById('modal-pkg-target').value;
-    const adId = document.getElementById('modal-pkg-ad').value;
-    if (!name || !appId || !targetId || !adId) { alert('Vui lòng điền đầy đủ thông tin'); return; }
-    const pkg = {
-      id: Date.now(),
-      name,
-      appTemplate: state.templates.app.find(t => t.id == appId),
-      targetTemplate: state.templates.target.find(t => t.id == targetId),
-      adTemplate: state.templates.ad.find(t => t.id == adId),
-    };
-    state.packages.push(pkg);
-    addLog('success', `Tạo Package: ${name}`);
-    closeModal('modal-package');
-    renderPackages();
-    updateBadges();
-    document.getElementById('modal-pkg-name').value = '';
-  }
-
-  function renderAppTemplates() {
-    const el = document.getElementById('app-template-list');
-    if (state.templates.app.length === 0) {
-      el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted-foreground);font-size:13px">Chưa có APP template</div>';
-      return;
-    }
-    el.innerHTML = state.templates.app.map(t => `
-      <div class="template-card">
-        <div class="template-card-header">
-          <div class="template-icon" style="background:color-mix(in srgb,#8b5cf6 15%,transparent)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          <div class="card" style="border-style:dashed">
+            <div style="font-size:10.5px;font-weight:600;color:var(--fg-3);margin-bottom:8px">TARGET</div>
+            <div style="font-size:12px;font-weight:500;color:var(--fg)">${tgt?.name||'—'}</div>
+            <div style="font-size:11px;color:var(--fg-3);margin-top:3px">${tgt?`${tgt.country||''} · ${tgt.gender} · ${tgt.ageMin}-${tgt.ageMax}`:''}</div>
           </div>
-          <div>
-            <div class="template-name">${t.name}</div>
-            <div class="template-sub">APP Template</div>
+          <div class="card" style="border-style:dashed">
+            <div style="font-size:10.5px;font-weight:600;color:var(--fg-3);margin-bottom:8px">AD</div>
+            <div style="font-size:12px;font-weight:500;color:var(--fg)">${ad?.name||'—'}</div>
+            <div style="font-size:11px;color:var(--fg-3);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${(ad?.headlines||'').split('\n')[0]||''}</div>
           </div>
-        </div>
-        <div class="template-fields">
-          <div class="template-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>${t.pkg}</div>
-          ${t.appId ? `<div class="template-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>App ID: ${t.appId}</div>` : ''}
-          ${t.pageId ? `<div class="template-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>Page: ${t.pageId}</div>` : ''}
-        </div>
-        <div class="template-actions">
-          <button class="btn btn-ghost" style="font-size:11px" onclick="deleteTemplate('app',${t.id})">Xóa</button>
-        </div>
-      </div>`).join('');
-  }
-
-  function renderTargetTemplates() {
-    const el = document.getElementById('target-template-list');
-    if (state.templates.target.length === 0) {
-      el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted-foreground);font-size:13px">Chưa có TARGET template</div>';
-      return;
-    }
-    el.innerHTML = state.templates.target.map(t => `
-      <div class="template-card">
-        <div class="template-card-header">
-          <div class="template-icon" style="background:color-mix(in srgb,#f59e0b 15%,transparent)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-          </div>
-          <div>
-            <div class="template-name">${t.name}</div>
-            <div class="template-sub">TARGET Template</div>
-          </div>
-        </div>
-        <div class="template-fields">
-          <div class="template-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg>${t.country || '—'} · ${t.lang || '—'}</div>
-          <div class="template-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>${t.gender} · ${t.ageMin}-${t.ageMax} tuổi</div>
-          <div class="template-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>${t.budgetType} $${t.budget}/ngày</div>
-        </div>
-        <div class="template-actions">
-          <button class="btn btn-ghost" style="font-size:11px" onclick="deleteTemplate('target',${t.id})">Xóa</button>
-        </div>
-      </div>`).join('');
-  }
-
-  function renderAdTemplates() {
-    const el = document.getElementById('ad-template-list');
-    if (state.templates.ad.length === 0) {
-      el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted-foreground);font-size:13px">Chưa có AD template</div>';
-      return;
-    }
-    el.innerHTML = state.templates.ad.map(t => `
-      <div class="template-card">
-        <div class="template-card-header">
-          <div class="template-icon" style="background:color-mix(in srgb,#22c55e 15%,transparent)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="11" y2="17"/></svg>
-          </div>
-          <div>
-            <div class="template-name">${t.name}</div>
-            <div class="template-sub">AD Template · ${t.crCount} CR/Ad</div>
-          </div>
-        </div>
-        <div class="template-fields">
-          ${t.headlines ? `<div class="template-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h8"/></svg>${t.headlines.split('\n')[0]}${t.headlines.split('\n').length > 1 ? ' +' + (t.headlines.split('\n').length-1) + ' nữa' : ''}</div>` : ''}
-          ${t.text ? `<div class="template-field" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${t.text.slice(0,40)}${t.text.length>40?'...':''}</div>` : ''}
-        </div>
-        <div class="template-actions">
-          <button class="btn btn-ghost" style="font-size:11px" onclick="deleteTemplate('ad',${t.id})">Xóa</button>
-        </div>
-      </div>`).join('');
-  }
-
-  function renderPackages() {
-    const el = document.getElementById('package-list');
-    if (state.packages.length === 0) {
-      el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted-foreground);font-size:13px">Chưa có Package nào</div>';
-      return;
-    }
-    el.innerHTML = state.packages.map(p => `
-      <div class="package-card">
-        <div class="package-header">
-          <div class="template-icon" style="background:color-mix(in srgb,#8b5cf6 20%,transparent)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" width="18" height="18"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-          </div>
-          <div class="package-name">${p.name}</div>
-        </div>
-        <div class="package-components">
-          <span class="tag tag-purple">${p.appTemplate?.name}</span>
-          <span class="tag tag-orange">${p.targetTemplate?.name}</span>
-          <span class="tag tag-green">${p.adTemplate?.name}</span>
-        </div>
-        <div class="package-actions">
-          <button class="btn btn-primary" style="font-size:11.5px" onclick="usePackage(${p.id})">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-            Dùng package này
-          </button>
-          <button class="btn btn-ghost" style="font-size:11px" onclick="deletePackage(${p.id})">Xóa</button>
-        </div>
-      </div>`).join('');
-  }
-
-  function deleteTemplate(type, id) {
-    state.templates[type] = state.templates[type].filter(t => t.id !== id);
-    if (type === 'app') renderAppTemplates();
-    if (type === 'target') renderTargetTemplates();
-    if (type === 'ad') renderAdTemplates();
-    syncTemplateSelects();
-    addLog('warn', `Đã xóa ${type.toUpperCase()} template`);
-  }
-
-  function deletePackage(id) {
-    state.packages = state.packages.filter(p => p.id !== id);
-    renderPackages();
-    updateBadges();
-    addLog('warn', 'Đã xóa package');
-  }
-
-  function syncTemplateSelects() {
-    const selectors = ['sel-app-template','modal-pkg-app'];
-    selectors.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const val = el.value;
-      el.innerHTML = '<option value="">— Chọn hoặc tạo mới —</option>' +
-        state.templates.app.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
-      el.value = val;
-    });
-
-    const tgtSel = ['sel-target-template','modal-pkg-target'];
-    tgtSel.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const val = el.value;
-      el.innerHTML = '<option value="">— Chọn hoặc tạo mới —</option>' +
-        state.templates.target.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
-      el.value = val;
-    });
-
-    const adSel = ['sel-ad-template','modal-pkg-ad'];
-    adSel.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const val = el.value;
-      el.innerHTML = '<option value="">— Chọn hoặc tạo mới —</option>' +
-        state.templates.ad.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
-      el.value = val;
-    });
-  }
-
-  function populatePackageSelects() { syncTemplateSelects(); }
-
-  // Fill functions for builder
-  function fillAppTemplate(id) {
-    const t = state.templates.app.find(t => t.id == id);
-    if (!t) return;
-    document.getElementById('app-pkg').value = t.pkg || '';
-    document.getElementById('app-id').value = t.appId || '';
-    document.getElementById('app-dev').value = t.devId || '';
-    document.getElementById('app-page').value = t.pageId || '';
-  }
-
-  function fillTargetTemplate(id) {
-    const t = state.templates.target.find(t => t.id == id);
-    if (!t) return;
-    document.getElementById('tgt-country').value = t.country || '';
-    document.getElementById('tgt-gender').value = t.gender || 'all';
-    document.getElementById('tgt-age-min').value = t.ageMin || '';
-    document.getElementById('tgt-age-max').value = t.ageMax || '';
-    document.getElementById('tgt-lang').value = t.lang || '';
-    document.getElementById('tgt-budget-type').value = t.budgetType || 'CBO';
-    document.getElementById('tgt-budget').value = t.budget || '';
-  }
-
-  function fillAdTemplate(id) {
-    const t = state.templates.ad.find(t => t.id == id);
-    if (!t) return;
-    document.getElementById('ad-headlines').value = t.headlines || '';
-    document.getElementById('ad-text').value = t.text || '';
-    document.getElementById('ad-cr-count').value = t.crCount || '';
-  }
-
-  function saveAppTemplate() {
-    const t = {
-      id: Date.now(),
-      name: document.getElementById('app-pkg').value || 'APP Template',
-      pkg: document.getElementById('app-pkg').value,
-      appId: document.getElementById('app-id').value,
-      devId: document.getElementById('app-dev').value,
-      pageId: document.getElementById('app-page').value,
-    };
-    if (!t.pkg) { alert('Package Name là bắt buộc'); return; }
-    state.templates.app.push(t);
-    addLog('success', `Lưu APP template: ${t.name}`);
-    syncTemplateSelects();
-    renderAppTemplates();
-  }
-
-  function saveTargetTemplate() {
-    const t = {
-      id: Date.now(),
-      name: `${document.getElementById('tgt-country').value} ${document.getElementById('tgt-gender').value}`,
-      country: document.getElementById('tgt-country').value,
-      lang: document.getElementById('tgt-lang').value,
-      gender: document.getElementById('tgt-gender').value,
-      ageMin: document.getElementById('tgt-age-min').value,
-      ageMax: document.getElementById('tgt-age-max').value,
-      budgetType: document.getElementById('tgt-budget-type').value,
-      budget: document.getElementById('tgt-budget').value,
-    };
-    state.templates.target.push(t);
-    addLog('success', `Lưu TARGET template: ${t.name}`);
-    syncTemplateSelects();
-    renderTargetTemplates();
-  }
-
-  function saveAdTemplate() {
-    const t = {
-      id: Date.now(),
-      name: 'AD Template ' + (state.templates.ad.length + 1),
-      headlines: document.getElementById('ad-headlines').value,
-      text: document.getElementById('ad-text').value,
-      crCount: document.getElementById('ad-cr-count').value || 3,
-    };
-    state.templates.ad.push(t);
-    addLog('success', `Lưu AD template: ${t.name}`);
-    syncTemplateSelects();
-    renderAdTemplates();
-  }
-
-  function usePackage(id) {
-    const pkg = state.packages.find(p => p.id === id);
-    if (!pkg) return;
-    navigate('creative', document.querySelectorAll('.nav-item')[1]);
-    setTimeout(() => {
-      if (pkg.appTemplate) fillAppTemplate(pkg.appTemplate.id);
-      if (pkg.targetTemplate) fillTargetTemplate(pkg.targetTemplate.id);
-      if (pkg.adTemplate) fillAdTemplate(pkg.adTemplate.id);
-      gotoStep2();
-      addLog('info', `Đang dùng Package: ${pkg.name}`);
-    }, 100);
-  }
-
-  // ── Builder Steps ──────────────────────────────────
-  function gotoStep1() {
-    state.currentStep = 1;
-    setStep(1);
-  }
-
-  function gotoStep2() {
-    syncTemplateSelects();
-    state.currentStep = 2;
-    setStep(2);
-  }
-
-  function gotoStep3() {
-    state.currentStep = 3;
-    buildPreview();
-    setStep(3);
-  }
-
-  function setStep(n) {
-    for (let i = 1; i <= 3; i++) {
-      const step = document.getElementById('step-' + i);
-      const content = document.getElementById('builder-step-' + i);
-      if (step) step.classList.remove('active', 'done');
-      if (content) content.classList.remove('active');
-      if (step && i < n) step.classList.add('done');
-      if (i === n) {
-        if (step) step.classList.add('active');
-        if (content) content.classList.add('active');
-      }
-    }
-  }
-
-  function buildPreview() {
-    const campName = document.getElementById('camp-name').value || '(chưa đặt tên)';
-    const objective = document.getElementById('camp-objective').value;
-    const account = document.getElementById('camp-account').value || '(chưa điền)';
-    const crNames = state.creatives.filter(c => state.selectedCreatives.includes(c.id)).map(c => c.name);
-    const budget = document.getElementById('tgt-budget').value;
-    const budgetType = document.getElementById('tgt-budget-type').value;
-
-    document.getElementById('preview-content').innerHTML = `
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
-          <span style="color:var(--muted-foreground)">Campaign Name</span>
-          <strong>${campName}</strong>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
-          <span style="color:var(--muted-foreground)">Objective</span>
-          <span class="tag tag-purple">${objective}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
-          <span style="color:var(--muted-foreground)">Ad Account</span>
-          <code style="font-family:var(--font-mono);font-size:12px">${account}</code>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
-          <span style="color:var(--muted-foreground)">Creative</span>
-          <span>${crNames.length > 0 ? crNames.length + ' files' : '<span style="color:#ef4444">Chưa chọn</span>'}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
-          <span style="color:var(--muted-foreground)">Budget</span>
-          <strong>${budget ? '$' + budget + '/ngày (' + budgetType + ')' : '(chưa điền)'}</strong>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:8px 0">
-          <span style="color:var(--muted-foreground)">Status</span>
-          <span class="tag tag-orange">PAUSED</span>
         </div>
       </div>`;
-    document.getElementById('launch-result').innerHTML = '';
+    }).join('<hr class="divider">');
   }
+}
+function updatePkgInfo(){const el=document.getElementById('sel-pkg-info');if(!el)return;if(S.selPkgs.size===0)el.textContent='Chưa chọn';else if(S.selPkgs.size===1){const p=S.packages.find(pk=>pk.id===[...S.selPkgs][0]);el.textContent=`Đã chọn: ${p?.name||'?'}`;}else el.textContent=`Đã chọn ${S.selPkgs.size} packages`;}
 
-  async function launchCampaign() {
-    const btn = document.getElementById('btn-launch');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Đang tạo...';
+function fillApp(id){const t=S.templates.app.find(t=>t.id==id);if(!t)return;document.getElementById('app-pkg').value=t.pkg||'';document.getElementById('app-id').value=t.appId||'';document.getElementById('app-dev').value=t.devId||'';document.getElementById('app-page').value=t.pageId||'';document.getElementById('sel-app').value=id;}
+function fillTgt(id){const t=S.templates.target.find(t=>t.id==id);if(!t)return;document.getElementById('tgt-country').value=t.country||'';document.getElementById('tgt-gender').value=t.gender||'all';document.getElementById('tgt-lang').value=t.lang||'';document.getElementById('tgt-amin').value=t.ageMin||'';document.getElementById('tgt-amax').value=t.ageMax||'';}
+function fillAd(id){const t=S.templates.ad.find(t=>t.id==id);if(!t)return;document.getElementById('ad-headlines').value=t.headlines||'';document.getElementById('ad-text').value=t.text||'';}
 
-    addLog('info', 'Bắt đầu tạo campaign...');
+function syncTplSelects(){const app=document.getElementById('sel-app');if(app){const v=app.value;app.innerHTML='<option value="">— hoặc tạo mới —</option>'+S.templates.app.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');app.value=v;}const tgt=document.getElementById('sel-tgt');if(tgt){const v=tgt.value;tgt.innerHTML='<option value="">— hoặc tạo mới —</option>'+S.templates.target.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');tgt.value=v;}const ad=document.getElementById('sel-ad');if(ad){const v=ad.value;ad.innerHTML='<option value="">— hoặc tạo mới —</option>'+S.templates.ad.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');ad.value=v;}}
 
-    const campName = document.getElementById('camp-name').value;
-    const account = document.getElementById('camp-account').value;
+function saveTpl(type){if(type==='app'){const t={id:Date.now(),name:document.getElementById('app-pkg').value||'APP',pkg:document.getElementById('app-pkg').value,appId:document.getElementById('app-id').value,devId:document.getElementById('app-dev').value,pageId:document.getElementById('app-page').value};if(!t.pkg){alert('Package Name là bắt buộc');return;}S.templates.app.push(t);log('success',`Lưu APP: ${t.name}`);}else if(type==='target'){const t={id:Date.now(),name:`${document.getElementById('tgt-country').value} ${document.getElementById('tgt-gender').value}`.trim()||'TARGET',country:document.getElementById('tgt-country').value,gender:document.getElementById('tgt-gender').value,lang:document.getElementById('tgt-lang').value,ageMin:document.getElementById('tgt-amin').value,ageMax:document.getElementById('tgt-amax').value};S.templates.target.push(t);log('success',`Lưu TARGET: ${t.name}`);}else{const t={id:Date.now(),name:'AD '+Date.now(),headlines:document.getElementById('ad-headlines').value,text:document.getElementById('ad-text').value};S.templates.ad.push(t);log('success',`Lưu AD template`);}syncTplSelects();renderAllTplLists();}
 
-    if (!campName || !account) {
-      addLog('error', 'Thiếu Campaign Name hoặc Ad Account ID');
-      btn.disabled = false;
-      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Launch Campaign';
-      document.getElementById('launch-result').innerHTML = `<div class="alert alert-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span>Vui lòng điền Campaign Name và Ad Account ID</span></div>`;
-      return;
-    }
+function saveNewPkg(){const name=prompt('Tên Package mới:');if(!name)return;const appId=document.getElementById('sel-app').value;const targetId=document.getElementById('sel-tgt').value;const adId=document.getElementById('sel-ad').value;if(!appId||!targetId||!adId){alert('Chọn đủ 3 templates');return;}S.packages.push({id:Date.now(),name,appId:parseFloat(appId)||appId,targetId:parseFloat(targetId)||targetId,adId:parseFloat(adId)||adId});log('success',`Lưu Package: ${name}`);renderPkgList();updateBadges();}
 
-    // Simulate API call
-    await new Promise(r => setTimeout(r, 1800));
+function saveAccount(){const label=document.getElementById('acc-label').value;const id=document.getElementById('acc-id').value.trim();const note=document.getElementById('acc-note').value;if(!id){alert('Account ID là bắt buộc');return;}S.accounts.push({id:Date.now(),label:label||id,accId:id,note});log('success',`Thêm Account: ${label||id}`);closeModal('modal-acc');renderAccounts();syncAccountSelect();updateBadges();['acc-label','acc-id','acc-note'].forEach(i=>document.getElementById(i).value='');}
 
-    addLog('info', `Gọi POST /campaigns — ${campName}`);
-    await new Promise(r => setTimeout(r, 600));
-    addLog('info', 'Tạo Ad Set...');
-    await new Promise(r => setTimeout(r, 400));
-    addLog('success', `Campaign đã tạo thành công! (DEMO MODE — chưa có Access Token)`);
+function renderAccounts(){const el=document.getElementById('acc-list');if(!el)return;if(S.accounts.length===0){el.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--fg-3);font-size:12px">Chưa có Ad Account</div>';return;}el.innerHTML=S.accounts.map(a=>`<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="width:6px;height:6px;border-radius:50%;background:var(--success);flex-shrink:0"></span><span style="font-size:13px;font-weight:600">${a.label}</span><button class="btn btn-danger btn-sm" style="margin-left:auto" onclick="delAccount(${a.id})">Xóa</button></div><div style="font-family:monospace;font-size:11px;color:var(--fg-3)">${a.accId}</div>${a.note?`<div style="font-size:11.5px;color:var(--fg-3);margin-top:4px">${a.note}</div>`:''}</div>`).join('');document.getElementById('acc-total').textContent=S.accounts.length;}
 
-    state.campaigns.push({ name: campName, status: 'PAUSED', time: new Date().toLocaleString() });
-    document.getElementById('stat-camps').textContent = state.campaigns.length;
-    updateBadges();
+function delAccount(id){S.accounts=S.accounts.filter(a=>a.id!==id);renderAccounts();syncAccountSelect();updateBadges();}
+function syncAccountSelect(){const el=document.getElementById('camp-account');if(!el)return;const v=el.value;el.innerHTML='<option value="">— Chọn Ad Account —</option>'+S.accounts.map(a=>`<option value="${a.accId}">${a.label} (${a.accId})</option>`).join('');el.value=v;}
 
-    btn.disabled = false;
-    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Launch Campaign';
-    document.getElementById('launch-result').innerHTML = `<div class="alert alert-success"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span><strong>${campName}</strong> đã được tạo ở trạng thái PAUSED (DEMO MODE).</span></div>`;
-  }
+function createTpl(type){if(type==='app'){const pkg=document.getElementById('m-app-pkg').value;if(!pkg){alert('Package Name là bắt buộc');return;}const t={id:Date.now(),name:document.getElementById('m-app-name').value||pkg,pkg,appId:document.getElementById('m-app-id').value,devId:document.getElementById('m-app-dev').value,pageId:document.getElementById('m-app-page').value};S.templates.app.push(t);log('success',`Tạo APP: ${t.name}`);closeModal('modal-app');['m-app-name','m-app-pkg','m-app-id','m-app-dev','m-app-page'].forEach(i=>document.getElementById(i).value='');}else if(type==='target'){const t={id:Date.now(),name:document.getElementById('m-tgt-name').value||'TARGET',country:document.getElementById('m-tgt-country').value,lang:document.getElementById('m-tgt-lang').value,gender:document.getElementById('m-tgt-gender').value,ageMin:document.getElementById('m-tgt-amin').value,ageMax:document.getElementById('m-tgt-amax').value};S.templates.target.push(t);log('success',`Tạo TARGET: ${t.name}`);closeModal('modal-target');}else{const t={id:Date.now(),name:document.getElementById('m-ad-name').value||'AD',headlines:document.getElementById('m-ad-headlines').value,text:document.getElementById('m-ad-text').value};S.templates.ad.push(t);log('success',`Tạo AD template`);closeModal('modal-ad');}renderAllTplLists();syncTplSelects();}
 
-  // ── Badges ─────────────────────────────────────────
-  function updateBadges() {
-    document.getElementById('cr-count').textContent = state.creatives.length;
-    document.getElementById('log-count').textContent = state.logs.length;
-    document.getElementById('stat-cr').textContent = state.creatives.length;
-    document.getElementById('stat-camps').textContent = state.campaigns.length;
-    document.getElementById('stat-pkg').textContent = state.packages.length;
-    document.getElementById('stat-success').textContent = state.campaigns.filter(c => c.status === 'ACTIVE').length;
-  }
+function createPkg(){const name=document.getElementById('m-pkg-name').value;const appId=document.getElementById('m-pkg-app').value;const targetId=document.getElementById('m-pkg-tgt').value;const adId=document.getElementById('m-pkg-ad').value;if(!name||!appId||!targetId||!adId){alert('Điền đầy đủ');return;}S.packages.push({id:Date.now(),name,appId:parseFloat(appId)||appId,targetId:parseFloat(targetId)||targetId,adId:parseFloat(adId)||adId});log('success',`Tạo Package: ${name}`);closeModal('modal-pkg');document.getElementById('m-pkg-name').value='';renderPkgList();updateBadges();}
 
-  // ── Init ───────────────────────────────────────────
-  addLog('info', 'FB Auto Camp khởi động thành công');
-  addLog('warn', 'Chưa có Access Token — chạy ở DEMO MODE');
+function populatePkgSelects(){['m-pkg-app','m-pkg-tgt','m-pkg-ad'].forEach((id,i)=>{const key=['app','target','ad'][i];const el=document.getElementById(id);el.innerHTML='<option value="">— Chọn —</option>'+S.templates[key].map(t=>`<option value="${t.id}">${t.name}</option>`).join('');});}
+
+function renderAllTplLists(){renderTplList('app');renderTplList('target');renderTplList('ad');renderPkgList();}
+function renderTplList(type){const domId={app:'app-list',target:'target-list',ad:'ad-list'}[type];const el=document.getElementById(domId);if(!el)return;const items=S.templates[type];if(items.length===0){el.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--fg-3);font-size:12px">Chưa có template</div>`;return;}el.innerHTML=items.map(t=>`<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="font-size:12.5px;font-weight:600">${t.name}</div><button class="btn btn-danger btn-sm" onclick="delTpl('${type}',${t.id})">×</button></div><div class="tag tag-neutral" style="margin-bottom:4px">${type.toUpperCase()}</div>${type==='app'?`<div style="font-size:11px;color:var(--fg-3);margin-top:4px">${t.pkg}</div>`:''}${type==='target'?`<div style="font-size:11px;color:var(--fg-3);margin-top:4px">${t.country||'—'} · ${t.gender} · ${t.ageMin}-${t.ageMax}</div>`:''}${type==='ad'?`<div style="font-size:11px;color:var(--fg-3);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${(t.headlines||'').split('\n')[0]||'—'}</div>`:''}</div>`).join('');}
+function delTpl(type,id){S.templates[type]=S.templates[type].filter(t=>t.id!==id);renderAllTplLists();syncTplSelects();}
+
+function renderPkgList(){const el=document.getElementById('pkg-list');if(!el)return;if(S.packages.length===0){el.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--fg-3);font-size:12px">Chưa có package</div>';return;}el.innerHTML=S.packages.map(p=>`<div class="pkg-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:12.5px;font-weight:600">${p.name}</span><button class="btn btn-danger btn-sm" onclick="delPkg(${p.id})">×</button></div><div style="display:flex;gap:4px;flex-wrap:wrap"><span class="tag tag-neutral">${S.templates.app.find(t=>t.id==p.appId)?.name||'?'}</span><span class="tag tag-neutral">${S.templates.target.find(t=>t.id==p.targetId)?.name||'?'}</span><span class="tag tag-neutral">${S.templates.ad.find(t=>t.id==p.adId)?.name||'?'}</span></div></div>`).join('');document.getElementById('s-pkg').textContent=S.packages.length;}
+function delPkg(id){S.packages=S.packages.filter(p=>p.id!==id);renderPkgList();updateBadges();}
+
+function buildPreview(){const name=document.getElementById('camp-name')?.value||'(chưa đặt)';const acc=document.getElementById('camp-account')?.value||'(chưa chọn)';const budType=document.getElementById('tgt-budget-type')?.value||'CBO';const bud=document.getElementById('tgt-budget')?.value||'—';const bid=document.getElementById('bid-strategy')?.value||'—';const bidAmt=document.getElementById('bid-amount')?.value;const pkgs=[...S.selPkgs].map(id=>S.packages.find(p=>p.id===id)?.name).filter(Boolean);const crCount=S.selected.size;const perAd=parseInt(document.getElementById('cr-per-ad')?.value)||1;document.getElementById('preview-content').innerHTML=`<div style="display:flex;flex-direction:column">${row('Campaign',`<strong>${name}</strong>`)}${row('Account',`<code style="font-family:monospace;font-size:11px;background:var(--bg-3);padding:1px 5px;border-radius:3px">${acc}</code>`)}${row('Budget',`$${bud}/ngày (${budType})`)}${row('Bid',bid+(bidAmt?` — $${bidAmt}`:''))}${row('Packages',pkgs.length?pkgs.map(n=>`<span class="tag tag-neutral">${n}</span>`).join(' '):'<span style="color:var(--danger)">Chưa chọn</span>')}${row('Creative',`${crCount} files · ${perAd} CR/Ad (${S.crFormat})`)}</div>`;const el=document.getElementById('preview-split');if(!el)return;const pkgCount=Math.max(S.selPkgs.size,1);const fullCamps=Math.floor(crCount/perAd);const rem=crCount%perAd;let h='';[...S.selPkgs].forEach((id,i)=>{const p=S.packages.find(pk=>pk.id===id);h+=`<div style="font-weight:600;font-size:11.5px;margin:${i>0?'10px':0} 0 4px;color:var(--fg-2)">${p?.name||'Campaign '+(i+1)}</div>`;if(fullCamps>0)h+=`<div class="split-row"><span class="split-badge">${fullCamps}</span><span style="color:var(--fg-2)">camp × ${perAd} CR</span></div>`;if(rem>0)h+=`<div class="split-row"><span class="split-badge">1</span><span style="color:var(--fg-2)">camp × ${rem} CR</span></div>`;});if(S.selPkgs.size===0){if(fullCamps>0)h+=`<div class="split-row"><span class="split-badge">${fullCamps}</span><span style="color:var(--fg-2)">camp × ${perAd} CR</span></div>`;if(rem>0)h+=`<div class="split-row"><span class="split-badge">1</span><span style="color:var(--fg-2)">camp × ${rem} CR</span></div>`;}h+=`<div style="font-size:11px;color:var(--fg-3);margin-top:6px">Tổng: ${(fullCamps+(rem>0?1:0))*pkgCount} campaign</div>`;el.innerHTML=h;}
+
+function row(label,val){return`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--fg-3);font-size:12px">${label}</span><span style="font-size:12px">${val}</span></div>`;}
+
+async function launchCamp(){const btn=document.getElementById('btn-launch');const res=document.getElementById('launch-result');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Đang tạo...';log('info','Bắt đầu tạo campaign...');await new Promise(r=>setTimeout(r,1600));log('info','Gọi Meta Marketing API...');await new Promise(r=>setTimeout(r,500));log('success','Campaign tạo thành công (DEMO)');S.campaigns.push({name:document.getElementById('camp-name')?.value||'?',time:new Date().toLocaleString()});document.getElementById('s-camps').textContent=S.campaigns.length;updateBadges();btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Launch Campaign';res.innerHTML='<div class="alert alert-success" style="margin-bottom:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Campaign tạo thành công (DEMO)</div>';}
+
+function updateBadges(){document.getElementById('cr-badge').textContent=S.creatives.length;document.getElementById('log-badge').textContent=S.logs.length;document.getElementById('acc-badge').textContent=S.accounts.length;document.getElementById('acc-total').textContent=S.accounts.length;document.getElementById('s-cr').textContent=S.creatives.length;document.getElementById('s-pkg').textContent=S.packages.length;}
+
+log('info','FB Auto Camp v0.2 ready');
+log('warn','No Access Token — DEMO MODE');
+selectFmt('single',document.getElementById('fmt-single'));
 </script>
 </body>
 </html>
