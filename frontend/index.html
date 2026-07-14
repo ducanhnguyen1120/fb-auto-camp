@@ -644,16 +644,21 @@ body{
 
         <!-- STEP 1 -->
         <div class="tab-content active" id="sc-1">
-          <input type="file" id="file-input" multiple accept="image/*,video/*" style="display:none" onchange="handleUpload(this.files)"/>
-          <div class="upload-zone mb-16" onclick="document.getElementById('file-input').click()" role="button" tabindex="0"
-               style="padding:16px 20px;display:flex;align-items:center;gap:16px;"
-               onkeydown="if(event.key==='Enter')document.getElementById('file-input').click()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="30" height="30" style="flex-shrink:0;color:var(--fg-3)"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            <div>
-              <p style="font-size:12.5px;font-weight:600;margin-bottom:2px;color:var(--fg)">Kéo & thả hoặc click để upload</p>
-              <span style="font-size:11.5px;color:var(--fg-2)">PNG, JPG, MP4 — tối đa 50MB</span>
+          <!-- Folder Picker -->
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:12px 14px;background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius-lg)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22" style="flex-shrink:0;color:var(--fg-3)"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            <div style="flex:1;min-width:0">
+              <div id="folder-status" style="font-size:12.5px;color:var(--fg-3)">Chưa chọn folder</div>
+              <div id="folder-sub" style="font-size:11px;color:var(--fg-3);margin-top:1px;display:none">Thumbnail sẽ mất sau reload — nhấn Mở lại để khôi phục</div>
             </div>
-            <button class="btn btn-primary" style="margin-left:auto;pointer-events:none;flex-shrink:0" tabindex="-1">Upload</button>
+            <button class="btn btn-ghost btn-sm" id="btn-reopen-folder" style="display:none;flex-shrink:0" onclick="reopenFolder()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              Mở lại
+            </button>
+            <button class="btn btn-primary btn-sm" style="flex-shrink:0" onclick="openFolderPicker()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+              Chọn Folder
+            </button>
           </div>
           <div class="flex items-center gap-8 mb-12">
             <span style="font-size:12.5px;font-weight:600;">Thư viện (<span id="cr-total">0</span>)</span>
@@ -1134,7 +1139,7 @@ const GEO_LANGS=[
   {v:'cy',l:'Welsh'},{v:'xh',l:'Xhosa'},{v:'yo',l:'Yoruba'},{v:'zu',l:'Zulu'},
 ];
 
-const S={creatives:[],selected:new Set(),templates:{app:[],target:[],ad:[]},packages:[],accounts:[],logs:[],campaigns:[],selPkgs:new Set(),crFormat:'single',acValues:{app:new Set(),style:new Set(),target:new Set(),custom:new Set()},pendingFiles:[],pkgCardsExpanded:false,multiTplExpanded:false,tplEditMode:{app:false,target:false,ad:false},tplCurSel:{app:null,target:null,ad:null},tplOrigSel:{app:null,target:null,ad:null},tgtCountrySel:new Set(),tgtLangSel:new Set(),campNameExpanded:false,splitExpanded:false};
+const S={creatives:[],selected:new Set(),templates:{app:[],target:[],ad:[]},packages:[],accounts:[],logs:[],campaigns:[],selPkgs:new Set(),crFormat:'single',acValues:{app:new Set(),style:new Set(),target:new Set(),custom:new Set()},pendingFolderFiles:[],folderHandle:null,pkgCardsExpanded:false,multiTplExpanded:false,tplEditMode:{app:false,target:false,ad:false},tplCurSel:{app:null,target:null,ad:null},tplOrigSel:{app:null,target:null,ad:null},tgtCountrySel:new Set(),tgtLangSel:new Set(),campNameExpanded:false,splitExpanded:false};
 
 function log(level,msg){const t=new Date().toTimeString().slice(0,8);S.logs.unshift({level,msg,t});renderLogs();updateBadges();}
 function renderLogs(filter='all'){const rows=filter==='all'?S.logs:S.logs.filter(l=>l.level===filter);const html=rows.length===0?'<div style="text-align:center;color:var(--fg-3);padding:16px;font-size:11.5px">Không có log</div>':rows.map(l=>`<div class="log-row"><span class="log-time">${l.t}</span><span class="log-lv ${l.level}">${l.level.toUpperCase()}</span><span class="log-msg">${l.msg}</span></div>`).join('');const el=document.getElementById('main-log');if(el)el.innerHTML=html;const mini=document.getElementById('mini-log');if(mini)mini.innerHTML=S.logs.slice(0,5).map(l=>`<div class="log-row"><span class="log-time">${l.t}</span><span class="log-lv ${l.level}">${l.level.toUpperCase()}</span><span class="log-msg">${l.msg}</span></div>`).join('')||'<div style="text-align:center;color:var(--fg-3);padding:12px;font-size:11px">Chưa có activity</div>';}
@@ -1205,11 +1210,81 @@ function switchTab(id,btn){document.querySelectorAll('#page-template .tab-conten
 
 function setStep(n){for(let i=1;i<=3;i++){const btn=document.getElementById('vstep-'+i);const content=document.getElementById('sc-'+i);if(btn)btn.classList.remove('active','done');if(content)content.classList.remove('active');if(btn&&i<n)btn.classList.add('done');if(i===n){if(btn)btn.classList.add('active');if(content)content.classList.add('active');}}if(n===2){syncTplSelects();updatePkgDropdownLabel();renderSelPkgCards();showTplConfig();}if(n===3)buildPreview();updateCrSelCount();}
 
-function handleUpload(files){S.pendingFiles=Array.from(files);document.getElementById('cr-config-files').textContent=`${S.pendingFiles.length} file: ${S.pendingFiles.map(f=>f.name).join(', ')}`;['cr-cfg-app','cr-cfg-style','cr-cfg-target','cr-cfg-custom'].forEach(id=>document.getElementById(id).value='');openModal('modal-cr-config');document.getElementById('file-input').value='';}
+const IMG_EXTS=['jpg','jpeg','png','gif','webp','avif'];
+const VID_EXTS=['mp4','mov','avi','mkv','webm'];
+function _isMedia(name){const e=name.split('.').pop().toLowerCase();return IMG_EXTS.includes(e)||VID_EXTS.includes(e);}
+function _isVideo(name){return VID_EXTS.includes(name.split('.').pop().toLowerCase());}
 
-function confirmCrConfig(){const cfg={app:document.getElementById('cr-cfg-app').value.trim(),style:document.getElementById('cr-cfg-style').value.trim(),target:document.getElementById('cr-cfg-target').value.trim(),custom:document.getElementById('cr-cfg-custom').value.trim()};['app','style','target','custom'].forEach(k=>{if(cfg[k])S.acValues[k].add(cfg[k]);});S.pendingFiles.forEach(file=>{S.creatives.push({id:Date.now()+Math.random(),name:file.name,size:(file.size/1024/1024).toFixed(1)+' MB',type:file.type.startsWith('video')?'video':'image',url:URL.createObjectURL(file),...cfg});log('info',`Uploaded: ${file.name}`);});closeModal('modal-cr-config');renderCRGrid();syncToolbarFilters();updateBadges();calcSplit();}
+async function openFolderPicker(){
+  if(!window.showDirectoryPicker){log('error','Trình duyệt không hỗ trợ — dùng Chrome/Edge');return;}
+  try{
+    const dir=await window.showDirectoryPicker({mode:'read'});
+    S.folderHandle=dir;
+    await _scanFolder(dir);
+  }catch(e){if(e.name!=='AbortError')log('error','Không thể mở folder: '+e.message);}
+}
 
-function renderCRGrid(){const g=document.getElementById('cr-grid');if(!g)return;if(S.creatives.length===0){g.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:50px 0;color:var(--fg-3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" width="36" height="36" style="margin:0 auto 10px;display:block;opacity:.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><p style="font-size:12px">Upload ảnh hoặc video để bắt đầu</p></div>';return;}const q=(document.getElementById('tb-search')?.value||'').toLowerCase();const fa=document.getElementById('tb-app')?.value||'';const fs=document.getElementById('tb-style')?.value||'';const ft=document.getElementById('tb-target')?.value||'';const fc=document.getElementById('tb-custom')?.value||'';const visible=S.creatives.filter(cr=>{if(q&&!cr.name.toLowerCase().includes(q))return false;if(fa&&cr.app!==fa)return false;if(fs&&cr.style!==fs)return false;if(ft&&cr.target!==ft)return false;if(fc&&cr.custom!==fc)return false;return true;});g.innerHTML=visible.map(cr=>`<div class="cr-item ${S.selected.has(cr.id)?'selected':''}" onclick="toggleCR(${JSON.stringify(cr.id)})" tabindex="0" role="checkbox" aria-checked="${S.selected.has(cr.id)}"><div class="cr-thumb">${cr.type==='image'?`<img src="${cr.url}" alt="${cr.name}" loading="lazy"/>`:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="26" height="26"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>`}<div class="cr-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div></div><div class="cr-info"><div class="cr-name" title="${cr.name}">${cr.name}</div><div class="cr-tags">${cr.app?`<span class="cr-tag">${cr.app}</span>`:''} ${cr.style?`<span class="cr-tag">${cr.style}</span>`:''}</div></div></div>`).join('');const tot=document.getElementById('cr-total');if(tot)tot.textContent=visible.length<S.creatives.length?`${visible.length}/${S.creatives.length}`:S.creatives.length;updateCrSelCount();}
+async function _scanFolder(dir){
+  const found=[];
+  for await(const [name,handle] of dir.entries()){
+    if(handle.kind!=='file'||!_isMedia(name))continue;
+    const file=await handle.getFile();
+    found.push({handle,file,name});
+  }
+  if(!found.length){log('warn',`Không tìm thấy file ảnh/video trong "${dir.name}"`);return;}
+  S.pendingFolderFiles=found;
+  document.getElementById('cr-config-files').textContent=`${found.length} file từ folder "${dir.name}"`;
+  ['cr-cfg-app','cr-cfg-style','cr-cfg-target','cr-cfg-custom'].forEach(id=>document.getElementById(id).value='');
+  openModal('modal-cr-config');
+}
+
+async function reopenFolder(){
+  if(!S.folderHandle){openFolderPicker();return;}
+  try{
+    const perm=await S.folderHandle.requestPermission({mode:'read'});
+    if(perm!=='granted'){log('error','Không có quyền truy cập folder');return;}
+    let refreshed=0;
+    for(const cr of S.creatives){
+      if(cr.fileHandle&&!cr.url){
+        try{const f=await cr.fileHandle.getFile();cr.url=URL.createObjectURL(f);refreshed++;}catch(e){}
+      }
+    }
+    document.getElementById('folder-sub').style.display='none';
+    renderCRGrid();
+    log('info',`Đã kết nối lại folder — khôi phục ${refreshed} thumbnail`);
+  }catch(e){log('error','Lỗi kết nối folder: '+e.message);}
+}
+
+async function confirmCrConfig(){
+  const cfg={app:document.getElementById('cr-cfg-app').value.trim(),style:document.getElementById('cr-cfg-style').value.trim(),target:document.getElementById('cr-cfg-target').value.trim(),custom:document.getElementById('cr-cfg-custom').value.trim()};
+  ['app','style','target','custom'].forEach(k=>{if(cfg[k])S.acValues[k].add(cfg[k]);});
+  const files=S.pendingFolderFiles||[];
+  for(const {handle,file,name} of files){
+    S.creatives.push({id:Date.now()+Math.random(),name,size:(file.size/1024/1024).toFixed(1)+' MB',type:_isVideo(name)?'video':'image',fileHandle:handle,url:URL.createObjectURL(file),...cfg});
+  }
+  S.pendingFolderFiles=[];
+  // update folder status bar
+  const statusEl=document.getElementById('folder-status');
+  const subEl=document.getElementById('folder-sub');
+  const reopenBtn=document.getElementById('btn-reopen-folder');
+  if(statusEl&&S.folderHandle)statusEl.textContent=`📁 ${S.folderHandle.name} — ${S.creatives.length} file`;
+  if(subEl)subEl.style.display='block';
+  if(reopenBtn)reopenBtn.style.display='inline-flex';
+  closeModal('modal-cr-config');
+  renderCRGrid();syncToolbarFilters();updateBadges();calcSplit();
+  log('info',`Đã thêm ${files.length} CR từ folder "${S.folderHandle?.name||''}"`);
+}
+
+function renderCRGrid(){const g=document.getElementById('cr-grid');if(!g)return;if(S.creatives.length===0){g.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:50px 0;color:var(--fg-3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" width="36" height="36" style="margin:0 auto 10px;display:block;opacity:.3"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><p style="font-size:12px">Chọn folder chứa ảnh/video để bắt đầu</p></div>';return;}const q=(document.getElementById('tb-search')?.value||'').toLowerCase();const fa=document.getElementById('tb-app')?.value||'';const fs=document.getElementById('tb-style')?.value||'';const ft=document.getElementById('tb-target')?.value||'';const fc=document.getElementById('tb-custom')?.value||'';const visible=S.creatives.filter(cr=>{if(q&&!cr.name.toLowerCase().includes(q))return false;if(fa&&cr.app!==fa)return false;if(fs&&cr.style!==fs)return false;if(ft&&cr.target!==ft)return false;if(fc&&cr.custom!==fc)return false;return true;});const _thumb=cr=>{
+  if(cr.type==='image'&&cr.url)return`<img src="${cr.url}" alt="${cr.name}" loading="lazy"/>`;
+  if(cr.type==='video'&&cr.url)return`<video src="${cr.url}" style="width:100%;height:100%;object-fit:cover" muted preload="metadata"/>`;
+  // no url (after reload) — show placeholder with icon
+  const noUrlIcon=cr.type==='video'
+    ?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="26" height="26"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>`
+    :`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="26" height="26"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>`;
+  return`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:4px;opacity:.4">${noUrlIcon}<span style="font-size:9px;color:var(--fg-3)">Mở lại folder</span></div>`;
+};
+g.innerHTML=visible.map(cr=>`<div class="cr-item ${S.selected.has(cr.id)?'selected':''}" onclick="toggleCR(${JSON.stringify(cr.id)})" tabindex="0" role="checkbox" aria-checked="${S.selected.has(cr.id)}"><div class="cr-thumb">${_thumb(cr)}<div class="cr-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div></div><div class="cr-info"><div class="cr-name" title="${cr.name}">${cr.name}</div><div class="cr-tags">${cr.app?`<span class="cr-tag">${cr.app}</span>`:''} ${cr.style?`<span class="cr-tag">${cr.style}</span>`:''}</div></div></div>`).join('');const tot=document.getElementById('cr-total');if(tot)tot.textContent=visible.length<S.creatives.length?`${visible.length}/${S.creatives.length}`:S.creatives.length;updateCrSelCount();}
 
 function filterCR(){renderCRGrid();}
 function toggleCR(id){if(S.selected.has(id))S.selected.delete(id);else S.selected.add(id);renderCRGrid();updateCrSelCount();calcSplit();}
