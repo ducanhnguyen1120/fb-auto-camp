@@ -1330,14 +1330,14 @@ function calcSplit(){
   const hasMore=items.length>LIMIT;
   const shown=S.splitExpanded?items:items.slice(0,LIMIT);
   const hiddenPkgs=pkgCount-Math.floor(LIMIT/3);
-  const showMoreBtn=`<div style="text-align:center;padding:6px 0 2px"><button onclick="S.splitExpanded=true;calcSplit()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:5px 16px;font-size:11.5px;font-weight:600;cursor:pointer;letter-spacing:.02em">↓ Show more</button></div>`;
-  const showLessBtn=`<div style="text-align:center;padding:4px 0"><button onclick="S.splitExpanded=false;calcSplit()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:5px 16px;font-size:11.5px;font-weight:600;cursor:pointer;letter-spacing:.02em">↑ Show less</button></div>`;
+  const showMoreBtn=`<div style="text-align:center;padding:6px 0 2px"><button onclick="S.splitExpanded=true;calcSplit()" style="background:var(--fg);color:var(--bg);border:none;border-radius:var(--radius);padding:5px 16px;font-size:11.5px;font-weight:600;cursor:pointer;letter-spacing:.02em">↓ Show more</button></div>`;
+  const showLessBtn=`<div style="text-align:center;padding:4px 0"><button onclick="S.splitExpanded=false;calcSplit()" style="background:var(--fg);color:var(--bg);border:none;border-radius:var(--radius);padding:5px 16px;font-size:11.5px;font-weight:600;cursor:pointer;letter-spacing:.02em">↑ Show less</button></div>`;
   const totalCamps=pkgCount*(fullCamps+(rem>0?1:0));
   let html='';
   if(hasMore&&S.splitExpanded)html+=showLessBtn;
   html+=shown.map(i=>i.html).join('');
   if(hasMore)html+=S.splitExpanded?showLessBtn:showMoreBtn;
-  html+=`<div style="margin-top:10px;padding:8px 10px;background:var(--accent);border-radius:var(--radius);display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-weight:600;color:#fff">Tổng số campaign</span><span style="font-size:15px;font-weight:700;color:#fff">${totalCamps}</span></div>`;
+  html+=`<div style="margin-top:10px;padding:8px 10px;background:var(--fg);border-radius:var(--radius);display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-weight:600;color:var(--bg)">Tổng số campaign</span><span style="font-size:15px;font-weight:700;color:var(--bg)">${totalCamps}</span></div>`;
   rows.innerHTML=html;
 }
 
@@ -1721,8 +1721,17 @@ function renderSingleTplCards(){
       <div class="form-row"><div class="form-group"><label class="form-label">App ID</label><input class="form-input s-field" id="s-app-id" value="${t?.appId||''}" disabled/></div><div class="form-group"><label class="form-label">Dev ID</label><input class="form-input s-field" id="s-app-dev" value="${t?.devId||''}" disabled/></div></div>
       <div class="form-group"><label class="form-label">FB Page ID</label><input class="form-input s-field" id="s-app-page" value="${t?.pageId||''}" disabled/></div>`},
     target:{label:'TARGET',dot:'var(--fg-2)',opts:S.templates.target,curId:S.tplCurSel.target,fields:t=>`
-      <div class="form-group"><label class="form-label">Country</label><div class="form-input s-field" style="height:auto;min-height:32px;display:flex;flex-wrap:wrap;gap:3px;padding:4px 8px;align-items:center">${(()=>{const arr=Array.isArray(t?.country)?t.country:(t?.country?[t.country]:[]);if(!arr.length)return'<span style="color:var(--fg-3)">—</span>';if(arr.includes('ALL'))return'<span style="font-size:11px;background:var(--accent-bg);padding:1px 6px;border-radius:4px">Global</span>';return arr.slice(0,5).map(v=>`<span style="font-size:11px;background:var(--accent-bg);padding:1px 6px;border-radius:4px">${v}</span>`).join('')+(arr.length>5?`<span style="font-size:11px;color:var(--fg-3)">+${arr.length-5}</span>`:'');})()}</div></div>
-      <div class="form-row"><div class="form-group"><label class="form-label">Gender</label><input class="form-input s-field" value="${t?.gender||'all'}" disabled/></div><div class="form-group"><label class="form-label">Language</label><div class="form-input s-field" style="height:auto;min-height:32px;display:flex;flex-wrap:wrap;gap:3px;padding:4px 8px;align-items:center">${(()=>{const arr=Array.isArray(t?.lang)?t.lang:(t?.lang?[t.lang]:[]);if(!arr.length)return'<span style="color:var(--fg-3)">—</span>';if(arr.includes('ALL'))return'<span style="font-size:11px;background:var(--accent-bg);padding:1px 6px;border-radius:4px">All</span>';const names=arr.map(v=>GEO_LANGS.find(x=>x.v===v)?.l||v);return names.slice(0,3).map(n=>`<span style="font-size:11px;background:var(--accent-bg);padding:1px 6px;border-radius:4px">${n}</span>`).join('')+(names.length>3?`<span style="font-size:11px;color:var(--fg-3)">+${names.length-3}</span>`:'');})()}</div></div></div>
+      <div class="form-group"><label class="form-label">Country</label>
+        <div class="rdd-wrap"><button class="rdd-btn s-geo-btn" id="s-tgt-country-btn" onclick="DD.openGeo(event,'country')"><span class="rdd-lbl geo-country-lbl s-country-lbl placeholder">Chọn quốc gia...</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="flex-shrink:0;color:var(--fg-3)"><polyline points="6 9 12 15 18 9"/></svg></button></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Gender</label>
+          <div class="rdd-wrap"><button class="rdd-btn s-geo-btn" id="s-tgt-gender-btn" onclick="DD.open(event,'s-tgt-gender')"><span class="rdd-lbl" id="s-tgt-gender-lbl">${t?.gender||'all'}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="flex-shrink:0;color:var(--fg-3)"><polyline points="6 9 12 15 18 9"/></svg></button><input type="hidden" id="s-tgt-gender" value="${t?.gender||'all'}"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Language</label>
+          <div class="rdd-wrap"><button class="rdd-btn s-geo-btn" id="s-tgt-lang-btn" onclick="DD.openGeo(event,'lang')"><span class="rdd-lbl geo-lang-lbl s-lang-lbl placeholder">Chọn ngôn ngữ...</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="flex-shrink:0;color:var(--fg-3)"><polyline points="6 9 12 15 18 9"/></svg></button></div>
+        </div>
+      </div>
       <div class="form-row"><div class="form-group"><label class="form-label">Age Min</label><input class="form-input s-field" id="s-tgt-amin" value="${t?.ageMin||''}" type="number" disabled/></div><div class="form-group"><label class="form-label">Age Max</label><input class="form-input s-field" id="s-tgt-amax" value="${t?.ageMax||''}" type="number" disabled/></div></div>`},
     ad:{label:'AD',dot:'var(--fg-3)',opts:S.templates.ad,curId:S.tplCurSel.ad,fields:t=>`
       <div class="form-group"><label class="form-label">Headlines</label><textarea class="form-textarea s-field" id="s-ad-headlines" disabled style="min-height:52px">${t?.headlines||''}</textarea></div>
@@ -1871,8 +1880,18 @@ function hidePkgActionBtns(){
 
 function enableTplEdit(type){
   S.tplEditMode[type]=true;
-  setFieldsEditable(type,true);
+  if(type==='target'){
+    // load template's geo into shared geo state so picker shows correct values
+    const tpl=S.templates.target.find(t=>t.id==S.tplCurSel.target);
+    if(tpl){
+      DD.setGeo('country',Array.isArray(tpl.country)?tpl.country:(tpl.country?[tpl.country]:[]));
+      DD.setGeo('lang',Array.isArray(tpl.lang)?tpl.lang:(tpl.lang?[tpl.lang]:[]));
+    }
+    // register gender DD for single-view
+    DD.reg('s-tgt-gender',[{v:'all',l:'All'},{v:'male',l:'Male'},{v:'female',l:'Female'}],tpl?.gender||'all',null,{search:false});
+  }
   renderSingleTplCards();
+  setFieldsEditable(type,true);
 }
 function cancelTplEdit(type){
   S.tplEditMode[type]=false;
@@ -1882,6 +1901,8 @@ function setFieldsEditable(type,editable){
   const card=document.getElementById('s-card-'+type);
   if(!card)return;
   card.querySelectorAll('.s-field').forEach(f=>{f.disabled=!editable;});
+  // geo picker buttons: toggle pointer-events instead of disabled (buttons don't have disabled)
+  card.querySelectorAll('.s-geo-btn').forEach(b=>{b.style.pointerEvents=editable?'':'none';});
 }
 function showOverwriteWarn(type){document.getElementById('s-warn-'+type).style.display='block';}
 function confirmTplOverwrite(type){
@@ -1893,7 +1914,7 @@ function confirmTplOverwrite(type){
   log('success',`Đã lưu đè ${type.toUpperCase()} template: ${tpl.name}`);
   S.tplEditMode[type]=false;
   document.getElementById('s-warn-'+type).style.display='none';
-  renderSingleTplCards();renderAllTplLists();
+  renderSingleTplCards();renderAllTplLists();saveStorage();
 }
 function showSaveNewTpl(type){document.getElementById('s-new-'+type).style.display='block';}
 function confirmTplNew(type){
@@ -1911,7 +1932,7 @@ function confirmTplNew(type){
 }
 function readTplFields(type,obj){
   if(type==='app'){obj.pkg=document.getElementById('s-app-pkg')?.value||'';obj.appId=document.getElementById('s-app-id')?.value||'';obj.devId=document.getElementById('s-app-dev')?.value||'';obj.pageId=document.getElementById('s-app-page')?.value||'';}
-  else if(type==='target'){obj.country=DD.getGeoArr('country');obj.lang=DD.getGeoArr('lang');obj.gender=DD.get('tgt-gender')||'all';obj.ageMin=document.getElementById('s-tgt-amin')?.value||'';obj.ageMax=document.getElementById('s-tgt-amax')?.value||'';}
+  else if(type==='target'){obj.country=DD.getGeoArr('country');obj.lang=DD.getGeoArr('lang');obj.gender=DD.get('s-tgt-gender')||DD.get('tgt-gender')||'all';obj.ageMin=document.getElementById('s-tgt-amin')?.value||'';obj.ageMax=document.getElementById('s-tgt-amax')?.value||'';}
   else{obj.headlines=document.getElementById('s-ad-headlines')?.value||'';obj.text=document.getElementById('s-ad-text')?.value||'';}
 }
 
@@ -2030,7 +2051,8 @@ function renderCampNamePreview(){
   const pad=n=>String(n).padStart(2,'0');
   const dt=`${String(now.getFullYear()).slice(-2)}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
   const perAd=parseInt(document.getElementById('cr-per-ad')?.value)||1;
-  const total=Math.max(S.selected.size,1);
+  const total=S.selected.size;
+  if(!total){el.innerHTML='<span style="color:var(--fg-3);font-style:italic">— chọn CR để xem preview —</span>';return;}
   const campCount=Math.floor(total/perAd)+(total%perAd>0?1:0);
   const digits=Math.max(2,String(campCount).length);
   const sanitize=s=>s.replace(/[^a-zA-Z0-9À-ỹ]/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'');
@@ -2046,8 +2068,8 @@ function renderCampNamePreview(){
   });
   const hasMore=lines.length>LIMIT;
   const shown=S.campNameExpanded?lines:lines.slice(0,LIMIT);
-  const showMoreBtn=`<div style="text-align:center;padding:6px 0 2px"><button onclick="S.campNameExpanded=true;renderCampNamePreview()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:5px 16px;font-size:11.5px;font-weight:600;cursor:pointer;letter-spacing:.02em">↓ Show more (${lines.length-LIMIT} more)</button></div>`;
-  const showLessBtn=`<div style="text-align:center;padding:4px 0"><button onclick="S.campNameExpanded=false;renderCampNamePreview()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:5px 16px;font-size:11.5px;font-weight:600;cursor:pointer;letter-spacing:.02em">↑ Show less</button></div>`;
+  const showMoreBtn=`<div style="text-align:center;padding:6px 0 2px"><button onclick="S.campNameExpanded=true;renderCampNamePreview()" style="background:var(--fg);color:var(--bg);border:none;border-radius:var(--radius);padding:5px 16px;font-size:11.5px;font-weight:600;cursor:pointer;letter-spacing:.02em">↓ Show more (${lines.length-LIMIT} more)</button></div>`;
+  const showLessBtn=`<div style="text-align:center;padding:4px 0"><button onclick="S.campNameExpanded=false;renderCampNamePreview()" style="background:var(--fg);color:var(--bg);border:none;border-radius:var(--radius);padding:5px 16px;font-size:11.5px;font-weight:600;cursor:pointer;letter-spacing:.02em">↑ Show less</button></div>`;
   let html='';
   if(hasMore&&S.campNameExpanded)html+=showLessBtn;
   html+=shown.map(l=>`<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l}</div>`).join('');
@@ -2170,11 +2192,11 @@ function updateBadges(){document.getElementById('cr-badge').textContent=S.creati
 
 // Demo data
 S.accounts=[
-  {id:1,name:'VN Main Account',actId:'act_1120045678',note:'Tài khoản chính VN — game & app'},
-  {id:2,name:'TH Business',actId:'act_2234509876',note:'Tài khoản TH — e-commerce'},
-  {id:3,name:'SG Agency',actId:'act_3312876540',note:'Agency account — multi-market'},
-  {id:4,name:'PH Growth',actId:'act_4498123456',note:'Philippines — fintech'},
-  {id:5,name:'ID Scale',actId:'act_5567234890',note:'Indonesia — shopping'},
+  {id:1,label:'VN Main Account',accId:'act_1120045678',note:'Tài khoản chính VN — game & app'},
+  {id:2,label:'TH Business',accId:'act_2234509876',note:'Tài khoản TH — e-commerce'},
+  {id:3,label:'SG Agency',accId:'act_3312876540',note:'Agency account — multi-market'},
+  {id:4,label:'PH Growth',accId:'act_4498123456',note:'Philippines — fintech'},
+  {id:5,label:'ID Scale',accId:'act_5567234890',note:'Indonesia — shopping'},
 ];
 S.creatives=[
   // GameX VN — UGC Male
