@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi" data-theme="light">
 <head>
 <meta charset="UTF-8"/>
@@ -337,9 +337,29 @@ body{
 .cr-item.selected{border-color:var(--fg);}
 .cr-thumb{width:100%;aspect-ratio:1;background:var(--bg-3);display:flex;align-items:center;justify-content:center;color:var(--fg-3);overflow:hidden;position:relative;}
 .cr-thumb img{width:100%;height:100%;object-fit:cover;}
-.cr-check{position:absolute;top:5px;right:5px;width:16px;height:16px;background:var(--fg);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity var(--transition);}
+.cr-item.selected{border-color:var(--accent);border-width:2px;}
+.cr-thumb::after{content:'';position:absolute;inset:0;background:transparent;transition:background var(--transition);pointer-events:none;}
+.cr-item.selected .cr-thumb::after{background:rgba(99,102,241,.18);}
+.cr-check{position:absolute;top:5px;right:5px;width:22px;height:22px;background:#6366f1;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity var(--transition);z-index:3;box-shadow:0 1px 4px rgba(0,0,0,.4);}
 .cr-item.selected .cr-check{opacity:1;}
-.cr-check svg{width:9px;height:9px;color:var(--bg);}
+.cr-check svg{width:12px;height:12px;color:#fff;}
+.cr-preview-btn{position:absolute;bottom:5px;left:5px;width:26px;height:26px;background:rgba(0,0,0,.6);border:1.5px solid rgba(255,255,255,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;opacity:.7;transition:opacity var(--transition);z-index:3;}
+.cr-item:hover .cr-preview-btn{opacity:1;}
+/* Banner toast */
+.banner{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:10px;border:1px solid;min-width:260px;max-width:320px;pointer-events:all;box-shadow:0 8px 24px rgba(0,0,0,.3);animation:bannerIn .22s cubic-bezier(.34,1.56,.64,1);backdrop-filter:blur(6px);}
+.banner.leaving{animation:bannerOut .18s ease forwards;}
+.banner-icon{flex-shrink:0;width:18px;height:18px;margin-top:1px;}
+.banner-body{flex:1;min-width:0;}
+.banner-title{font-size:12.5px;font-weight:600;line-height:1.3;}
+.banner-desc{font-size:11.5px;opacity:.75;margin-top:3px;line-height:1.4;}
+.banner-close{flex-shrink:0;background:none;border:none;cursor:pointer;opacity:.5;padding:0;line-height:1;font-size:14px;color:inherit;margin-top:1px;}
+.banner-close:hover{opacity:1;}
+.banner-info{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.3);color:#93c5fd;}
+.banner-success{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.3);color:#86efac;}
+.banner-warning{background:rgba(234,179,8,.12);border-color:rgba(234,179,8,.3);color:#fde047;}
+.banner-error{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.3);color:#fca5a5;}
+@keyframes bannerIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+@keyframes bannerOut{to{opacity:0;transform:translateX(16px)}}
 .cr-info{padding:6px 8px;border-top:1px solid var(--border);}
 .cr-name{font-size:11px;font-weight:500;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .cr-tags{display:flex;gap:3px;flex-wrap:wrap;margin-top:3px;}
@@ -644,29 +664,32 @@ body{
 
         <!-- STEP 1 -->
         <div class="tab-content active" id="sc-1">
-          <input type="file" id="file-input" multiple accept="image/*,video/*" style="display:none" onchange="handleUpload(this.files)"/>
-          <div class="upload-zone mb-16" onclick="document.getElementById('file-input').click()" role="button" tabindex="0"
-               style="padding:16px 20px;display:flex;align-items:center;gap:16px;"
-               onkeydown="if(event.key==='Enter')document.getElementById('file-input').click()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="30" height="30" style="flex-shrink:0;color:var(--fg-3)"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            <div>
-              <p style="font-size:12.5px;font-weight:600;margin-bottom:2px;color:var(--fg)">Kéo & thả hoặc click để upload</p>
-              <span style="font-size:11.5px;color:var(--fg-2)">PNG, JPG, MP4 — tối đa 50MB</span>
-            </div>
-            <button class="btn btn-primary" style="margin-left:auto;pointer-events:none;flex-shrink:0" tabindex="-1">Upload</button>
+          <!-- Upload Zone -->
+          <input type="file" id="cr-file-input" multiple accept="image/*,video/*" style="display:none" onchange="handleFileInput(this.files)"/>
+          <div id="cr-upload-zone" style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:12px 14px;background:var(--bg-3);border:1px dashed var(--border);border-radius:var(--radius-lg);cursor:pointer;transition:border-color var(--transition),background var(--transition)"
+               onclick="document.getElementById('cr-file-input').click()"
+               ondragover="event.preventDefault();this.style.borderColor='var(--accent)'"
+               ondragleave="this.style.borderColor=''"
+               ondrop="event.preventDefault();this.style.borderColor='';handleFileInput(event.dataTransfer.files)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22" style="flex-shrink:0;color:var(--fg-3)"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span style="font-size:12.5px;color:var(--fg-3)">Kéo thả hoặc click để thêm ảnh/video</span>
           </div>
           <div class="flex items-center gap-8 mb-12">
             <span style="font-size:12.5px;font-weight:600;">Thư viện (<span id="cr-total">0</span>)</span>
             <span id="cr-sel-count" style="font-size:11.5px;color:var(--fg-3)">0 đã chọn</span>
             <button class="btn btn-ghost btn-sm" onclick="selectAllVisible()" style="margin-left:auto">Chọn tất cả</button>
             <button class="btn btn-ghost btn-sm" onclick="clearSel()">Bỏ chọn</button>
+            <button class="btn btn-sm" onclick="deleteSelected()" style="background:#ef4444;color:#fff;border:none" title="Xóa creative đã chọn">Xóa đã chọn</button>
           </div>
+          <div id="cr-grid-wrap" style="position:relative;user-select:none">
+          <div id="cr-sel-rect" style="position:absolute;border:1.5px solid #6366f1;background:rgba(99,102,241,.1);border-radius:3px;pointer-events:none;display:none;z-index:10"></div>
           <div class="creative-grid" id="cr-grid">
             <div style="grid-column:1/-1;text-align:center;padding:50px 0;color:var(--fg-3)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" width="36" height="36" style="margin:0 auto 10px;display:block;opacity:.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
               <p style="font-size:12px">Upload ảnh hoặc video để bắt đầu</p>
             </div>
           </div>
+          </div><!-- /cr-grid-wrap -->
           <div style="margin-top:16px;display:flex;justify-content:flex-end;">
             <button class="btn btn-primary" onclick="setStep(2)">Config →</button>
           </div>
@@ -730,6 +753,7 @@ body{
                   <div class="form-group"><label class="form-label">Package Name <span style="color:var(--danger)">*</span></label><input class="form-input" id="app-pkg" placeholder="com.example.app"/></div>
                   <div class="form-row"><div class="form-group"><label class="form-label">App ID</label><input class="form-input" id="app-id" placeholder="1234567890"/></div><div class="form-group"><label class="form-label">Dev ID</label><input class="form-input" id="app-dev" placeholder="Dev ID"/></div></div>
                   <div class="form-group"><label class="form-label">FB Page ID</label><input class="form-input" id="app-page" placeholder="Page ID"/></div>
+                  <div class="form-group"><label class="form-label">App Store / Play Store URL <span style="color:var(--danger)">*</span></label><input class="form-input" id="app-url" placeholder="https://apps.apple.com/... hoặc https://play.google.com/..."/></div>
                 </div>
                 <div id="esz-app" style="margin-top:12px">
                   <button id="esz-app-btn" class="btn btn-primary" style="width:100%" onclick="openEditSave('app')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Save as new template</button>
@@ -747,7 +771,7 @@ body{
                 <div style="flex:1">
                   <div class="form-group"><label class="form-label">Country</label><div class="rdd-wrap"><button class="rdd-btn" id="tgt-country-btn" onclick="DD.openGeo(event,'country')"><span class="rdd-lbl placeholder geo-country-lbl">Chọn quốc gia...</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="flex-shrink:0;color:var(--fg-3)"><polyline points="6 9 12 15 18 9"/></svg></button></div></div>
                   <div class="form-row"><div class="form-group"><label class="form-label">Gender</label><div class="rdd-wrap"><button class="rdd-btn" id="tgt-gender-btn" onclick="DD.open(event,'tgt-gender')"><span class="rdd-lbl" id="tgt-gender-lbl">All</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="flex-shrink:0;color:var(--fg-3)"><polyline points="6 9 12 15 18 9"/></svg></button><input type="hidden" id="tgt-gender" value="all"/></div></div><div class="form-group"><label class="form-label">Language</label><div class="rdd-wrap"><button class="rdd-btn" id="tgt-lang-btn" onclick="DD.openGeo(event,'lang')"><span class="rdd-lbl geo-lang-lbl">All Languages</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="flex-shrink:0;color:var(--fg-3)"><polyline points="6 9 12 15 18 9"/></svg></button></div></div></div>
-                  <div class="form-row"><div class="form-group"><label class="form-label">Age Min</label><input class="form-input" id="tgt-amin" placeholder="18" value="18" type="number"/></div><div class="form-group"><label class="form-label">Age Max</label><input class="form-input" id="tgt-amax" placeholder="65" value="65" type="number"/></div></div>
+                  <div class="form-row"><div class="form-group"><label class="form-label">Age Min</label><input class="form-input" id="tgt-amin" placeholder="18" value="18" type="number" min="13" max="65"/></div><div class="form-group"><label class="form-label">Age Max <span style="color:var(--fg-3);font-weight:400">(65 = 65+)</span></label><input class="form-input" id="tgt-amax" placeholder="65+" value="65" type="number" min="13" max="65"/></div></div>
                 </div>
                 <div id="esz-target" style="margin-top:12px">
                   <button id="esz-target-btn" class="btn btn-primary" style="width:100%" onclick="openEditSave('target')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Save as new template</button>
@@ -805,7 +829,11 @@ body{
                 <div class="form-group"><label class="form-label">Budget Type</label>
                   <div class="rdd-wrap"><button class="rdd-btn" id="tgt-budget-type-btn" onclick="DD.open(event,'tgt-budget-type')"><span class="rdd-lbl" id="tgt-budget-type-lbl">CBO</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="flex-shrink:0;color:var(--fg-3)"><polyline points="6 9 12 15 18 9"/></svg></button><input type="hidden" id="tgt-budget-type" value="CBO"/></div></div>
                 <div class="form-group"><label class="form-label">Budget ($/ngày)</label>
-                  <input class="form-input" id="tgt-budget" placeholder="50" type="number"/></div>
+                  <input class="form-input" id="tgt-budget" placeholder="50" type="number" value="5"/></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Objective</label>
+                <div class="rdd-wrap"><button class="rdd-btn" id="camp-objective-btn" onclick="DD.open(event,'camp-objective')"><span class="rdd-lbl" id="camp-objective-lbl">Maximize value — In-app ad impression</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="flex-shrink:0;color:var(--fg-3)"><polyline points="6 9 12 15 18 9"/></svg></button><input type="hidden" id="camp-objective" value="value_ad_impression"/></div>
               </div>
               <div class="form-group">
                 <label class="form-label">Bid Strategy</label>
@@ -934,6 +962,7 @@ body{
       <div class="sec-title">System Log</div>
       <div class="flex gap-8">
         <div class="rdd-wrap" style="width:110px"><button class="rdd-btn" id="log-filter-btn" onclick="DD.open(event,'log-filter')" style="font-size:12px"><span class="rdd-lbl" id="log-filter-lbl">All</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="flex-shrink:0;color:var(--fg-3)"><polyline points="6 9 12 15 18 9"/></svg></button><input type="hidden" id="log-filter" value="all"/></div>
+        <button class="btn btn-ghost btn-sm" onclick="copyLatestJob()">Copy Job</button>
         <button class="btn btn-ghost btn-sm" onclick="clearLogs()">Clear</button>
       </div>
     </div>
@@ -946,6 +975,16 @@ body{
 </div>
 
 <!-- ═══ MODALS ═══ -->
+<div class="modal-overlay" id="modal-edit-acc">
+  <div class="modal">
+    <input type="hidden" id="edit-acc-id-hidden"/>
+    <div class="modal-hdr"><span class="modal-title">Sửa Ad Account</span><button class="icon-btn" onclick="closeModal('modal-edit-acc')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="form-group"><label class="form-label">Tên hiển thị</label><input class="form-input" id="edit-acc-label" placeholder="VN Main Account"/></div>
+    <div class="form-group"><label class="form-label">Ad Account ID <span style="color:var(--danger)">*</span></label><input class="form-input" id="edit-acc-id" placeholder="1234567890"/><div style="font-size:11px;color:var(--fg-3);margin-top:3px">Chỉ cần điền số, tự động thêm act_</div></div>
+    <div class="form-group"><label class="form-label">Ghi chú</label><input class="form-input" id="edit-acc-note" placeholder="Tùy chọn..."/></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-edit-acc')">Hủy</button><button class="btn btn-primary" onclick="saveEditAccount()">Lưu</button></div>
+  </div>
+</div>
 <div class="modal-overlay" id="modal-acc">
   <div class="modal">
     <div class="modal-hdr"><span class="modal-title">Thêm Ad Account</span><button class="icon-btn" onclick="closeModal('modal-acc')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
@@ -963,6 +1002,7 @@ body{
     <div class="form-group"><label class="form-label">Package Name <span style="color:var(--danger)">*</span></label><input class="form-input" id="m-app-pkg" placeholder="com.example.app"/></div>
     <div class="form-row"><div class="form-group"><label class="form-label">App ID</label><input class="form-input" id="m-app-id" placeholder="1234567890"/></div><div class="form-group"><label class="form-label">Dev ID</label><input class="form-input" id="m-app-dev" placeholder="Dev ID"/></div></div>
     <div class="form-group"><label class="form-label">FB Page ID</label><input class="form-input" id="m-app-page" placeholder="Page ID"/></div>
+    <div class="form-group"><label class="form-label">App Store / Play Store URL <span style="color:var(--danger)">*</span></label><input class="form-input" id="m-app-url" placeholder="https://apps.apple.com/... hoặc https://play.google.com/..."/></div>
     <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-app')">Hủy</button><button class="btn btn-primary" onclick="createTpl('app')">Lưu</button></div>
   </div>
 </div>
@@ -974,7 +1014,7 @@ body{
     <div class="form-row"><div class="form-group"><label class="form-label">Country</label><div class="rdd-wrap"><button class="rdd-btn" id="m-tgt-country-btn" onclick="DD.openGeo(event,'country')"><span class="rdd-lbl placeholder geo-country-lbl">Chọn quốc gia...</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="flex-shrink:0;color:var(--fg-3)"><polyline points="6 9 12 15 18 9"/></svg></button></div></div><div class="form-group"><label class="form-label">Language</label><div class="rdd-wrap"><button class="rdd-btn" id="m-tgt-lang-btn" onclick="DD.openGeo(event,'lang')"><span class="rdd-lbl placeholder geo-lang-lbl">Chọn ngôn ngữ...</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="flex-shrink:0;color:var(--fg-3)"><polyline points="6 9 12 15 18 9"/></svg></button></div></div></div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Gender</label><div class="rdd-wrap"><button class="rdd-btn" id="m-tgt-gender-btn" onclick="DD.open(event,'m-tgt-gender')"><span class="rdd-lbl" id="m-tgt-gender-lbl">All</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="flex-shrink:0;color:var(--fg-3)"><polyline points="6 9 12 15 18 9"/></svg></button><input type="hidden" id="m-tgt-gender" value="all"/></div></div>
-      <div class="form-group"><label class="form-label">Age</label><div class="form-row"><input class="form-input" id="m-tgt-amin" placeholder="18" type="number"/><input class="form-input" id="m-tgt-amax" placeholder="65" type="number"/></div></div>
+      <div class="form-group"><label class="form-label">Age <span style="color:var(--fg-3);font-weight:400">(Max 65 = 65+)</span></label><div class="form-row"><input class="form-input" id="m-tgt-amin" placeholder="18" type="number" min="13" max="65"/><input class="form-input" id="m-tgt-amax" placeholder="65+" type="number" min="13" max="65"/></div></div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-target')">Hủy</button><button class="btn btn-primary" onclick="createTpl('target')">Lưu</button></div>
   </div>
@@ -1134,12 +1174,81 @@ const GEO_LANGS=[
   {v:'cy',l:'Welsh'},{v:'xh',l:'Xhosa'},{v:'yo',l:'Yoruba'},{v:'zu',l:'Zulu'},
 ];
 
-const S={creatives:[],selected:new Set(),templates:{app:[],target:[],ad:[]},packages:[],accounts:[],logs:[],campaigns:[],selPkgs:new Set(),crFormat:'single',acValues:{app:new Set(),style:new Set(),target:new Set(),custom:new Set()},pendingFiles:[],pkgCardsExpanded:false,multiTplExpanded:false,tplEditMode:{app:false,target:false,ad:false},tplCurSel:{app:null,target:null,ad:null},tplOrigSel:{app:null,target:null,ad:null},tgtCountrySel:new Set(),tgtLangSel:new Set(),campNameExpanded:false,splitExpanded:false};
+const S={creatives:[],selected:new Set(),templates:{app:[],target:[],ad:[]},packages:[],accounts:[],logs:[],campaigns:[],selPkgs:new Set(),crFormat:'single',acValues:{app:new Set(),style:new Set(),target:new Set(),custom:new Set()},pendingFolderFiles:[],folderHandle:null,pkgCardsExpanded:false,multiTplExpanded:false,tplEditMode:{app:false,target:false,ad:false},tplCurSel:{app:null,target:null,ad:null},tplOrigSel:{app:null,target:null,ad:null},tgtCountrySel:new Set(),tgtLangSel:new Set(),campNameExpanded:false,splitExpanded:false};
 
 function log(level,msg){const t=new Date().toTimeString().slice(0,8);S.logs.unshift({level,msg,t});renderLogs();updateBadges();}
+
+/* ── Confirm Dialog ── */
+let _confirmCb=null;
+function showConfirm({title='Xác nhận',desc='',okLabel='Xác nhận',okColor='#6366f1',icon='question',onConfirm}){
+  const icons={
+    delete:'<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>',
+    question:'<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="currentColor"/>',
+    warning:'<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r=".5" fill="currentColor"/>',
+  };
+  const iconColors={delete:'rgba(239,68,68,.15)',question:'rgba(99,102,241,.15)',warning:'rgba(234,179,8,.15)'};
+  const strokeColors={delete:'#f87171',question:'#818cf8',warning:'#fbbf24'};
+  document.getElementById('confirm-icon').innerHTML=icons[icon]||icons.question;
+  document.getElementById('confirm-icon').style.stroke=strokeColors[icon]||strokeColors.question;
+  document.getElementById('confirm-icon-wrap').style.background=iconColors[icon]||iconColors.question;
+  document.getElementById('confirm-title').textContent=title;
+  document.getElementById('confirm-desc').textContent=desc;
+  const okBtn=document.getElementById('confirm-ok-btn');
+  okBtn.textContent=okLabel;okBtn.style.background=okColor;
+  _confirmCb=onConfirm||null;
+  document.getElementById('modal-confirm').style.display='flex';
+}
+function _confirmResolve(){document.getElementById('modal-confirm').style.display='none';if(_confirmCb)_confirmCb();_confirmCb=null;}
+function _confirmReject(){document.getElementById('modal-confirm').style.display='none';_confirmCb=null;}
+
+/* ── Banner Toast ── */
+const _BANNER_ICONS={
+  info:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r=".5" fill="currentColor"/>',
+  success:'<polyline points="20 6 9 17 4 12"/>',
+  warning:'<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/>',
+  error:'<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>',
+};
+function showBanner({status='info',title='',desc='',duration=4000}){
+  const el=document.createElement('div');
+  el.className=`banner banner-${status}`;
+  el.innerHTML=`<svg class="banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">${_BANNER_ICONS[status]||_BANNER_ICONS.info}</svg><div class="banner-body"><div class="banner-title">${title}</div>${desc?`<div class="banner-desc">${desc}</div>`:''}</div><button class="banner-close" onclick="this.closest('.banner').remove()">✕</button>`;
+  const c=document.getElementById('banner-container');
+  c.appendChild(el);
+  const remove=()=>{el.classList.add('leaving');setTimeout(()=>el.remove(),200);};
+  if(duration>0)setTimeout(remove,duration);
+}
 function renderLogs(filter='all'){const rows=filter==='all'?S.logs:S.logs.filter(l=>l.level===filter);const html=rows.length===0?'<div style="text-align:center;color:var(--fg-3);padding:16px;font-size:11.5px">Không có log</div>':rows.map(l=>`<div class="log-row"><span class="log-time">${l.t}</span><span class="log-lv ${l.level}">${l.level.toUpperCase()}</span><span class="log-msg">${l.msg}</span></div>`).join('');const el=document.getElementById('main-log');if(el)el.innerHTML=html;const mini=document.getElementById('mini-log');if(mini)mini.innerHTML=S.logs.slice(0,5).map(l=>`<div class="log-row"><span class="log-time">${l.t}</span><span class="log-lv ${l.level}">${l.level.toUpperCase()}</span><span class="log-msg">${l.msg}</span></div>`).join('')||'<div style="text-align:center;color:var(--fg-3);padding:12px;font-size:11px">Chưa có activity</div>';}
 function filterLog(v){renderLogs(v);}
 function clearLogs(){S.logs=[];renderLogs();updateBadges();}
+function copyLatestJob(){
+  // Lấy log từ đầu đến trước lần "Gọi Meta Marketing API..." thứ 2 (tức là job gần nhất)
+  const startIdx=S.logs.findIndex(l=>l.msg.includes('Gọi Meta Marketing API'));
+  const jobLogs=startIdx>=0?S.logs.slice(0,startIdx+1):S.logs.slice(0,20);
+  const text=jobLogs.map(l=>`[${l.t}] ${l.level.toUpperCase()} ${l.msg}`).reverse().join('\n');
+  navigator.clipboard.writeText(text).then(()=>log('info','Đã copy log job gần nhất'));
+}
+
+function openMediaPreview(crId, type){
+  const cr=S.creatives.find(c=>c.id===crId);
+  const url=`/api/v1/creatives/${crId}/file`;
+  const overlay=document.getElementById('modal-media-preview');
+  const vid=document.getElementById('preview-video');
+  const img=document.getElementById('preview-image');
+  document.getElementById('preview-name').textContent=cr?.name||'';
+  if(type==='video'){
+    vid.src=url;vid.style.display='block';img.style.display='none';vid.play().catch(()=>{});
+  }else{
+    img.src=url;img.style.display='block';vid.style.display='none';
+  }
+  overlay.style.display='flex';
+}
+function closeMediaPreview(){
+  const overlay=document.getElementById('modal-media-preview');
+  const vid=document.getElementById('preview-video');
+  vid.pause();vid.src='';
+  document.getElementById('preview-image').src='';
+  overlay.style.display='none';
+}
 
 function nav(id,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');if(el)el.classList.add('active');const titles={dashboard:'Dashboard',campaign:'Campaign',accounts:'Ad Accounts',template:'Template & Package',logging:'Logging'};document.getElementById('page-title').textContent=titles[id]||id;const tb=document.getElementById('topbar-extra');if(id==='campaign'){tb.innerHTML=buildCampToolbar();_initTbDDs();syncAccountSelect();}else tb.innerHTML='';}
 
@@ -1203,17 +1312,182 @@ document.addEventListener('click',e=>{if(e.target.classList.contains('modal-over
 
 function switchTab(id,btn){document.querySelectorAll('#page-template .tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');}
 
+/* ── Rubber-band selection ── */
+(function(){
+  const DRAG_THRESHOLD=5;
+  let dragging=false,startX=0,startY=0,wrap=null,rect=null;
+
+  function getWrap(){return document.getElementById('cr-grid-wrap');}
+  function getRect(){return document.getElementById('cr-sel-rect');}
+
+  function onDown(e){
+    // chỉ kéo bằng chuột trái, không kéo khi click vào button/input
+    if(e.button!==0)return;
+    if(e.target.closest('button,input,video,img,.cr-preview-btn'))return;
+    wrap=getWrap();rect=getRect();
+    if(!wrap||!rect)return;
+    const b=wrap.getBoundingClientRect();
+    startX=e.clientX-b.left+wrap.scrollLeft;
+    startY=e.clientY-b.top+wrap.scrollTop;
+    dragging=false;
+    wrap.addEventListener('mousemove',onMove);
+    window.addEventListener('mouseup',onUp);
+  }
+
+  function onMove(e){
+    wrap=getWrap();rect=getRect();
+    if(!wrap||!rect)return;
+    const b=wrap.getBoundingClientRect();
+    const cx=e.clientX-b.left+wrap.scrollLeft;
+    const cy=e.clientY-b.top+wrap.scrollTop;
+    if(!dragging){
+      if(Math.abs(cx-startX)<DRAG_THRESHOLD&&Math.abs(cy-startY)<DRAG_THRESHOLD)return;
+      dragging=true;rect.style.display='block';
+    }
+    const x=Math.min(cx,startX),y=Math.min(cy,startY);
+    const w=Math.abs(cx-startX),h=Math.abs(cy-startY);
+    rect.style.left=x+'px';rect.style.top=y+'px';
+    rect.style.width=w+'px';rect.style.height=h+'px';
+  }
+
+  function onUp(e){
+    wrap=getWrap();rect=getRect();
+    if(rect)rect.style.display='none';
+    if(wrap){wrap.removeEventListener('mousemove',onMove);}
+    window.removeEventListener('mouseup',onUp);
+    if(!dragging){dragging=false;return;}
+    dragging=false;
+    if(!wrap)return;
+    const b=wrap.getBoundingClientRect();
+    const cx=e.clientX-b.left+wrap.scrollLeft;
+    const cy=e.clientY-b.top+wrap.scrollTop;
+    const rx=Math.min(cx,startX),ry=Math.min(cy,startY);
+    const rr=rx+Math.abs(cx-startX),rb=ry+Math.abs(cy-startY);
+    // shift = thêm vào selection, không shift = thay thế
+    if(!e.shiftKey)S.selected.clear();
+    document.querySelectorAll('#cr-grid .cr-item').forEach(card=>{
+      const cb=card.getBoundingClientRect();
+      const wb=wrap.getBoundingClientRect();
+      const cl=cb.left-wb.left+wrap.scrollLeft;
+      const ct=cb.top-wb.top+wrap.scrollTop;
+      const cr2=cl+cb.width,cb2=ct+cb.height;
+      if(cl<rr&&cr2>rx&&ct<rb&&cb2>ry){
+        const id=+card.dataset.crId;
+        if(e.shiftKey&&S.selected.has(id))S.selected.delete(id);
+        else S.selected.add(id);
+      }
+    });
+    document.querySelectorAll('#cr-grid .cr-item').forEach(card=>{
+      const id=+card.dataset.crId;
+      card.classList.toggle('selected',S.selected.has(id));
+      card.setAttribute('aria-checked',S.selected.has(id));
+    });
+    updateCrSelCount();calcSplit();
+  }
+
+  document.addEventListener('mousedown',function(e){
+    if(e.target.closest('#cr-grid-wrap'))onDown(e);
+  });
+})();
+
 function setStep(n){for(let i=1;i<=3;i++){const btn=document.getElementById('vstep-'+i);const content=document.getElementById('sc-'+i);if(btn)btn.classList.remove('active','done');if(content)content.classList.remove('active');if(btn&&i<n)btn.classList.add('done');if(i===n){if(btn)btn.classList.add('active');if(content)content.classList.add('active');}}if(n===2){syncTplSelects();updatePkgDropdownLabel();renderSelPkgCards();showTplConfig();}if(n===3)buildPreview();updateCrSelCount();}
 
-function handleUpload(files){S.pendingFiles=Array.from(files);document.getElementById('cr-config-files').textContent=`${S.pendingFiles.length} file: ${S.pendingFiles.map(f=>f.name).join(', ')}`;['cr-cfg-app','cr-cfg-style','cr-cfg-target','cr-cfg-custom'].forEach(id=>document.getElementById(id).value='');openModal('modal-cr-config');document.getElementById('file-input').value='';}
+const IMG_EXTS=['jpg','jpeg','png','gif','webp','avif'];
+const VID_EXTS=['mp4','mov','avi','mkv','webm'];
+function _isMedia(name){const e=name.split('.').pop().toLowerCase();return IMG_EXTS.includes(e)||VID_EXTS.includes(e);}
+function _isVideo(name){return VID_EXTS.includes(name.split('.').pop().toLowerCase());}
 
-function confirmCrConfig(){const cfg={app:document.getElementById('cr-cfg-app').value.trim(),style:document.getElementById('cr-cfg-style').value.trim(),target:document.getElementById('cr-cfg-target').value.trim(),custom:document.getElementById('cr-cfg-custom').value.trim()};['app','style','target','custom'].forEach(k=>{if(cfg[k])S.acValues[k].add(cfg[k]);});S.pendingFiles.forEach(file=>{S.creatives.push({id:Date.now()+Math.random(),name:file.name,size:(file.size/1024/1024).toFixed(1)+' MB',type:file.type.startsWith('video')?'video':'image',url:URL.createObjectURL(file),...cfg});log('info',`Uploaded: ${file.name}`);});closeModal('modal-cr-config');renderCRGrid();syncToolbarFilters();updateBadges();calcSplit();}
+function handleFileInput(fileList){
+  const files=Array.from(fileList).filter(f=>_isMedia(f.name));
+  if(!files.length){log('warn','Không tìm thấy file ảnh/video hợp lệ');return;}
+  S.pendingFolderFiles=files;
+  document.getElementById('cr-config-files').textContent=`${files.length} file được chọn`;
+  ['cr-cfg-app','cr-cfg-style','cr-cfg-target','cr-cfg-custom'].forEach(id=>document.getElementById(id).value='');
+  openModal('modal-cr-config');
+  document.getElementById('cr-file-input').value='';
+}
 
-function renderCRGrid(){const g=document.getElementById('cr-grid');if(!g)return;if(S.creatives.length===0){g.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:50px 0;color:var(--fg-3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" width="36" height="36" style="margin:0 auto 10px;display:block;opacity:.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><p style="font-size:12px">Upload ảnh hoặc video để bắt đầu</p></div>';return;}const q=(document.getElementById('tb-search')?.value||'').toLowerCase();const fa=document.getElementById('tb-app')?.value||'';const fs=document.getElementById('tb-style')?.value||'';const ft=document.getElementById('tb-target')?.value||'';const fc=document.getElementById('tb-custom')?.value||'';const visible=S.creatives.filter(cr=>{if(q&&!cr.name.toLowerCase().includes(q))return false;if(fa&&cr.app!==fa)return false;if(fs&&cr.style!==fs)return false;if(ft&&cr.target!==ft)return false;if(fc&&cr.custom!==fc)return false;return true;});g.innerHTML=visible.map(cr=>`<div class="cr-item ${S.selected.has(cr.id)?'selected':''}" onclick="toggleCR(${JSON.stringify(cr.id)})" tabindex="0" role="checkbox" aria-checked="${S.selected.has(cr.id)}"><div class="cr-thumb">${cr.type==='image'?`<img src="${cr.url}" alt="${cr.name}" loading="lazy"/>`:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="26" height="26"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>`}<div class="cr-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div></div><div class="cr-info"><div class="cr-name" title="${cr.name}">${cr.name}</div><div class="cr-tags">${cr.app?`<span class="cr-tag">${cr.app}</span>`:''} ${cr.style?`<span class="cr-tag">${cr.style}</span>`:''}</div></div></div>`).join('');const tot=document.getElementById('cr-total');if(tot)tot.textContent=visible.length<S.creatives.length?`${visible.length}/${S.creatives.length}`:S.creatives.length;updateCrSelCount();}
+async function confirmCrConfig(){
+  const cfg={app:document.getElementById('cr-cfg-app').value.trim(),style:document.getElementById('cr-cfg-style').value.trim(),target:document.getElementById('cr-cfg-target').value.trim(),custom:document.getElementById('cr-cfg-custom').value.trim()};
+  ['app','style','target','custom'].forEach(k=>{if(cfg[k])S.acValues[k].add(cfg[k]);});
+  const files=S.pendingFolderFiles||[];
+  closeModal('modal-cr-config');
+  if(!files.length)return;
+  log('info',`Đang upload ${files.length} creative lên server...`);
+  let ok=0,fail=0;
+  for(const file of files){
+    const fd=new FormData();
+    fd.append('file',file,file.name);
+    fd.append('app',cfg.app);fd.append('style',cfg.style);
+    fd.append('target',cfg.target);fd.append('custom',cfg.custom);
+    try{
+      const r=await fetch('/api/v1/creatives/add-with-file',{method:'POST',body:fd});
+      const j=await r.json();
+      if(j.success){
+        S.creatives.push({...j.data,url:`/api/v1/creatives/${j.data.id}/file`});
+        ok++;
+      }else{log('warn',`${file.name}: ${j.detail||j.error}`);fail++;}
+    }catch(e){log('warn',`${file.name}: ${e.message}`);fail++;}
+  }
+  S.pendingFolderFiles=[];
+  log(fail?'warn':'info',`Upload xong: ${ok} thành công${fail?', '+fail+' thất bại':''}`);
+  renderCRGrid();syncToolbarFilters();updateBadges();calcSplit();
+}
 
+function renderCRGrid(){const g=document.getElementById('cr-grid');if(!g)return;if(S.creatives.length===0){g.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:50px 0;color:var(--fg-3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" width="36" height="36" style="margin:0 auto 10px;display:block;opacity:.3"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><p style="font-size:12px">Kéo thả hoặc click vào vùng trên để thêm creative</p></div>';return;}const q=(document.getElementById('tb-search')?.value||'').toLowerCase();const fa=document.getElementById('tb-app')?.value||'';const fs=document.getElementById('tb-style')?.value||'';const ft=document.getElementById('tb-target')?.value||'';const fc=document.getElementById('tb-custom')?.value||'';const visible=S.creatives.filter(cr=>{if(q&&!cr.name.toLowerCase().includes(q))return false;if(fa&&cr.app!==fa)return false;if(fs&&cr.style!==fs)return false;if(ft&&cr.target!==ft)return false;if(fc&&cr.custom!==fc)return false;return true;});const _thumb=cr=>{
+  const src=cr.url||((cr.filePath||cr.file_path||'').includes('uploads')?`/api/v1/creatives/${cr.id}/file`:null);
+  if(cr.type==='image'&&src)return`<img src="${src}" alt="${cr.name}" loading="lazy"/>`;
+  if(cr.type==='video'&&src)return`<video src="${src}" style="width:100%;height:100%;object-fit:cover" muted preload="metadata"></video>`;
+  // no url and no server file — show placeholder with icon
+  const noUrlIcon=cr.type==='video'
+    ?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="26" height="26"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>`
+    :`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="26" height="26"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>`;
+  return`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:4px;opacity:.4">${noUrlIcon}<span style="font-size:9px;color:var(--fg-3)">Chưa có file</span></div>`;
+};
+g.innerHTML=visible.map(cr=>{
+  const hasServerFile=(cr.filePath||cr.file_path||'').includes('uploads');
+  const previewBtn=hasServerFile?`<button class="cr-preview-btn" onclick="event.stopPropagation();openMediaPreview(${cr.id},'${cr.type}')" title="Xem preview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none"/></svg></button>`:'';
+  return`<div class="cr-item ${S.selected.has(cr.id)?'selected':''}" data-cr-id="${cr.id}" onclick="toggleCR(${JSON.stringify(cr.id)},event)" tabindex="0" role="checkbox" aria-checked="${S.selected.has(cr.id)}"><div class="cr-thumb">${_thumb(cr)}<div class="cr-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>${previewBtn}</div><div class="cr-info"><div class="cr-name" title="${cr.name}">${cr.name}</div><div class="cr-tags">${cr.app?`<span class="cr-tag">${cr.app}</span>`:''} ${cr.style?`<span class="cr-tag">${cr.style}</span>`:''}</div></div></div>`;
+}).join('');const tot=document.getElementById('cr-total');if(tot)tot.textContent=visible.length<S.creatives.length?`${visible.length}/${S.creatives.length}`:S.creatives.length;updateCrSelCount();}
+
+function _syncCardSel(id){const el=document.querySelector(`[data-cr-id="${id}"]`);if(!el)return;const on=S.selected.has(id);el.classList.toggle('selected',on);el.setAttribute('aria-checked',on);}
 function filterCR(){renderCRGrid();}
-function toggleCR(id){if(S.selected.has(id))S.selected.delete(id);else S.selected.add(id);renderCRGrid();updateCrSelCount();calcSplit();}
-function clearSel(){S.selected.clear();renderCRGrid();updateCrSelCount();calcSplit();}
+let _lastCrId=null;
+function toggleCR(id,e){
+  if(e&&e.shiftKey&&_lastCrId!=null){
+    // range select: lấy thứ tự visible hiện tại
+    const cards=[...document.querySelectorAll('#cr-grid .cr-item')];
+    const ids=cards.map(c=>+c.dataset.crId);
+    const a=ids.indexOf(_lastCrId),b=ids.indexOf(id);
+    if(a!==-1&&b!==-1){
+      const lo=Math.min(a,b),hi=Math.max(a,b);
+      const remove=S.selected.has(id);
+      ids.slice(lo,hi+1).forEach(rid=>{remove?S.selected.delete(rid):S.selected.add(rid);_syncCardSel(rid);});
+      updateCrSelCount();calcSplit();return;
+    }
+  }
+  if(S.selected.has(id))S.selected.delete(id);else S.selected.add(id);
+  _syncCardSel(id);_lastCrId=id;updateCrSelCount();calcSplit();
+}
+async function deleteSelected(){
+  const ids=[...S.selected];
+  if(!ids.length)return;
+  showConfirm({
+    title:`Xóa ${ids.length} creative?`,
+    desc:'Hành động này không thể hoàn tác. Creative sẽ bị xoá khỏi thư viện.',
+    okLabel:'Xóa',okColor:'#ef4444',icon:'delete',
+    onConfirm:async()=>{
+      for(const id of ids){
+        await fetch(`/api/v1/creatives/${id}`,{method:'DELETE'});
+        S.creatives=S.creatives.filter(c=>c.id!==id);
+        S.selected.delete(id);
+      }
+      renderCRGrid();syncToolbarFilters();updateBadges();calcSplit();
+      showBanner({status:'success',title:`Đã xóa ${ids.length} creative`,duration:3000});
+    }
+  });
+}
+function clearSel(){S.selected.forEach(id=>{S.selected.delete(id);_syncCardSel(id);});S.selected.clear();document.querySelectorAll('.cr-item.selected').forEach(el=>{el.classList.remove('selected');el.setAttribute('aria-checked','false');});updateCrSelCount();calcSplit();}
 function selectAllVisible(){
   const q=(document.getElementById('tb-search')?.value||'').toLowerCase();
   const fa=DD.get('tb-app')||'';const fs=DD.get('tb-style')||'';const ft=DD.get('tb-target')||'';const fc=DD.get('tb-custom')||'';
@@ -1222,8 +1496,8 @@ function selectAllVisible(){
     if(fa&&cr.app!==fa)return false;if(fs&&cr.style!==fs)return false;
     if(ft&&cr.target!==ft)return false;if(fc&&cr.custom!==fc)return false;
     return true;
-  }).forEach(cr=>S.selected.add(cr.id));
-  renderCRGrid();updateCrSelCount();calcSplit();renderCampNamePreview();
+  }).forEach(cr=>{S.selected.add(cr.id);_syncCardSel(cr.id);});
+  updateCrSelCount();calcSplit();renderCampNamePreview();
 }
 function updateCrSelCount(){const n=S.selected.size;const el=document.getElementById('cr-sel-count');if(el)el.textContent=`${n} đã chọn`;const disp=document.getElementById('cr-sel-disp');if(disp)disp.textContent=n;const tb=document.getElementById('tb-cr-count');if(tb)tb.textContent=`${n} CR chọn`;document.getElementById('cr-badge').textContent=S.creatives.length;}
 
@@ -1255,14 +1529,14 @@ function calcSplit(){
   const hasMore=items.length>LIMIT;
   const shown=S.splitExpanded?items:items.slice(0,LIMIT);
   const hiddenPkgs=pkgCount-Math.floor(LIMIT/3);
-  const showMoreBtn=`<div style="text-align:center;padding:6px 0 2px"><button onclick="S.splitExpanded=true;calcSplit()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:5px 16px;font-size:11.5px;font-weight:600;cursor:pointer;letter-spacing:.02em">↓ Show more</button></div>`;
-  const showLessBtn=`<div style="text-align:center;padding:4px 0"><button onclick="S.splitExpanded=false;calcSplit()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:5px 16px;font-size:11.5px;font-weight:600;cursor:pointer;letter-spacing:.02em">↑ Show less</button></div>`;
+  const showMoreBtn=`<div style="text-align:center;padding:6px 0 2px"><button onclick="S.splitExpanded=true;calcSplit()" style="background:var(--fg);color:var(--bg);border:none;border-radius:var(--radius);padding:5px 16px;font-size:11.5px;font-weight:600;cursor:pointer;letter-spacing:.02em">↓ Show more</button></div>`;
+  const showLessBtn=`<div style="text-align:center;padding:4px 0"><button onclick="S.splitExpanded=false;calcSplit()" style="background:var(--fg);color:var(--bg);border:none;border-radius:var(--radius);padding:5px 16px;font-size:11.5px;font-weight:600;cursor:pointer;letter-spacing:.02em">↑ Show less</button></div>`;
   const totalCamps=pkgCount*(fullCamps+(rem>0?1:0));
   let html='';
   if(hasMore&&S.splitExpanded)html+=showLessBtn;
   html+=shown.map(i=>i.html).join('');
   if(hasMore)html+=S.splitExpanded?showLessBtn:showMoreBtn;
-  html+=`<div style="margin-top:10px;padding:8px 10px;background:var(--accent);border-radius:var(--radius);display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-weight:600;color:#fff">Tổng số campaign</span><span style="font-size:15px;font-weight:700;color:#fff">${totalCamps}</span></div>`;
+  html+=`<div style="margin-top:10px;padding:8px 10px;background:var(--fg);border-radius:var(--radius);display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-weight:600;color:var(--bg)">Tổng số campaign</span><span style="font-size:15px;font-weight:700;color:var(--bg)">${totalCamps}</span></div>`;
   rows.innerHTML=html;
 }
 
@@ -1429,14 +1703,11 @@ const DD = {
   _geoCur:null,
   openGeo(e,type){
     e.stopPropagation();
-    const btnId=type==='country'?'tgt-country-btn':'tgt-lang-btn';
-    const btn=document.getElementById(btnId);
-    if(!btn)return;
+    const btn=e.currentTarget;
     if(this._geoCur===type&&this._cur==='_geo'){this.close();return;}
     this._geoCur=type;
     this._cur='_geo';
     const portal=document.getElementById('dd-portal');
-    const q='';
     portal.innerHTML=`<div class="dd-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input placeholder="Search..." oninput="DD._renderGeo('${type}',this.value)" id="dd-q" autocomplete="off"/></div><div class="dd-list" id="dd-geo-list"></div>`;
     this._renderGeo(type,'');
     this._position(btn,portal);
@@ -1525,6 +1796,10 @@ const DD = {
     const G=[{value:'all',label:'All'},{value:'male',label:'Male'},{value:'female',label:'Female'}];
     this.reg('tgt-gender',[{v:'all',l:'All'},{v:'male',l:'Male'},{v:'female',l:'Female'}],'all',null,{search:false});
     this.reg('m-tgt-gender',[{v:'all',l:'All'},{v:'male',l:'Male'},{v:'female',l:'Female'}],'all',null,{search:false});
+    this.reg('camp-objective',[
+      {v:'app_installs',l:'Maximize number of app installs'},
+      {v:'value_ad_impression',l:'Maximize value — In-app ad impression'},
+    ],'value_ad_impression',null,{search:false});
     this.reg('tgt-budget-type',[{v:'CBO',l:'CBO'},{v:'ABO',l:'ABO'}],'CBO',null,{search:false});
     this.reg('bid-strategy',[
       {v:'LOWEST_COST_WITHOUT_CAP',l:'Highest volume or value'},
@@ -1646,9 +1921,18 @@ function renderSingleTplCards(){
       <div class="form-row"><div class="form-group"><label class="form-label">App ID</label><input class="form-input s-field" id="s-app-id" value="${t?.appId||''}" disabled/></div><div class="form-group"><label class="form-label">Dev ID</label><input class="form-input s-field" id="s-app-dev" value="${t?.devId||''}" disabled/></div></div>
       <div class="form-group"><label class="form-label">FB Page ID</label><input class="form-input s-field" id="s-app-page" value="${t?.pageId||''}" disabled/></div>`},
     target:{label:'TARGET',dot:'var(--fg-2)',opts:S.templates.target,curId:S.tplCurSel.target,fields:t=>`
-      <div class="form-group"><label class="form-label">Country</label><div class="form-input s-field" style="height:auto;min-height:32px;display:flex;flex-wrap:wrap;gap:3px;padding:4px 8px;align-items:center">${(()=>{const arr=Array.isArray(t?.country)?t.country:(t?.country?[t.country]:[]);if(!arr.length)return'<span style="color:var(--fg-3)">—</span>';if(arr.includes('ALL'))return'<span style="font-size:11px;background:var(--accent-bg);padding:1px 6px;border-radius:4px">Global</span>';return arr.slice(0,5).map(v=>`<span style="font-size:11px;background:var(--accent-bg);padding:1px 6px;border-radius:4px">${v}</span>`).join('')+(arr.length>5?`<span style="font-size:11px;color:var(--fg-3)">+${arr.length-5}</span>`:'');})()}</div></div>
-      <div class="form-row"><div class="form-group"><label class="form-label">Gender</label><input class="form-input s-field" value="${t?.gender||'all'}" disabled/></div><div class="form-group"><label class="form-label">Language</label><div class="form-input s-field" style="height:auto;min-height:32px;display:flex;flex-wrap:wrap;gap:3px;padding:4px 8px;align-items:center">${(()=>{const arr=Array.isArray(t?.lang)?t.lang:(t?.lang?[t.lang]:[]);if(!arr.length)return'<span style="color:var(--fg-3)">—</span>';if(arr.includes('ALL'))return'<span style="font-size:11px;background:var(--accent-bg);padding:1px 6px;border-radius:4px">All</span>';const names=arr.map(v=>GEO_LANGS.find(x=>x.v===v)?.l||v);return names.slice(0,3).map(n=>`<span style="font-size:11px;background:var(--accent-bg);padding:1px 6px;border-radius:4px">${n}</span>`).join('')+(names.length>3?`<span style="font-size:11px;color:var(--fg-3)">+${names.length-3}</span>`:'');})()}</div></div></div>
-      <div class="form-row"><div class="form-group"><label class="form-label">Age Min</label><input class="form-input s-field" id="s-tgt-amin" value="${t?.ageMin||''}" type="number" disabled/></div><div class="form-group"><label class="form-label">Age Max</label><input class="form-input s-field" id="s-tgt-amax" value="${t?.ageMax||''}" type="number" disabled/></div></div>`},
+      <div class="form-group"><label class="form-label">Country</label>
+        <div class="rdd-wrap"><button class="rdd-btn s-geo-btn" id="s-tgt-country-btn" onclick="DD.openGeo(event,'country')"><span class="rdd-lbl geo-country-lbl s-country-lbl placeholder">Chọn quốc gia...</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="flex-shrink:0;color:var(--fg-3)"><polyline points="6 9 12 15 18 9"/></svg></button></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Gender</label>
+          <div class="rdd-wrap"><button class="rdd-btn s-geo-btn" id="s-tgt-gender-btn" onclick="DD.open(event,'s-tgt-gender')"><span class="rdd-lbl" id="s-tgt-gender-lbl">${t?.gender||'all'}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="flex-shrink:0;color:var(--fg-3)"><polyline points="6 9 12 15 18 9"/></svg></button><input type="hidden" id="s-tgt-gender" value="${t?.gender||'all'}"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Language</label>
+          <div class="rdd-wrap"><button class="rdd-btn s-geo-btn" id="s-tgt-lang-btn" onclick="DD.openGeo(event,'lang')"><span class="rdd-lbl geo-lang-lbl s-lang-lbl placeholder">Chọn ngôn ngữ...</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="flex-shrink:0;color:var(--fg-3)"><polyline points="6 9 12 15 18 9"/></svg></button></div>
+        </div>
+      </div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Age Min</label><input class="form-input s-field" id="s-tgt-amin" value="${t?.ageMin||''}" type="number" min="13" max="65" disabled/></div><div class="form-group"><label class="form-label">Age Max <span style="color:var(--fg-3);font-weight:400">(65=65+)</span></label><input class="form-input s-field" id="s-tgt-amax" value="${t?.ageMax||''}" type="number" min="13" max="65" disabled/></div></div>`},
     ad:{label:'AD',dot:'var(--fg-3)',opts:S.templates.ad,curId:S.tplCurSel.ad,fields:t=>`
       <div class="form-group"><label class="form-label">Headlines</label><textarea class="form-textarea s-field" id="s-ad-headlines" disabled style="min-height:52px">${t?.headlines||''}</textarea></div>
       <div class="form-group"><label class="form-label">Primary Text</label><textarea class="form-textarea s-field" id="s-ad-text" disabled style="min-height:52px">${t?.text||''}</textarea></div>`}
@@ -1796,8 +2080,18 @@ function hidePkgActionBtns(){
 
 function enableTplEdit(type){
   S.tplEditMode[type]=true;
-  setFieldsEditable(type,true);
+  if(type==='target'){
+    // load template's geo into shared geo state so picker shows correct values
+    const tpl=S.templates.target.find(t=>t.id==S.tplCurSel.target);
+    if(tpl){
+      DD.setGeo('country',Array.isArray(tpl.country)?tpl.country:(tpl.country?[tpl.country]:[]));
+      DD.setGeo('lang',Array.isArray(tpl.lang)?tpl.lang:(tpl.lang?[tpl.lang]:[]));
+    }
+    // register gender DD for single-view
+    DD.reg('s-tgt-gender',[{v:'all',l:'All'},{v:'male',l:'Male'},{v:'female',l:'Female'}],tpl?.gender||'all',null,{search:false});
+  }
   renderSingleTplCards();
+  setFieldsEditable(type,true);
 }
 function cancelTplEdit(type){
   S.tplEditMode[type]=false;
@@ -1807,6 +2101,8 @@ function setFieldsEditable(type,editable){
   const card=document.getElementById('s-card-'+type);
   if(!card)return;
   card.querySelectorAll('.s-field').forEach(f=>{f.disabled=!editable;});
+  // geo picker buttons: toggle pointer-events instead of disabled (buttons don't have disabled)
+  card.querySelectorAll('.s-geo-btn').forEach(b=>{b.style.pointerEvents=editable?'':'none';});
 }
 function showOverwriteWarn(type){document.getElementById('s-warn-'+type).style.display='block';}
 function confirmTplOverwrite(type){
@@ -1818,7 +2114,7 @@ function confirmTplOverwrite(type){
   log('success',`Đã lưu đè ${type.toUpperCase()} template: ${tpl.name}`);
   S.tplEditMode[type]=false;
   document.getElementById('s-warn-'+type).style.display='none';
-  renderSingleTplCards();renderAllTplLists();
+  renderSingleTplCards();renderAllTplLists();saveStorage();
 }
 function showSaveNewTpl(type){document.getElementById('s-new-'+type).style.display='block';}
 function confirmTplNew(type){
@@ -1836,7 +2132,7 @@ function confirmTplNew(type){
 }
 function readTplFields(type,obj){
   if(type==='app'){obj.pkg=document.getElementById('s-app-pkg')?.value||'';obj.appId=document.getElementById('s-app-id')?.value||'';obj.devId=document.getElementById('s-app-dev')?.value||'';obj.pageId=document.getElementById('s-app-page')?.value||'';}
-  else if(type==='target'){obj.country=DD.getGeoArr('country');obj.lang=DD.getGeoArr('lang');obj.gender=DD.get('tgt-gender')||'all';obj.ageMin=document.getElementById('s-tgt-amin')?.value||'';obj.ageMax=document.getElementById('s-tgt-amax')?.value||'';}
+  else if(type==='target'){obj.country=DD.getGeoArr('country');obj.lang=DD.getGeoArr('lang');obj.gender=DD.get('s-tgt-gender')||DD.get('tgt-gender')||'all';obj.ageMin=document.getElementById('s-tgt-amin')?.value||'';obj.ageMax=document.getElementById('s-tgt-amax')?.value||'';}
   else{obj.headlines=document.getElementById('s-ad-headlines')?.value||'';obj.text=document.getElementById('s-ad-text')?.value||'';}
 }
 
@@ -1861,7 +2157,7 @@ function renderMultiTplCards(){
       </div>
       <div class="grid-3">
         <div class="card" style="border-style:dashed"><div style="font-size:10px;font-weight:600;color:var(--fg-3);margin-bottom:6px">APP</div><div style="font-size:12px;font-weight:500">${app?.name||'—'}</div><div style="font-size:11px;color:var(--fg-3);margin-top:3px">${app?.pkg||''}</div></div>
-        <div class="card" style="border-style:dashed"><div style="font-size:10px;font-weight:600;color:var(--fg-3);margin-bottom:6px">TARGET</div><div style="font-size:12px;font-weight:500">${tgt?.name||'—'}</div><div style="font-size:11px;color:var(--fg-3);margin-top:3px">${tgt?`${tgt.country} · ${tgt.gender} · ${tgt.ageMin}-${tgt.ageMax}`:''}</div></div>
+        <div class="card" style="border-style:dashed"><div style="font-size:10px;font-weight:600;color:var(--fg-3);margin-bottom:6px">TARGET</div><div style="font-size:12px;font-weight:500">${tgt?.name||'—'}</div><div style="font-size:11px;color:var(--fg-3);margin-top:3px">${tgt?`${tgt.country} · ${tgt.gender} · ${tgt.ageMin}-${parseInt(tgt.ageMax)>=65?'65+':tgt.ageMax}`:''}</div></div>
         <div class="card" style="border-style:dashed"><div style="font-size:10px;font-weight:600;color:var(--fg-3);margin-bottom:6px">AD</div><div style="font-size:12px;font-weight:500">${ad?.name||'—'}</div><div style="font-size:11px;color:var(--fg-3);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(ad?.headlines||'').split('\n')[0]||''}</div></div>
       </div>
     </div>`;
@@ -1890,33 +2186,42 @@ function closeEditSave(type){
   document.getElementById('esz-'+type+'-form').style.display='none';
   const inp=document.getElementById('esz-'+type+'-name');if(inp)inp.value='';
 }
-function confirmEditSave(type){
+async function confirmEditSave(type){
   const nameEl=document.getElementById('esz-'+type+'-name');
   const name=(nameEl?.value||'').trim();
   if(!name){nameEl?.focus();return;}
-  let newId;
   const ddMap={app:'sel-app',target:'sel-tgt',ad:'sel-ad'};
+  let newId;
   if(type==='app'){
     const pkg=document.getElementById('app-pkg')?.value?.trim();
     if(!pkg){log('error','APP: Package Name là bắt buộc');document.getElementById('app-pkg')?.focus();return;}
-    const t={id:Date.now(),name,pkg,appId:document.getElementById('app-id').value,devId:document.getElementById('app-dev').value,pageId:document.getElementById('app-page').value};
-    S.templates.app.push(t);newId=t.id;log('success',`✓ Đã lưu APP: ${name}`);
+    try{
+      const data=await apiFetch('/api/v1/templates/app',{method:'POST',body:{name,pkg,app_id:document.getElementById('app-id').value,dev_id:document.getElementById('app-dev').value,page_id:document.getElementById('app-page').value,app_url:document.getElementById('app-url')?.value?.trim()||''}});
+      const t={id:data.id,name:data.name,pkg:data.pkg,appId:data.appId,devId:data.devId,pageId:data.pageId,appUrl:data.appUrl};
+      S.templates.app.push(t);newId=t.id;log('success',`✓ Đã lưu APP: ${name}`);
+    }catch(e){return;}
   } else if(type==='target'){
-    const countries=DD.getGeoArr('country');const langs=DD.getGeoArr('lang');
-    const t={id:Date.now(),name,country:countries,lang:langs,gender:DD.get('tgt-gender')||'all',ageMin:document.getElementById('tgt-amin').value||'18',ageMax:document.getElementById('tgt-amax').value||'65'};
-    S.templates.target.push(t);newId=t.id;log('success',`✓ Đã lưu TARGET: ${name}`);
+    const country=DD.getGeoArr('country');const lang=DD.getGeoArr('lang');
+    try{
+      const data=await apiFetch('/api/v1/templates/target',{method:'POST',body:{name,country,lang,gender:DD.get('tgt-gender')||'all',age_min:parseInt(document.getElementById('tgt-amin').value)||18,age_max:Math.min(parseInt(document.getElementById('tgt-amax').value)||65,65)}});
+      const t={id:data.id,name:data.name,country:data.country,lang:data.lang,gender:data.gender,ageMin:data.ageMin,ageMax:data.ageMax};
+      S.templates.target.push(t);newId=t.id;log('success',`✓ Đã lưu TARGET: ${name}`);
+    }catch(e){return;}
   } else {
     const headlines=document.getElementById('ad-headlines')?.value?.trim();
     if(!headlines){log('error','AD: Headlines là bắt buộc');document.getElementById('ad-headlines')?.focus();return;}
-    const t={id:Date.now(),name,headlines,text:document.getElementById('ad-text').value};
-    S.templates.ad.push(t);newId=t.id;log('success',`✓ Đã lưu AD: ${name}`);
+    try{
+      const data=await apiFetch('/api/v1/templates/ad',{method:'POST',body:{name,headlines,text:document.getElementById('ad-text').value}});
+      const t={id:data.id,name:data.name,headlines:data.headlines,text:data.text};
+      S.templates.ad.push(t);newId=t.id;log('success',`✓ Đã lưu AD: ${name}`);
+    }catch(e){return;}
   }
-  syncTplSelects();renderAllTplLists();checkSaveNewPkgZero();saveStorage();
+  syncTplSelects();renderAllTplLists();checkSaveNewPkgZero();
   if(newId)DD.set(ddMap[type],newId,true);
   closeEditSave(type);
 }
 
-function saveTpl(type){
+async function saveTpl(type){
   let newId;
   if(type==='app'){
     const pkg=document.getElementById('app-pkg')?.value?.trim();
@@ -1926,8 +2231,13 @@ function saveTpl(type){
   } else if(type==='target'){
     const countries=DD.getGeoArr('country');const langs=DD.getGeoArr('lang');
     const cLabel=countries.includes('ALL')?'Global':countries.length?countries.slice(0,2).join('+'):'(all)';
-    const t={id:Date.now(),name:`TARGET ${cLabel} ${DD.get('tgt-gender')||'all'}`.trim(),country:countries,lang:langs,gender:DD.get('tgt-gender')||'all',ageMin:document.getElementById('tgt-amin').value||'18',ageMax:document.getElementById('tgt-amax').value||'65'};
-    S.templates.target.push(t);newId=t.id;log('success',`✓ Đã lưu TARGET: ${t.name}`);
+    const rawMax=parseInt(document.getElementById('tgt-amax').value)||65;
+    const ageMax=Math.min(rawMax,65);
+    try{
+      const data=await apiFetch('/api/v1/templates/target',{method:'POST',body:{name:`TARGET ${cLabel} ${DD.get('tgt-gender')||'all'}`.trim(),country:countries,lang:langs,gender:DD.get('tgt-gender')||'all',age_min:parseInt(document.getElementById('tgt-amin').value)||18,age_max:ageMax}});
+      const t={id:data.id,name:data.name,country:data.country,lang:data.lang,gender:data.gender,ageMin:data.ageMin,ageMax:data.ageMax};
+      S.templates.target.push(t);newId=t.id;log('success',`✓ Đã lưu TARGET: ${t.name}`);
+    }catch(e){return;}
   } else {
     const headlines=document.getElementById('ad-headlines')?.value?.trim();
     if(!headlines){log('error','AD: Headlines là bắt buộc');document.getElementById('ad-headlines')?.focus();return;}
@@ -1955,7 +2265,8 @@ function renderCampNamePreview(){
   const pad=n=>String(n).padStart(2,'0');
   const dt=`${String(now.getFullYear()).slice(-2)}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
   const perAd=parseInt(document.getElementById('cr-per-ad')?.value)||1;
-  const total=Math.max(S.selected.size,1);
+  const total=S.selected.size;
+  if(!total){el.innerHTML='<span style="color:var(--fg-3);font-style:italic">— chọn CR để xem preview —</span>';return;}
   const campCount=Math.floor(total/perAd)+(total%perAd>0?1:0);
   const digits=Math.max(2,String(campCount).length);
   const sanitize=s=>s.replace(/[^a-zA-Z0-9À-ỹ]/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'');
@@ -1971,8 +2282,8 @@ function renderCampNamePreview(){
   });
   const hasMore=lines.length>LIMIT;
   const shown=S.campNameExpanded?lines:lines.slice(0,LIMIT);
-  const showMoreBtn=`<div style="text-align:center;padding:6px 0 2px"><button onclick="S.campNameExpanded=true;renderCampNamePreview()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:5px 16px;font-size:11.5px;font-weight:600;cursor:pointer;letter-spacing:.02em">↓ Show more (${lines.length-LIMIT} more)</button></div>`;
-  const showLessBtn=`<div style="text-align:center;padding:4px 0"><button onclick="S.campNameExpanded=false;renderCampNamePreview()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:5px 16px;font-size:11.5px;font-weight:600;cursor:pointer;letter-spacing:.02em">↑ Show less</button></div>`;
+  const showMoreBtn=`<div style="text-align:center;padding:6px 0 2px"><button onclick="S.campNameExpanded=true;renderCampNamePreview()" style="background:var(--fg);color:var(--bg);border:none;border-radius:var(--radius);padding:5px 16px;font-size:11.5px;font-weight:600;cursor:pointer;letter-spacing:.02em">↓ Show more (${lines.length-LIMIT} more)</button></div>`;
+  const showLessBtn=`<div style="text-align:center;padding:4px 0"><button onclick="S.campNameExpanded=false;renderCampNamePreview()" style="background:var(--fg);color:var(--bg);border:none;border-radius:var(--radius);padding:5px 16px;font-size:11.5px;font-weight:600;cursor:pointer;letter-spacing:.02em">↑ Show less</button></div>`;
   let html='';
   if(hasMore&&S.campNameExpanded)html+=showLessBtn;
   html+=shown.map(l=>`<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l}</div>`).join('');
@@ -2031,204 +2342,191 @@ function saveAsNewPkgZero(){
   openSaveNewPkgInline();
 }
 
-function saveNewPkg(){const name=prompt('Tên Package mới:');if(!name)return;const appId=document.getElementById('sel-app')?.value;const targetId=document.getElementById('sel-tgt')?.value;const adId=document.getElementById('sel-ad')?.value;if(!appId||!targetId||!adId){alert('Chọn đủ 3 templates');return;}S.packages.push({id:Date.now(),name,appId:parseInt(appId)||appId,targetId:parseInt(targetId)||targetId,adId:parseInt(adId)||adId});log('success',`Lưu Package: ${name}`);renderPkgList();updateBadges();}
+async function saveNewPkg(){const name=prompt('Tên Package mới:');if(!name)return;const appId=document.getElementById('sel-app')?.value;const targetId=document.getElementById('sel-tgt')?.value;const adId=document.getElementById('sel-ad')?.value;if(!appId||!targetId||!adId){alert('Chọn đủ 3 templates');return;}try{const data=await apiFetch('/api/v1/packages',{method:'POST',body:{name,app_id:parseInt(appId)||null,target_id:parseInt(targetId)||null,ad_id:parseInt(adId)||null}});S.packages.push({id:data.id,name:data.name,appId:data.appId,targetId:data.targetId,adId:data.adId});log('success',`Lưu Package: ${name}`);renderPkgList();updateBadges();}catch(e){}}
 
-function saveAccount(){const label=document.getElementById('acc-label').value;const id=document.getElementById('acc-id').value.trim();const note=document.getElementById('acc-note').value;if(!id){document.getElementById('acc-id')?.focus();return;}S.accounts.push({id:Date.now(),label:label||id,accId:id,note});log('success',`Thêm Account: ${label||id}`);closeModal('modal-acc');renderAccounts();syncAccountSelect();updateBadges();['acc-label','acc-id','acc-note'].forEach(i=>document.getElementById(i).value='');}
+async function saveAccount(){const label=document.getElementById('acc-label').value;let id=document.getElementById('acc-id').value.trim();const note=document.getElementById('acc-note').value;if(!id){document.getElementById('acc-id')?.focus();return;}if(!/^act_/.test(id))id='act_'+id;try{const data=await apiFetch('/api/v1/accounts',{method:'POST',body:{label:label||id,acc_id:id,note}});S.accounts.push({id:data.id,label:data.label,accId:data.accId,note:data.note});log('success',`Thêm Account: ${data.label}`);closeModal('modal-acc');renderAccounts();syncAccountSelect();updateBadges();['acc-label','acc-id','acc-note'].forEach(i=>document.getElementById(i).value='');}catch(e){}}
 
-function renderAccounts(){const el=document.getElementById('acc-list');if(!el)return;if(S.accounts.length===0){el.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--fg-3);font-size:12px">Chưa có Ad Account</div>';return;}el.innerHTML=S.accounts.map(a=>`<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="width:6px;height:6px;border-radius:50%;background:var(--success);flex-shrink:0"></span><span style="font-size:13px;font-weight:600">${a.label}</span><button class="btn btn-danger btn-sm" style="margin-left:auto" onclick="delAccount(${a.id})">Xóa</button></div><div style="font-family:monospace;font-size:11px;color:var(--fg-3)">${a.accId}</div>${a.note?`<div style="font-size:11.5px;color:var(--fg-3);margin-top:4px">${a.note}</div>`:''}</div>`).join('');document.getElementById('acc-total').textContent=S.accounts.length;}
+function renderAccounts(){const el=document.getElementById('acc-list');if(!el)return;if(S.accounts.length===0){el.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--fg-3);font-size:12px">Chưa có Ad Account</div>';return;}el.innerHTML=S.accounts.map(a=>`<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="width:6px;height:6px;border-radius:50%;background:var(--success);flex-shrink:0"></span><span style="font-size:13px;font-weight:600">${a.label}</span><div style="display:flex;gap:4px;margin-left:auto"><button class="btn btn-secondary btn-sm" onclick="openEditAccount(${a.id})">Sửa</button><button class="btn btn-danger btn-sm" onclick="delAccount(${a.id})">Xóa</button></div></div><div style="font-family:monospace;font-size:11px;color:var(--fg-3)">${a.accId}</div>${a.note?`<div style="font-size:11.5px;color:var(--fg-3);margin-top:4px">${a.note}</div>`:''}</div>`).join('');document.getElementById('acc-total').textContent=S.accounts.length;}
+function openEditAccount(id){const a=S.accounts.find(x=>x.id===id);if(!a)return;document.getElementById('edit-acc-id-hidden').value=id;document.getElementById('edit-acc-label').value=a.label;document.getElementById('edit-acc-id').value=a.accId.replace(/^act_/,'');document.getElementById('edit-acc-note').value=a.note||'';openModal('modal-edit-acc');}
+async function saveEditAccount(){const id=parseInt(document.getElementById('edit-acc-id-hidden').value);const label=document.getElementById('edit-acc-label').value;let accId=document.getElementById('edit-acc-id').value.trim();const note=document.getElementById('edit-acc-note').value;if(!accId){document.getElementById('edit-acc-id')?.focus();return;}if(!/^act_/.test(accId))accId='act_'+accId;try{const data=await apiFetch('/api/v1/accounts/'+id,{method:'PUT',body:{label:label||accId,acc_id:accId,note}});const idx=S.accounts.findIndex(x=>x.id===id);if(idx>=0)S.accounts[idx]={id:data.id,label:data.label,accId:data.accId,note:data.note};log('success',`Đã cập nhật: ${data.label}`);closeModal('modal-edit-acc');renderAccounts();syncAccountSelect();}catch(e){}}
 
-function delAccount(id){S.accounts=S.accounts.filter(a=>a.id!==id);renderAccounts();syncAccountSelect();updateBadges();saveStorage();}
+async function delAccount(id){try{await apiFetch('/api/v1/accounts/'+id,{method:'DELETE'});S.accounts=S.accounts.filter(a=>a.id!==id);renderAccounts();syncAccountSelect();updateBadges();}catch(e){}}
 
-const STORAGE_KEY='fb_auto_camp_v1';
-function saveStorage(){
-  try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify({
-      accounts:S.accounts,
-      creatives:S.creatives,
-      templates:S.templates,
-      packages:S.packages,
-    }));
-  }catch(e){log('warn','Không thể lưu localStorage: '+e.message);}
+async function apiFetch(path,opts={}){
+  const res=await fetch(path,{headers:{'Content-Type':'application/json'},...opts,body:opts.body?JSON.stringify(opts.body):undefined});
+  const json=await res.json();
+  if(!json.success)throw new Error(json.error||'API error');
+  return json.data;
 }
-function loadStorage(){
+async function loadFromBE(){
   try{
-    const raw=localStorage.getItem(STORAGE_KEY);
-    if(!raw)return false;
-    const d=JSON.parse(raw);
-    if(d.accounts)S.accounts=d.accounts;
-    if(d.creatives)S.creatives=d.creatives;
-    if(d.templates){
-      if(d.templates.app)S.templates.app=d.templates.app;
-      if(d.templates.target)S.templates.target=d.templates.target;
-      if(d.templates.ad)S.templates.ad=d.templates.ad;
-    }
-    if(d.packages)S.packages=d.packages;
+    const [accounts,app,target,ad,packages,creatives]=await Promise.all([
+      apiFetch('/api/v1/accounts'),
+      apiFetch('/api/v1/templates/app'),
+      apiFetch('/api/v1/templates/target'),
+      apiFetch('/api/v1/templates/ad'),
+      apiFetch('/api/v1/packages'),
+      apiFetch('/api/v1/creatives'),
+    ]);
+    S.accounts=accounts;
+    S.templates.app=app;
+    S.templates.target=target.map(t=>({...t,ageMin:t.ageMin,ageMax:t.ageMax}));
+    S.templates.ad=ad;
+    S.packages=packages.map(p=>({...p,appId:p.appId,targetId:p.targetId,adId:p.adId}));
+    S.creatives=creatives.map(c=>({...c,url:null,fileHandle:null}));
     return true;
-  }catch(e){log('warn','Không thể đọc localStorage: '+e.message);return false;}
-}
-function clearStorage(){
-  localStorage.removeItem(STORAGE_KEY);
-  log('info','Đã xóa dữ liệu lưu — reload để load lại demo data');
+  }catch(e){log('error','Không thể kết nối BE: '+e.message);return false;}
 }
 function syncAccountSelect(){const cur=DD.get('camp-account');DD.setOpts('camp-account',[{v:'',l:'— Chọn Ad Account —'},...S.accounts.map(a=>({v:a.accId,l:`${a.label} (${a.accId})`}))]);if(cur)DD.set('camp-account',cur,true);}
 
-function createTpl(type){if(type==='app'){const pkg=document.getElementById('m-app-pkg').value?.trim();if(!pkg){document.getElementById('m-app-pkg')?.focus();return;}const t={id:Date.now(),name:document.getElementById('m-app-name').value||pkg,pkg,appId:document.getElementById('m-app-id').value,devId:document.getElementById('m-app-dev').value,pageId:document.getElementById('m-app-page').value};S.templates.app.push(t);log('success',`Tạo APP: ${t.name}`);closeModal('modal-app');['m-app-name','m-app-pkg','m-app-id','m-app-dev','m-app-page'].forEach(i=>document.getElementById(i).value='');}else if(type==='target'){const countries=DD.getGeoArr('country');const langs=DD.getGeoArr('lang');const t={id:Date.now(),name:document.getElementById('m-tgt-name').value||'TARGET',country:countries,lang:langs,gender:DD.get('m-tgt-gender')||'all',ageMin:document.getElementById('m-tgt-amin').value||'18',ageMax:document.getElementById('m-tgt-amax').value||'45'};S.templates.target.push(t);log('success',`Tạo TARGET: ${t.name}`);closeModal('modal-target');}else{const t={id:Date.now(),name:document.getElementById('m-ad-name').value||'AD',headlines:document.getElementById('m-ad-headlines').value,text:document.getElementById('m-ad-text').value};S.templates.ad.push(t);log('success',`Tạo AD template`);closeModal('modal-ad');}renderAllTplLists();syncTplSelects();}
+async function createTpl(type){if(type==='app'){const pkg=document.getElementById('m-app-pkg').value?.trim();if(!pkg){document.getElementById('m-app-pkg')?.focus();return;}try{const data=await apiFetch('/api/v1/templates/app',{method:'POST',body:{name:document.getElementById('m-app-name').value||pkg,pkg,app_id:document.getElementById('m-app-id').value,dev_id:document.getElementById('m-app-dev').value,page_id:document.getElementById('m-app-page').value,app_url:document.getElementById('m-app-url').value.trim()}});S.templates.app.push({id:data.id,name:data.name,pkg:data.pkg,appId:data.appId,devId:data.devId,pageId:data.pageId,appUrl:data.appUrl});log('success',`Tạo APP: ${data.name}`);closeModal('modal-app');['m-app-name','m-app-pkg','m-app-id','m-app-dev','m-app-page','m-app-url'].forEach(i=>document.getElementById(i).value='');}catch(e){}}else if(type==='target'){const country=DD.getGeoArr('country');const lang=DD.getGeoArr('lang');try{const data=await apiFetch('/api/v1/templates/target',{method:'POST',body:{name:document.getElementById('m-tgt-name').value||'TARGET',country,lang,gender:DD.get('m-tgt-gender')||'all',age_min:parseInt(document.getElementById('m-tgt-amin').value)||18,age_max:Math.min(parseInt(document.getElementById('m-tgt-amax').value)||65,65)}});S.templates.target.push({id:data.id,name:data.name,country:data.country,lang:data.lang,gender:data.gender,ageMin:data.ageMin,ageMax:data.ageMax});log('success',`Tạo TARGET: ${data.name}`);closeModal('modal-target');}catch(e){}}else{try{const data=await apiFetch('/api/v1/templates/ad',{method:'POST',body:{name:document.getElementById('m-ad-name').value||'AD',headlines:document.getElementById('m-ad-headlines').value,text:document.getElementById('m-ad-text').value}});S.templates.ad.push({id:data.id,name:data.name,headlines:data.headlines,text:data.text});log('success',`Tạo AD template`);closeModal('modal-ad');}catch(e){}}renderAllTplLists();syncTplSelects();}
 
-function createPkg(){const name=document.getElementById('m-pkg-name').value;const appId=document.getElementById('m-pkg-app').value;const targetId=document.getElementById('m-pkg-tgt').value;const adId=document.getElementById('m-pkg-ad').value;if(!name||!appId||!targetId||!adId){if(!name)document.getElementById('m-pkg-name')?.focus();return;}S.packages.push({id:Date.now(),name,appId:parseFloat(appId)||appId,targetId:parseFloat(targetId)||targetId,adId:parseFloat(adId)||adId});log('success',`Tạo Package: ${name}`);closeModal('modal-pkg');document.getElementById('m-pkg-name').value='';renderPkgList();updateBadges();}
+async function createPkg(){const name=document.getElementById('m-pkg-name').value;const appId=document.getElementById('m-pkg-app').value;const targetId=document.getElementById('m-pkg-tgt').value;const adId=document.getElementById('m-pkg-ad').value;if(!name||!appId||!targetId||!adId){if(!name)document.getElementById('m-pkg-name')?.focus();return;}try{const data=await apiFetch('/api/v1/packages',{method:'POST',body:{name,app_id:parseInt(appId)||null,target_id:parseInt(targetId)||null,ad_id:parseInt(adId)||null}});S.packages.push({id:data.id,name:data.name,appId:data.appId,targetId:data.targetId,adId:data.adId});log('success',`Tạo Package: ${name}`);closeModal('modal-pkg');document.getElementById('m-pkg-name').value='';renderPkgList();updateBadges();}catch(e){}}
 
 function populatePkgSelects(){['m-pkg-app','m-pkg-tgt','m-pkg-ad'].forEach((id,i)=>{const key=['app','target','ad'][i];DD.setOpts(id,[{v:'',l:'— Chọn —'},...S.templates[key].map(t=>({v:t.id,l:t.name}))]);DD.set(id,'',true);});}
 
 function renderAllTplLists(){renderTplList('app');renderTplList('target');renderTplList('ad');renderPkgList();}
-function renderTplList(type){const domId={app:'app-list',target:'target-list',ad:'ad-list'}[type];const el=document.getElementById(domId);if(!el)return;const items=S.templates[type];if(items.length===0){el.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--fg-3);font-size:12px">Chưa có template</div>`;return;}el.innerHTML=items.map(t=>`<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="font-size:12.5px;font-weight:600">${t.name}</div><button class="btn btn-danger btn-sm" onclick="delTpl('${type}',${t.id})">×</button></div><div class="tag tag-neutral" style="margin-bottom:4px">${type.toUpperCase()}</div>${type==='app'?`<div style="font-size:11px;color:var(--fg-3);margin-top:4px">${t.pkg}</div>`:''}${type==='target'?`<div style="font-size:11px;color:var(--fg-3);margin-top:4px">${t.country||'—'} · ${t.gender} · ${t.ageMin}-${t.ageMax}</div>`:''}${type==='ad'?`<div style="font-size:11px;color:var(--fg-3);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${(t.headlines||'').split('\n')[0]||'—'}</div>`:''}</div>`).join('');}
-function delTpl(type,id){S.templates[type]=S.templates[type].filter(t=>t.id!==id);renderAllTplLists();syncTplSelects();saveStorage();}
+function renderTplList(type){const domId={app:'app-list',target:'target-list',ad:'ad-list'}[type];const el=document.getElementById(domId);if(!el)return;const items=S.templates[type];if(items.length===0){el.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--fg-3);font-size:12px">Chưa có template</div>`;return;}el.innerHTML=items.map(t=>`<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="font-size:12.5px;font-weight:600">${t.name}</div><button class="btn btn-danger btn-sm" onclick="delTpl('${type}',${t.id})">×</button></div><div class="tag tag-neutral" style="margin-bottom:4px">${type.toUpperCase()}</div>${type==='app'?`<div style="font-size:11px;color:var(--fg-3);margin-top:4px">${t.pkg}</div>`:''}${type==='target'?`<div style="font-size:11px;color:var(--fg-3);margin-top:4px">${t.country||'—'} · ${t.gender} · ${t.ageMin}-${parseInt(t.ageMax)>=65?'65+':t.ageMax}</div>`:''}${type==='ad'?`<div style="font-size:11px;color:var(--fg-3);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${(t.headlines||'').split('\n')[0]||'—'}</div>`:''}</div>`).join('');}
+async function delTpl(type,id){try{await apiFetch(`/api/v1/templates/${type}/${id}`,{method:'DELETE'});S.templates[type]=S.templates[type].filter(t=>t.id!==id);renderAllTplLists();syncTplSelects();}catch(e){}}
 
 function renderPkgList(){const el=document.getElementById('pkg-list');if(!el)return;if(S.packages.length===0){el.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--fg-3);font-size:12px">Chưa có package</div>';return;}el.innerHTML=S.packages.map(p=>`<div class="pkg-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:12.5px;font-weight:600">${p.name}</span><button class="btn btn-danger btn-sm" onclick="delPkg(${p.id})">×</button></div><div style="display:flex;gap:4px;flex-wrap:wrap"><span class="tag tag-neutral">${S.templates.app.find(t=>t.id==p.appId)?.name||'?'}</span><span class="tag tag-neutral">${S.templates.target.find(t=>t.id==p.targetId)?.name||'?'}</span><span class="tag tag-neutral">${S.templates.ad.find(t=>t.id==p.adId)?.name||'?'}</span></div></div>`).join('');document.getElementById('s-pkg').textContent=S.packages.length;}
-function delPkg(id){S.packages=S.packages.filter(p=>p.id!==id);renderPkgList();updateBadges();saveStorage();}
+async function delPkg(id){try{await apiFetch('/api/v1/packages/'+id,{method:'DELETE'});S.packages=S.packages.filter(p=>p.id!==id);renderPkgList();updateBadges();}catch(e){}}
 
 function buildPreview(){const name=document.getElementById('camp-name')?.value||'(chưa đặt)';const acc=document.getElementById('camp-account')?.value||'(chưa chọn)';const budType=document.getElementById('tgt-budget-type')?.value||'CBO';const bud=document.getElementById('tgt-budget')?.value||'—';const bid=document.getElementById('bid-strategy')?.value||'—';const bidAmt=document.getElementById('bid-amount')?.value;const pkgs=[...S.selPkgs].map(id=>S.packages.find(p=>p.id===id)?.name).filter(Boolean);const crCount=S.selected.size;const perAd=parseInt(document.getElementById('cr-per-ad')?.value)||1;document.getElementById('preview-content').innerHTML=`<div style="display:flex;flex-direction:column">${row('Campaign',`<strong>${name}</strong>`)}${row('Account',`<code style="font-family:monospace;font-size:11px;background:var(--bg-3);padding:1px 5px;border-radius:3px">${acc}</code>`)}${row('Budget',`$${bud}/ngày (${budType})`)}${row('Bid',bid+(bidAmt?` — $${bidAmt}`:''))}${row('Packages',pkgs.length?pkgs.map(n=>`<span class="tag tag-neutral">${n}</span>`).join(' '):'<span style="color:var(--danger)">Chưa chọn</span>')}${row('Creative',`${crCount} files · ${perAd} CR/Ad (${S.crFormat})`)}</div>`;const el=document.getElementById('preview-split');if(!el)return;const pkgCount=Math.max(S.selPkgs.size,1);const fullCamps=Math.floor(crCount/perAd);const rem=crCount%perAd;let h='';[...S.selPkgs].forEach((id,i)=>{const p=S.packages.find(pk=>pk.id===id);h+=`<div style="font-weight:600;font-size:11.5px;margin:${i>0?'10px':0} 0 4px;color:var(--fg-2)">${p?.name||'Campaign '+(i+1)}</div>`;if(fullCamps>0)h+=`<div class="split-row"><span class="split-badge">${fullCamps}</span><span style="color:var(--fg-2)">camp × ${perAd} CR</span></div>`;if(rem>0)h+=`<div class="split-row"><span class="split-badge">1</span><span style="color:var(--fg-2)">camp × ${rem} CR</span></div>`;});if(S.selPkgs.size===0){if(fullCamps>0)h+=`<div class="split-row"><span class="split-badge">${fullCamps}</span><span style="color:var(--fg-2)">camp × ${perAd} CR</span></div>`;if(rem>0)h+=`<div class="split-row"><span class="split-badge">1</span><span style="color:var(--fg-2)">camp × ${rem} CR</span></div>`;}h+=`<div style="font-size:11px;color:var(--fg-3);margin-top:6px">Tổng: ${(fullCamps+(rem>0?1:0))*pkgCount} campaign</div>`;el.innerHTML=h;}
 
 function row(label,val){return`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--fg-3);font-size:12px">${label}</span><span style="font-size:12px">${val}</span></div>`;}
 
-async function launchCamp(){const btn=document.getElementById('btn-launch');const res=document.getElementById('launch-result');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Đang tạo...';log('info','Bắt đầu tạo campaign...');await new Promise(r=>setTimeout(r,1600));log('info','Gọi Meta Marketing API...');await new Promise(r=>setTimeout(r,500));log('success','Campaign tạo thành công (DEMO)');S.campaigns.push({name:document.getElementById('camp-name')?.value||'?',time:new Date().toLocaleString()});document.getElementById('s-camps').textContent=S.campaigns.length;updateBadges();btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Launch Campaign';res.innerHTML='<div class="alert alert-success" style="margin-bottom:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Campaign tạo thành công (DEMO)</div>';}
+async function launchCamp(){
+  const btn=document.getElementById('btn-launch');
+  const res=document.getElementById('launch-result');
+  const accId=DD.get('camp-account');
+  if(!accId){res.innerHTML='<div class="alert alert-danger" style="margin-bottom:0">Chưa chọn Ad Account</div>';return;}
+  if(!S.selPkgs.size){res.innerHTML='<div class="alert alert-danger" style="margin-bottom:0">Chưa chọn Package</div>';return;}
+  if(!S.selected.size){res.innerHTML='<div class="alert alert-danger" style="margin-bottom:0">Chưa chọn Creative</div>';return;}
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Đang tạo...';res.innerHTML='';
+  const custom=(document.getElementById('camp-name-custom')?.value||'').trim();
+  const pkgs=[...S.selPkgs].map(id=>S.packages.find(p=>p.id===id)).filter(Boolean);
+  const perAd=parseInt(document.getElementById('cr-per-ad')?.value)||1;
+  const total=S.selected.size;
+  const campCount=Math.floor(total/perAd)+(total%perAd>0?1:0);
+  const digits=Math.max(2,String(campCount).length);
+  const now=new Date();const pad=n=>String(n).padStart(2,'0');
+  const dt=`${String(now.getFullYear()).slice(-2)}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
+  const sanitize=s=>s.replace(/[^a-zA-Z0-9À-ỹ]/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'');
+  const campNames=[];
+  pkgs.forEach(pkg=>{
+    const appTpl=S.templates.app.find(t=>t.id===pkg.appId||t.id===parseInt(pkg.appId));
+    const tgtTpl=S.templates.target.find(t=>t.id===pkg.targetId||t.id===parseInt(pkg.targetId));
+    const base=sanitize(appTpl?.name||pkg.name||'App')+'_'+sanitize(tgtTpl?.name||'Target')+'_Auto'+(custom?'_'+sanitize(custom):'');
+    campNames.push(base+'_'+String(1).padStart(digits,'0')+'_'+dt);
+  });
+  try{
+    // Upload creatives chưa có meta_id cho account này
+    const selectedCrs=S.creatives.filter(cr=>S.selected.has(cr.id));
+    // Fill cache từ DB cho các creative chưa có trong RAM (sau reload)
+    for(const cr of selectedCrs){
+      if(!cr._metaCache?.[accId]){
+        try{
+          const j=await apiFetch(`/api/v1/creatives/${cr.id}/meta-assets`);
+          const hit=(j.data||[]).find(a=>a.accId===accId);
+          if(hit){if(!cr._metaCache)cr._metaCache={};cr._metaCache[accId]=hit.metaId;}
+        }catch(e){}
+      }
+    }
+    const needUpload=selectedCrs.filter(cr=>!cr._metaCache?.[accId]);
+    if(needUpload.length){
+      log('info',`Upload ${needUpload.length} creative lên Meta...`);
+      for(const cr of needUpload){
+        try{
+          const fd=new FormData();fd.append('acc_id',accId);
+          const r=await fetch(`/api/v1/creatives/${cr.id}/upload`,{method:'POST',body:fd});
+          const j=await r.json();
+          if(j.success){
+            if(!cr._metaCache)cr._metaCache={};
+            cr._metaCache[accId]=j.data.metaId;
+            log('info',`✓ ${cr.name} → ${j.data.cached?'(cached)':j.data.metaId}`);
+          }else{log('warn',`Upload thất bại: ${cr.name} — ${j.error||j.detail}`);}
+        }catch(e){log('warn',`Upload lỗi: ${cr.name} — ${e.message}`);}
+      }
+    }
+    log('info','Gọi Meta Marketing API...');
+    const data=await apiFetch('/api/v1/campaign/launch',{method:'POST',body:{
+      acc_id:accId,
+      package_ids:pkgs.map(p=>p.id),
+      creative_ids:[...S.selected],
+      campaign_names:campNames,
+      cr_per_ad:perAd,
+      budget_type:document.getElementById('tgt-budget-type')?.value||'CBO',
+      daily_budget_usd:parseFloat(document.getElementById('tgt-budget')?.value)||0,
+      bid_strategy:DD.get('bid-strategy')||'lowest_cost',
+      bid_amount_usd:parseFloat(document.getElementById('bid-amount')?.value)||null,
+      objective:DD.get('camp-objective')||'app_installs',
+    }});
+    const totalCamps=data.reduce((s,r)=>s+(r.campaignId?1:0),0);
+    const totalAds=data.reduce((s,r)=>s+r.adIds.length,0);
+    const errs=data.flatMap(r=>r.errors);
+    S.campaigns.push(...data.filter(r=>r.campaignId).map(r=>({name:r.campaignId,time:new Date().toLocaleString()})));
+    document.getElementById('s-camps').textContent=S.campaigns.length;
+    log('success',`Tạo thành công ${totalCamps} campaign, ${totalAds} ad`);
+    if(errs.length)errs.forEach(e=>log('warn',e));
+    res.innerHTML=errs.length
+      ?`<div class="alert alert-warn" style="margin-bottom:0">Xong với ${errs.length} lỗi — xem log</div>`
+      :`<div class="alert alert-success" style="margin-bottom:0">Tạo thành công ${totalCamps} campaign · ${totalAds} ad</div>`;
+  }catch(e){
+    log('error','Launch thất bại: '+e.message);
+    res.innerHTML='<div class="alert alert-danger" style="margin-bottom:0">'+e.message+'</div>';
+  }finally{
+    btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Launch Campaign';
+  }
+}
 
 function updateBadges(){document.getElementById('cr-badge').textContent=S.creatives.length;document.getElementById('log-badge').textContent=S.logs.length;document.getElementById('acc-badge').textContent=S.accounts.length;document.getElementById('acc-total').textContent=S.accounts.length;document.getElementById('s-cr').textContent=S.creatives.length;document.getElementById('s-pkg').textContent=S.packages.length;}
 
-// Demo data
-S.accounts=[
-  {id:1,name:'VN Main Account',actId:'act_1120045678',note:'Tài khoản chính VN — game & app'},
-  {id:2,name:'TH Business',actId:'act_2234509876',note:'Tài khoản TH — e-commerce'},
-  {id:3,name:'SG Agency',actId:'act_3312876540',note:'Agency account — multi-market'},
-  {id:4,name:'PH Growth',actId:'act_4498123456',note:'Philippines — fintech'},
-  {id:5,name:'ID Scale',actId:'act_5567234890',note:'Indonesia — shopping'},
-];
-S.creatives=[
-  // GameX VN — UGC Male
-  {id:1,name:'GameX_UGC_Male_01',file:'gamex_ugc_m01.mp4',type:'video',ratio:'9:16',size:'12.4MB',app:'GameX',style:'UGC',target:'Male 18-35 VN'},
-  {id:2,name:'GameX_UGC_Male_02',file:'gamex_ugc_m02.mp4',type:'video',ratio:'9:16',size:'9.8MB',app:'GameX',style:'UGC',target:'Male 18-35 VN'},
-  {id:3,name:'GameX_UGC_Male_03',file:'gamex_ugc_m03.mp4',type:'video',ratio:'9:16',size:'11.2MB',app:'GameX',style:'UGC',target:'Male 18-35 VN'},
-  {id:4,name:'GameX_UGC_Male_04',file:'gamex_ugc_m04.mp4',type:'video',ratio:'9:16',size:'10.7MB',app:'GameX',style:'UGC',target:'Male 18-35 VN'},
-  {id:5,name:'GameX_UGC_Male_05',file:'gamex_ugc_m05.mp4',type:'video',ratio:'9:16',size:'8.9MB',app:'GameX',style:'UGC',target:'Male 18-35 VN'},
-  // GameX VN — Cinematic
-  {id:6,name:'GameX_Cinematic_01',file:'gamex_cine_01.mp4',type:'video',ratio:'16:9',size:'24.1MB',app:'GameX',style:'Cinematic',target:'Male 25-45 VN'},
-  {id:7,name:'GameX_Cinematic_02',file:'gamex_cine_02.mp4',type:'video',ratio:'16:9',size:'21.7MB',app:'GameX',style:'Cinematic',target:'Male 25-45 VN'},
-  {id:8,name:'GameX_Cinematic_03',file:'gamex_cine_03.mp4',type:'video',ratio:'16:9',size:'19.3MB',app:'GameX',style:'Cinematic',target:'Male 25-45 VN'},
-  // GameX VN — Static
-  {id:9,name:'GameX_Static_01',file:'gamex_banner_01.jpg',type:'image',ratio:'1:1',size:'890KB',app:'GameX',style:'Static',target:'All VN'},
-  {id:10,name:'GameX_Static_02',file:'gamex_banner_02.jpg',type:'image',ratio:'1:1',size:'760KB',app:'GameX',style:'Static',target:'All VN'},
-  {id:11,name:'GameX_Static_03',file:'gamex_banner_03.jpg',type:'image',ratio:'4:5',size:'1.1MB',app:'GameX',style:'Static',target:'All VN'},
-  // GameX PH — UGC
-  {id:12,name:'GameX_PH_UGC_01',file:'gamex_ph_ugc_01.mp4',type:'video',ratio:'9:16',size:'10.5MB',app:'GameX',style:'UGC',target:'Male 18-35 PH'},
-  {id:13,name:'GameX_PH_UGC_02',file:'gamex_ph_ugc_02.mp4',type:'video',ratio:'9:16',size:'8.7MB',app:'GameX',style:'UGC',target:'Male 18-35 PH'},
-  {id:14,name:'GameX_PH_UGC_03',file:'gamex_ph_ugc_03.mp4',type:'video',ratio:'9:16',size:'9.4MB',app:'GameX',style:'UGC',target:'Male 18-35 PH'},
-  {id:15,name:'GameX_PH_Static_01',file:'gamex_ph_static_01.jpg',type:'image',ratio:'1:1',size:'670KB',app:'GameX',style:'Static',target:'Male 18-35 PH'},
-  // ShopNow VN — UGC Female
-  {id:16,name:'ShopNow_UGC_Female_01',file:'shop_ugc_f01.mp4',type:'video',ratio:'9:16',size:'8.3MB',app:'ShopNow',style:'UGC',target:'Female 22-40 VN'},
-  {id:17,name:'ShopNow_UGC_Female_02',file:'shop_ugc_f02.mp4',type:'video',ratio:'9:16',size:'7.9MB',app:'ShopNow',style:'UGC',target:'Female 22-40 VN'},
-  {id:18,name:'ShopNow_UGC_Female_03',file:'shop_ugc_f03.mp4',type:'video',ratio:'9:16',size:'10.1MB',app:'ShopNow',style:'UGC',target:'Female 22-40 VN'},
-  {id:19,name:'ShopNow_UGC_Female_04',file:'shop_ugc_f04.mp4',type:'video',ratio:'9:16',size:'9.2MB',app:'ShopNow',style:'UGC',target:'Female 22-40 VN'},
-  // ShopNow — Static Product
-  {id:20,name:'ShopNow_Static_01',file:'shop_prod_01.jpg',type:'image',ratio:'4:5',size:'1.2MB',app:'ShopNow',style:'Static',target:'Female TH'},
-  {id:21,name:'ShopNow_Static_02',file:'shop_prod_02.jpg',type:'image',ratio:'4:5',size:'980KB',app:'ShopNow',style:'Static',target:'Female TH'},
-  {id:22,name:'ShopNow_Static_03',file:'shop_prod_03.jpg',type:'image',ratio:'1:1',size:'850KB',app:'ShopNow',style:'Static',target:'Female TH'},
-  {id:23,name:'ShopNow_Static_04',file:'shop_prod_04.jpg',type:'image',ratio:'1:1',size:'920KB',app:'ShopNow',style:'Static',target:'All VN'},
-  // ShopNow — Cinematic
-  {id:24,name:'ShopNow_Cinematic_01',file:'shop_cine_01.mp4',type:'video',ratio:'16:9',size:'18.5MB',app:'ShopNow',style:'Cinematic',target:'Female 22-40 VN'},
-  {id:25,name:'ShopNow_Cinematic_02',file:'shop_cine_02.mp4',type:'video',ratio:'16:9',size:'16.2MB',app:'ShopNow',style:'Cinematic',target:'Female 22-40 VN'},
-  // FinApp SG — UGC
-  {id:26,name:'FinApp_UGC_Trust_01',file:'fin_ugc_01.mp4',type:'video',ratio:'9:16',size:'6.5MB',app:'FinApp',style:'UGC',target:'Male 25-50 SG'},
-  {id:27,name:'FinApp_UGC_Trust_02',file:'fin_ugc_02.mp4',type:'video',ratio:'9:16',size:'7.2MB',app:'FinApp',style:'UGC',target:'Male 25-50 SG'},
-  {id:28,name:'FinApp_UGC_ROI_01',file:'fin_ugc_roi_01.mp4',type:'video',ratio:'9:16',size:'8.1MB',app:'FinApp',style:'UGC',target:'Male 25-50 SG'},
-  {id:29,name:'FinApp_UGC_ROI_02',file:'fin_ugc_roi_02.mp4',type:'video',ratio:'9:16',size:'7.6MB',app:'FinApp',style:'UGC',target:'Male 25-50 SG'},
-  // FinApp — Cinematic & Static
-  {id:30,name:'FinApp_Cinematic_01',file:'fin_cine_01.mp4',type:'video',ratio:'1:1',size:'14.8MB',app:'FinApp',style:'Cinematic',target:'All SG'},
-  {id:31,name:'FinApp_Cinematic_02',file:'fin_cine_02.mp4',type:'video',ratio:'16:9',size:'17.3MB',app:'FinApp',style:'Cinematic',target:'All SG'},
-  {id:32,name:'FinApp_Static_01',file:'fin_static_01.jpg',type:'image',ratio:'1:1',size:'540KB',app:'FinApp',style:'Static',target:'Male 25-50 SG'},
-  {id:33,name:'FinApp_Static_02',file:'fin_static_02.jpg',type:'image',ratio:'4:5',size:'620KB',app:'FinApp',style:'Static',target:'Male 25-50 SG'},
-  // FitLife TH — UGC
-  {id:34,name:'FitLife_Transform_01',file:'fit_transform_01.mp4',type:'video',ratio:'9:16',size:'13.4MB',app:'FitLife',style:'UGC',target:'Female 18-35 TH'},
-  {id:35,name:'FitLife_Transform_02',file:'fit_transform_02.mp4',type:'video',ratio:'9:16',size:'11.9MB',app:'FitLife',style:'UGC',target:'Female 18-35 TH'},
-  {id:36,name:'FitLife_Transform_03',file:'fit_transform_03.mp4',type:'video',ratio:'9:16',size:'12.7MB',app:'FitLife',style:'UGC',target:'Female 18-35 TH'},
-  {id:37,name:'FitLife_Coach_01',file:'fit_coach_01.mp4',type:'video',ratio:'9:16',size:'9.3MB',app:'FitLife',style:'UGC',target:'All TH'},
-  {id:38,name:'FitLife_Coach_02',file:'fit_coach_02.mp4',type:'video',ratio:'9:16',size:'8.8MB',app:'FitLife',style:'UGC',target:'All TH'},
-  // FitLife — Cinematic & Static
-  {id:39,name:'FitLife_Cinematic_01',file:'fit_cine_01.mp4',type:'video',ratio:'16:9',size:'22.1MB',app:'FitLife',style:'Cinematic',target:'Female 18-35 TH'},
-  {id:40,name:'FitLife_Static_01',file:'fit_static_01.jpg',type:'image',ratio:'1:1',size:'780KB',app:'FitLife',style:'Static',target:'All TH'},
-  {id:41,name:'FitLife_Static_02',file:'fit_static_02.jpg',type:'image',ratio:'4:5',size:'920KB',app:'FitLife',style:'Static',target:'Female 18-35 TH'},
-  // FitLife ID
-  {id:42,name:'FitLife_ID_UGC_01',file:'fit_id_ugc_01.mp4',type:'video',ratio:'9:16',size:'10.2MB',app:'FitLife',style:'UGC',target:'Female 20-40 ID'},
-  {id:43,name:'FitLife_ID_UGC_02',file:'fit_id_ugc_02.mp4',type:'video',ratio:'9:16',size:'9.5MB',app:'FitLife',style:'UGC',target:'Female 20-40 ID'},
-  {id:44,name:'FitLife_ID_Static_01',file:'fit_id_static_01.jpg',type:'image',ratio:'1:1',size:'650KB',app:'FitLife',style:'Static',target:'Female 20-40 ID'},
-  // GameX — Hook Reels (SEA broad)
-  {id:45,name:'GameX_Hook_SEA_01',file:'gamex_hook_sea_01.mp4',type:'video',ratio:'9:16',size:'7.8MB',app:'GameX',style:'Hook',target:'SEA Broad'},
-  {id:46,name:'GameX_Hook_SEA_02',file:'gamex_hook_sea_02.mp4',type:'video',ratio:'9:16',size:'6.9MB',app:'GameX',style:'Hook',target:'SEA Broad'},
-  {id:47,name:'GameX_Hook_SEA_03',file:'gamex_hook_sea_03.mp4',type:'video',ratio:'9:16',size:'8.3MB',app:'GameX',style:'Hook',target:'SEA Broad'},
-  // ShopNow — Hook Reels
-  {id:48,name:'ShopNow_Hook_VN_01',file:'shop_hook_vn_01.mp4',type:'video',ratio:'9:16',size:'5.9MB',app:'ShopNow',style:'Hook',target:'Female 22-40 VN'},
-  {id:49,name:'ShopNow_Hook_VN_02',file:'shop_hook_vn_02.mp4',type:'video',ratio:'9:16',size:'6.4MB',app:'ShopNow',style:'Hook',target:'Female 22-40 VN'},
-  // FinApp — Hook
-  {id:50,name:'FinApp_Hook_SG_01',file:'fin_hook_sg_01.mp4',type:'video',ratio:'9:16',size:'5.5MB',app:'FinApp',style:'Hook',target:'Male 25-50 SG'},
-];
-S.templates.app=[
-  {id:1,name:'GameX VN',pkg:'com.gamex.vn',appId:'111222333444',devId:'987654321098',pageId:'102938475601'},
-  {id:2,name:'GameX PH',pkg:'com.gamex.ph',appId:'222333444555',devId:'876543210987',pageId:'203847561702'},
-  {id:3,name:'ShopNow iOS',pkg:'com.shopnow.ios',appId:'333444555666',devId:'765432109876',pageId:'304756182930'},
-  {id:4,name:'ShopNow Android',pkg:'com.shopnow.android',appId:'444555666777',devId:'654321098765',pageId:'304756182930'},
-  {id:5,name:'FinApp SG',pkg:'com.finapp.sg',appId:'555666777888',devId:'543210987654',pageId:'405867293041'},
-  {id:6,name:'FitLife TH',pkg:'com.fitlife.th',appId:'666777888999',devId:'432109876543',pageId:'506978304152'},
-  {id:7,name:'FitLife ID',pkg:'com.fitlife.id',appId:'777888999000',devId:'321098765432',pageId:'607089415263'},
-];
-S.templates.target=[
-  {id:1,name:'VN Male 18-35 Gaming',country:['VN'],lang:['vi'],gender:'male',ageMin:18,ageMax:35},
-  {id:2,name:'VN Female 22-40 Shopping',country:['VN'],lang:['vi'],gender:'female',ageMin:22,ageMax:40},
-  {id:3,name:'VN All 18-45 Broad',country:['VN'],lang:['vi'],gender:'all',ageMin:18,ageMax:45},
-  {id:4,name:'TH Female 18-35',country:['TH'],lang:['th'],gender:'female',ageMin:18,ageMax:35},
-  {id:5,name:'TH All 20-45',country:['TH'],lang:['th'],gender:'all',ageMin:20,ageMax:45},
-  {id:6,name:'SG Male 25-50 Finance',country:['SG'],lang:['en'],gender:'male',ageMin:25,ageMax:50},
-  {id:7,name:'SEA Broad (VN+TH+ID)',country:['VN','TH','ID'],lang:['vi','th','id'],gender:'all',ageMin:18,ageMax:55},
-  {id:8,name:'PH Male 18-35 Gaming',country:['PH'],lang:['en'],gender:'male',ageMin:18,ageMax:35},
-  {id:9,name:'ID Female 20-40',country:['ID'],lang:['id'],gender:'female',ageMin:20,ageMax:40},
-  {id:10,name:'Global Male 25-45',country:['ALL'],lang:[],gender:'male',ageMin:25,ageMax:45},
-];
-S.templates.ad=[
-  {id:1,name:'Gaming Hook V1',headlines:'Tải ngay - Miễn phí\nChơi ngay hôm nay\nGame #1 Việt Nam',text:'Game hành động đỉnh cao. 10 triệu người chơi. Tải miễn phí ngay!'},
-  {id:2,name:'Gaming Hook V2 (FOMO)',headlines:'Chỉ còn 3 ngày\nHàng triệu người đang chơi\nBạn đang bỏ lỡ gì?',text:'Server mới mở - Nhận ngay gói tân thủ trị giá 500k. Đăng ký hôm nay!'},
-  {id:3,name:'Shopping Sale 50%',headlines:'Sale 50% hôm nay\nMua ngay kẻo hết\nGiao hàng miễn phí',text:'Hàng ngàn sản phẩm chính hãng. Giao hàng toàn quốc. Ưu đãi có hạn!'},
-  {id:4,name:'Shopping Flash Deal',headlines:'Flash Sale 2 tiếng\nGiảm đến 70%\nThương hiệu chính hãng',text:'Hàng hiệu giá sỉ. Chỉ hôm nay. Đặt ngay trước khi hết!'},
-  {id:5,name:'Finance Trust V1',headlines:'Kiếm tiền thụ động\nĐầu tư thông minh\nAn toàn & bảo mật',text:'Lãi suất hấp dẫn, rủi ro thấp. Bắt đầu với 100k. Đã được cấp phép bởi MAS.'},
-  {id:6,name:'Finance ROI V2',headlines:'+15% mỗi năm\nKhông cần kinh nghiệm\nRút tiền bất cứ lúc nào',text:'Hơn 200,000 nhà đầu tư tin dùng. Bảo hiểm tiền gửi 100%. Thử ngay miễn phí.'},
-  {id:7,name:'Fitness Transform',headlines:'Body 6 múi trong 30 ngày\nThử miễn phí 7 ngày\nCoach riêng 24/7',text:'Bài tập cá nhân hóa. Coach online 24/7. 500k người đã thay đổi vóc dáng.'},
-  {id:8,name:'Fitness Challenge',headlines:'30 ngày thay đổi\nChallenge cùng 1 triệu người\nPhần thưởng 10 triệu đồng',text:'Tham gia thử thách sức khỏe lớn nhất năm. Hoàn tiền nếu không thấy kết quả.'},
-];
-S.packages=[
-  {id:1,name:'GameX VN Male 18-35 — UGC Hook',appId:1,targetId:1,adId:1},
-  {id:2,name:'GameX VN Male 18-35 — FOMO',appId:1,targetId:1,adId:2},
-  {id:3,name:'GameX PH Male — UGC Hook',appId:2,targetId:8,adId:1},
-  {id:4,name:'ShopNow VN Female — Sale 50%',appId:3,targetId:2,adId:3},
-  {id:5,name:'ShopNow TH Female — Flash Deal',appId:4,targetId:4,adId:4},
-  {id:6,name:'FinApp SG Male — Trust V1',appId:5,targetId:6,adId:5},
-  {id:7,name:'FinApp SG Male — ROI V2',appId:5,targetId:6,adId:6},
-  {id:8,name:'FitLife TH Female — Transform',appId:6,targetId:4,adId:7},
-  {id:9,name:'FitLife ID Female — Challenge',appId:7,targetId:9,adId:8},
-  {id:10,name:'GameX SEA Broad — Hook V1',appId:1,targetId:7,adId:1},
-];
-const _hadStorage=loadStorage();
-if(_hadStorage){log('info','Đã khôi phục dữ liệu từ lần trước');}
-updateBadges();
-renderAccounts();
-syncAccountSelect();
-renderAllTplLists();
-renderPkgList();
 DD.initStatic();
-// syncToolbarFilters lại sau khi creatives đã load (demo data chèn bên dưới)
-setTimeout(()=>{syncToolbarFilters();renderCRGrid();},0);
 DD._refreshGeoBtnLabel('country');
 DD._refreshGeoBtnLabel('lang');
-syncTplSelects();
-log('info','FB Auto Camp v0.2 ready');
-log('warn','No Access Token — DEMO MODE');
-if(!_hadStorage)saveStorage();
 selectFmt('single',document.getElementById('fmt-single'));
+log('info','FB Auto Camp v0.2 ready');
+(async()=>{
+  await loadFromBE();
+  updateBadges();
+  renderAccounts();
+  syncAccountSelect();
+  renderAllTplLists();
+  renderPkgList();
+  syncTplSelects();
+  syncToolbarFilters();
+  renderCRGrid();
+})();
 </script>
 <div id="dd-portal"></div>
+
+<!-- Media Preview Modal -->
+<!-- Confirm Dialog -->
+<div id="modal-confirm" style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;display:none;align-items:center;justify-content:center" onclick="if(event.target===this)_confirmReject()">
+  <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:16px;padding:28px 28px 24px;width:340px;max-width:92vw;box-shadow:0 24px 48px rgba(0,0,0,.4);display:flex;flex-direction:column;align-items:center;gap:0" onclick="event.stopPropagation()">
+    <div id="confirm-icon-wrap" style="width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:16px">
+      <svg id="confirm-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="26" height="26"></svg>
+    </div>
+    <div id="confirm-title" style="font-size:15px;font-weight:600;color:var(--fg);text-align:center;margin-bottom:8px"></div>
+    <div id="confirm-desc" style="font-size:12.5px;color:var(--fg-3);text-align:center;line-height:1.6;margin-bottom:24px"></div>
+    <div style="display:flex;gap:10px;width:100%">
+      <button onclick="_confirmReject()" style="flex:1;padding:9px 0;border-radius:8px;border:1px solid var(--border);background:var(--bg-3);color:var(--fg-2);font-size:13px;cursor:pointer;font-weight:500">Huỷ</button>
+      <button id="confirm-ok-btn" onclick="_confirmResolve()" style="flex:1;padding:9px 0;border-radius:8px;border:none;color:#fff;font-size:13px;cursor:pointer;font-weight:600"></button>
+    </div>
+  </div>
+</div>
+
+<!-- Banner/Toast container -->
+<div id="banner-container" style="position:fixed;top:20px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:10px;pointer-events:none"></div>
+
+<div id="modal-media-preview" style="position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px" onclick="closeMediaPreview()">
+  <div style="position:relative;max-width:90vw;max-height:85vh;display:flex;align-items:center;justify-content:center" onclick="event.stopPropagation()">
+    <video id="preview-video" controls style="max-width:90vw;max-height:85vh;border-radius:8px;display:none;background:#000"></video>
+    <img id="preview-image" style="max-width:90vw;max-height:85vh;border-radius:8px;display:none;object-fit:contain" alt="preview"/>
+    <button onclick="closeMediaPreview()" style="position:absolute;top:-32px;right:0;background:none;border:none;color:#fff;font-size:22px;cursor:pointer;line-height:1">✕</button>
+  </div>
+  <div id="preview-name" style="color:rgba(255,255,255,.6);font-size:12px"></div>
+</div>
 </body>
 </html>
